@@ -1,4 +1,4 @@
-library motion;
+library nudge;
 
 import 'dart:async';
 import 'dart:html';
