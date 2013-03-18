@@ -1,7 +1,8 @@
 name: undone
-version: 0.0.1
+version: 0.0.2
 description: A little undo-redo library.  Not a song about sweaters.
 author: Ross Smith <ross.dart.lang@gmail.com>
+homepage: https://github.com/rmsmith/undone
 dependencies:
   browser: '>=0.4.1 <1.0.0'
   unittest: '>=0.4.1 <1.0.0'
