@@ -131,7 +131,7 @@ class TransactionError {
   TransactionError(this.cause);
 }
 
-/// A sequence of actions that are done and undone together as one action.
+/// A sequence of actions that are done and undone together as if one action.
 ///
 /// A transaction is itself an action that may be [call]ed on a schedule.
 /// When a transaction is scheduled to be done or undone it will do or undo
