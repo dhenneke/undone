@@ -43,7 +43,7 @@ Future<bool> undo() => schedule.undo();
 /// Completes _true_ if an action was redone or else completes _false_.
 Future<bool> redo() => schedule.redo();
 
-/// Represents an action that can be done and undone.
+/// An action that can be done and undone.
 ///
 /// Actions are comprised of a pair of functions: one to [Do] the action and
 /// another to [Undo] the action.  The action object is itself a [Function] that 
@@ -120,7 +120,7 @@ class Action<A, R> {
   Future _unexecute() => _undo(_arg, _result);  
 }
 
-/// Represents an error encountered during a transaction.
+/// An error encountered during a transaction.
 class TransactionError {
   /// The caught object that caused the transaction to err.
   final cause;  
@@ -131,7 +131,7 @@ class TransactionError {
   TransactionError(this.cause);
 }
 
-/// Represents a sequence of actions that are done and undone atomically.
+/// A sequence of actions that are done and undone together as one action.
 ///
 /// A transaction is itself an action that may be [call]ed on a schedule.
 /// When a transaction is scheduled to be done or undone it will do or undo
