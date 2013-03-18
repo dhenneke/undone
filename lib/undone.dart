@@ -63,15 +63,15 @@ class Action<A, R> {
   final UndoAsync _undo;
   Completer _deferred;
   
-  /// Construct a new action with the given [arg]uments, [Do] function, and 
+  /// Constructs a new action with the given [arg]uments, [Do] function, and 
   /// [Undo] function.  The given synchronous functions are automatically 
   /// wrapped in futures prior to being called on a schedule.
   Action(A arg, Do d, Undo u) : this._(arg,
     d == null ? d : (a) => new Future.of(() => d(a)), 
     u == null ? u : (a, r) => new Future.of(() => u(a, r)));
   
-  /// Construct a new action with the given [arg]uments, [DoAsync] function, and
-  /// [UndoAsync] function.
+  /// Constructs a new action with the given [arg]uments, [DoAsync] function, 
+  /// and [UndoAsync] function.
   Action.async(A arg, DoAsync d, UndoAsync u) : this._(arg, d, u);
   
   Action._(this._arg, this._do, this._undo) {
@@ -79,7 +79,7 @@ class Action<A, R> {
     if (_undo == null) throw new ArgumentError('Undo function must be !null.');
   }
   
-  /// Schedule this action to be called on the top-level [schedule].  If this
+  /// Schedules this action to be called on the top-level [schedule].  If this
   /// action is called within the scope of a top-level [transact] method it will
   /// instead be added to that transaction.  Completes with the result of the
   /// action in both cases.
@@ -120,13 +120,25 @@ class Action<A, R> {
   Future _unexecute() => _undo(_arg, _result);  
 }
 
+/// Represents an error encountered during a transaction.
 class TransactionError {
-  final cause;
+  /// The caught object that caused the transaction to err.
+  final cause;  
   var _rollbackError;
+  /// An error encountered during transaction rollback; may be null if none.
   get rollbackError => _rollbackError;
+  /// Constructs a new transaction error with the given cause.
   TransactionError(this.cause);
 }
 
+/// Represents a sequence of actions that are done and undone atomically.
+///
+/// A transaction is itself an action that may be [call]ed on a schedule.
+/// When a transaction is scheduled to be done or undone it will do or undo
+/// all of its actions in sequence.  Any errors that occur when doing one of
+/// its actions will cause the transaction to attempt to undo all of its actions
+/// that were done prior to the error; this is known as rollback.  These errors
+/// will be wrapped in a [TransactionError] and completed to the caller.
 class Transaction extends Action {
   
   static Future _do_(List<Action> actions) {
@@ -157,6 +169,7 @@ class Transaction extends Action {
   static Future _undo_(List<Action> actions, _) => 
       Future.forEach(actions.reversed, (action) => action._unexecute());
   
+  /// Constructs a new empty transaction.
   Transaction() : super._(new List<Action>(), _do_, _undo_);
   
   /// Adds the given [action] to this transaction.
@@ -180,13 +193,13 @@ class Schedule {
   static const int STATE_ERROR = 32;
   
   final _actions = new List<Action>();
-  // Actions that are called while the schedule is busy are pending to be done.
+  // Actions that are called while this schedule is busy are pending to be done.
   final _pending = new List<Action>();
   int _nextUndo = -1;
   int _currState = STATE_IDLE;
   var _err;
   
-  /// Gets whether or not this schedule is busy performing another action.
+  /// Whether or not this schedule is busy performing another action.
   /// This is always _true_ when called from any continuations that are
   /// chained to Futures returned by methods on this schedule.
   /// This is also _true_ if this schedule has an [error].
@@ -203,11 +216,11 @@ class Schedule {
   /// Whether or not the [undo] method may be called at the present time.
   bool get canUndo => !busy && _canUndo;
   
-  /// Whether or not the schedule has an [error].
+  /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
     
-  /// The current error, if [hasError] is _true_.  The schedule will remain
-  /// [busy] for as long as the schedule [hasError].  You may [clear] the
+  /// The current error, if [hasError] is _true_.  This schedule will remain
+  /// [busy] for as long as this schedule [hasError].  You may [clear] this
   /// schedule after dealing with the error condition in order to use it again.
   get error => _err;
   set _error(e) {
