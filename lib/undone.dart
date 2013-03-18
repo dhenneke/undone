@@ -43,17 +43,35 @@ Future<bool> undo() => schedule.undo();
 /// Completes _true_ if an action was redone or else completes _false_.
 Future<bool> redo() => schedule.redo();
 
-class Action<A, R> { 
+/// Represents an action that can be done and undone.
+///
+/// Actions are comprised of a pair of functions: one to [Do] the action and
+/// another to [Undo] the action.  The action object is itself a [Function] that 
+/// can be [call]ed to schedule it to be done on the top-level [schedule] or
+/// to add it to a [Transaction] if called within the scope of [transact].
+/// Actions may also be constructed with a pair of [DoAsync] and [UndoAsync]
+/// functions using the [new Action.async] constructor.  All actions are done
+/// and undone asynchronously, regardless of the functions themselves.  Actions
+/// may be optionally typed by their argument and result objects, [A] and [R].
+/// The action type may be extended to define custom actions although this may
+/// often not be necessary; constructing an action with the functions to do and
+/// undo the desired operation is often the simplest and best approach.
+class Action<A, R> {
   final A _arg;
   R _result; // The result of the most recent call().
   final DoAsync _do;
   final UndoAsync _undo;
   Completer _deferred;
   
+  /// Construct a new action with the given [arg]uments, [Do] function, and 
+  /// [Undo] function.  The given synchronous functions are automatically 
+  /// wrapped in futures prior to being called on a schedule.
   Action(A arg, Do d, Undo u) : this._(arg,
     d == null ? d : (a) => new Future.of(() => d(a)), 
     u == null ? u : (a, r) => new Future.of(() => u(a, r)));
   
+  /// Construct a new action with the given [arg]uments, [DoAsync] function, and
+  /// [UndoAsync] function.
   Action.async(A arg, DoAsync d, UndoAsync u) : this._(arg, d, u);
   
   Action._(this._arg, this._do, this._undo) {
@@ -69,7 +87,7 @@ class Action<A, R> {
     if (_transaction != null) {
       _transaction.add(this);
       return this._defer();
-    }    
+    }
     return schedule(this);
   }
   
