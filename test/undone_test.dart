@@ -103,7 +103,7 @@ UndoAsync squareRootAsync = (a, _) =>
 // Utility function to wait until the given test passes.
 Future wait(bool test()) {
   var c = new Completer();
-  new Timer.repeating(const Duration(milliseconds: 2), (t) {
+  new Timer.periodic(const Duration(milliseconds: 2), (t) {
     if(test()) {
       t.cancel();
       c.complete();

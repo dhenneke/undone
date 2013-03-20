@@ -2,6 +2,9 @@
 
 ## 0.0.3-dev
 
+- Updated to SDK 0.4.2_r20259.
+- Moved `unittest` to `dev_dependencies`.
+
 ## 0.0.2
 
 - Added `homepage` to pubspec.
