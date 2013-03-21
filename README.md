@@ -10,10 +10,10 @@ A little undo-redo library.
 
 ```dart
 // Actions bind a 'Do' functon and an 'Undo' function together with arguments.
-Do _do = (a) => ++a['value'];
-Undo _undo = (a, _) => --a['value'];  
+Do _increment = (a) => ++a['value'];
+Undo _decrement = (a, _) => --a['value'];  
 var map = { 'value' : 42 }; 
-var increment = new Action(map, _do, _undo);  
+var increment = new Action(map, _increment, _decrement);
 ```
 
 ### Define a Custom Action Type
