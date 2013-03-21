@@ -6,7 +6,7 @@ Undo and redo your actions.
 
 ## Usage
 
-### Build an Action from Functions
+### Create an Action from Functions
 
 ```dart
 // An argument for our undoable actions.
@@ -18,7 +18,7 @@ Undo _decrement = (a, _) => --a['value'];
 var increment = new Action(map, _increment, _decrement);
 ```
 
-### Define a Custom Action Type
+### Create a Custom Action Type
 
 ```dart
 // Use custom actions when you want your own type.
@@ -41,6 +41,7 @@ increment().then((result) => print('$result')); // prints '43'
 ### Schedule a Transaction
 
 ```dart  
+// Call actions in a transaction - they'll be done and undone together!
 transact(() {
     increment();
     square();

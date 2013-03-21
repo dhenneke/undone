@@ -2,6 +2,8 @@
 
 ## 0.0.5-dev
 
+- README and dartdoc improvements.
+
 ## 0.0.4
 
 - README improvements.

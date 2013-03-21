@@ -14,7 +14,7 @@ class Square extends Action {
 
 main() {  
   //----------------------------------------------------------------------------
-  // Build an Action from Functions
+  // Create an Action from Functions.
   //----------------------------------------------------------------------------
   
   // An argument for our undoable actions.
@@ -26,7 +26,7 @@ main() {
   var increment = new Action(map, _increment, _decrement);
   
   //----------------------------------------------------------------------------
-  // Define a Custom Action Type.
+  // Create a Custom Action Type.
   //----------------------------------------------------------------------------
   
   var square = new Square(map);
@@ -42,6 +42,7 @@ main() {
   // Schedule a Transaction.
   //----------------------------------------------------------------------------
     
+  // Call actions in a transaction - they'll be done and undone together!
   transact(() {
       increment();
       square();
