@@ -9,10 +9,12 @@ A little undo-redo library.
 ### Build an Action from Functions
 
 ```dart
+// An argument for our undoable actions.
+var map = { 'value' : 42 };
+  
 // Actions bind a 'Do' functon and an 'Undo' function together with arguments.
 Do _increment = (a) => ++a['value'];
-Undo _decrement = (a, _) => --a['value'];  
-var map = { 'value' : 42 }; 
+Undo _decrement = (a, _) => --a['value'];     
 var increment = new Action(map, _increment, _decrement);
 ```
 
