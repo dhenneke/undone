@@ -339,36 +339,39 @@ class Schedule {
       completer.complete(false);
     } else {      
       _state = STATE_TO;
-      final handleError = (e) { _error = e; completer.completeError(e); };
-      final int actionIndex = _actions.indexOf(action);      
-      if (actionIndex == _nextUndo) {
-        // Reached the desired action, flush and complete with success.
-        _flush().then((_) => completer.complete(true));
-      } else if (actionIndex < _nextUndo) {
-        // Undo towards the desired action.
-        undo()
-          .then((success) {
-            if (!success) completer.complete(false);
-            else to(action)
-                .then((success) => completer.complete(success))
-                .catchError(handleError);
-          })
-          .catchError(handleError);
-      } else {
-        // Redo towards the desired action.
-        redo()
-          .then((success) {
-            if (!success) completer.complete(false); 
-            else to(action)
-                .then((success) => completer.complete(success))
-                .catchError(handleError);
-          })
-          .catchError(handleError);
-      }
+      _to(action, completer);
     }
     return completer.future;
   }
-    
+  
+  void _to(action, completer) {
+    final handleError = (e) { _error = e; completer.completeError(e); };
+    final int actionIndex = _actions.indexOf(action);
+    if (actionIndex == _nextUndo) {
+      // Complete before we flush pending and transition to idle.
+      // This ensures that continuations of 'to' see the state as the 
+      // result of 'to' and _not_ the state of further pending actions.
+      completer.complete(true);
+      _flush();
+    } else if (actionIndex < _nextUndo) {
+      // Undo towards the desired action.
+      undo()
+        .then((success) {
+          if (!success) completer.complete(false);
+          else _to(action, completer);
+        })
+        .catchError(handleError);
+    } else {
+      // Redo towards the desired action.
+      redo()
+        .then((success) {
+          if (!success) completer.complete(false); 
+          else _to(action, completer);
+        })
+        .catchError(handleError);
+    }
+  }
+  
   /// Redo the next action to be redone in this schedule, if any.
   /// Completes _true_ if an action was redone or else completes _false_.
   Future<bool> redo() { 
@@ -382,13 +385,12 @@ class Schedule {
         .then((result) {
           _nextUndo++;
           action._result = result;
-          if (_state == STATE_REDO) {
-            // Redo was successful regardless of what happens in flush so we 
-            // complete(true); any errors thrown in flush are handled there.
-            _flush().then((_) => completer.complete(true));
-          }
+          // Complete before we flush pending and transition to idle.
+          // This ensures that continuations of redo see the state as the 
+          // result of redo and _not_ the state of further pending actions. 
+          completer.complete(true);
           // Don't flush if we are in STATE_TO, it will flush when it is done.
-          else completer.complete(true);
+          if (_state == STATE_REDO) _flush();
         })
         .catchError((e) {
           _error = e;
@@ -410,13 +412,12 @@ class Schedule {
       action._unexecute()                
         .then((_) {
           _nextUndo--;
-          if (_state == STATE_UNDO) {
-            // Undo was successful regardless of what happens in flush so we 
-            // complete(true); any errors thrown in flush are handled there.
-            _flush().then((_) => completer.complete(true));
-          }
+          // Complete before we flush pending and transition to idle.
+          // This ensures that continuations of undo see the state as the 
+          // result of undo and _not_ the state of further pending actions. 
+          completer.complete(true);
           // Don't flush if we are in STATE_TO, it will flush when it is done.
-          else completer.complete(true);
+          if (_state == STATE_UNDO) _flush();
         })
         .catchError((e) {
           _error = e;

@@ -507,7 +507,10 @@ void testActionDuringUndo() {
       // The undo() needs to take more than 1 frame of the event loop
       // in order for this test case to be valid; we want to test that the
       // action is performed after the completion of the undo.
-      schedule.undo();      
+      schedule.undo().then((success) {
+        expect(success, isTrue);
+        expect(map['val'], equals(43));
+      });
       return schedule(action3);
     })
     .then(expectAsync1((result) {
@@ -579,12 +582,16 @@ void testActionDuringRedo() {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })
+    .then((_) => wait(() => !schedule.busy))
     .then((_) {
       expect(schedule.canRedo, isTrue);   
       // The redo() needs to take more than 1 frame of the event loop
       // in order for this test case to be valid; we want to test that the
       // action is performed after the completion of the redo.
-      schedule.redo();
+      schedule.redo().then((success) {
+        expect(success, isTrue);
+        expect(map['val'], equals(1849));
+      });
       return schedule(action3);
     })
     .then(expectAsync1((result) {
@@ -608,6 +615,7 @@ void testActionThrowsDuringRedo() {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })
+    .then((_) => wait(() => !schedule.busy))
     .then((_) {
       expect(schedule.canRedo, isTrue);   
       // The redo() needs to take more than 1 frame of the event loop
@@ -642,7 +650,10 @@ void testActionDuringTo() {
   action3()
     .then((_) => wait(() => !schedule.busy))
     .then((_) {
-      schedule.to(action1);
+      schedule.to(action1).then((success) {
+        expect(success, isTrue);
+        expect(map['val'], equals(43));
+      });
       return action4();
     })
     .then(expectAsync1((result) {
