@@ -30,7 +30,7 @@ main() {
   action().then((result) => print('$result')); // prints '43'
   
   //----------------------------------------------------------------------------
-  // Group Actions in a Transaction.
+  // Schedule a Transaction.
   //----------------------------------------------------------------------------
     
   // Define another action to determine the square of the map's 'value'
