@@ -32,14 +32,14 @@ main() {
   var square = new Square(map);
   
   //----------------------------------------------------------------------------
-  // Schedule an Action.
+  // Do an Action.
   //----------------------------------------------------------------------------
   
   // Call your action, and listen for the result (if you want) - its easy!
   increment().then((result) => print('$result')); // prints '43'
   
   //----------------------------------------------------------------------------
-  // Schedule a Transaction.
+  // Do a Transaction.
   //----------------------------------------------------------------------------
     
   // Call actions in a transaction - they'll be done and undone together!
