@@ -22,13 +22,13 @@ var increment = new Action(map, _increment, _decrement);
 
 ```dart
 // Use custom actions when you want your own type.
-class Power2 extends Action {  
+class Square extends Action {  
   static _square(a) => a['value'] = a['value'] * a['value'];  
   static _squareRoot(a, r) => a['value'] = math.sqrt(a['value']);  
-  Power2(map): super(map, _square, _squareRoot);  
+  Square(map): super(map, _square, _squareRoot);  
 }
 
-var square = new Power2(map);
+var square = new Square(map);
 ```
 
 ### Schedule an Action

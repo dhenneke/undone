@@ -6,10 +6,10 @@ import 'dart:math' as math;
 import 'package:undone/undone.dart';
 
 // Use custom actions when you want your own type.
-class Power2 extends Action {  
+class Square extends Action {  
   static _square(a) => a['value'] = a['value'] * a['value'];  
   static _squareRoot(a, r) => a['value'] = math.sqrt(a['value']);  
-  Power2(map): super(map, _square, _squareRoot);  
+  Square(map): super(map, _square, _squareRoot);  
 }
 
 main() {  
@@ -29,7 +29,7 @@ main() {
   // Define a Custom Action Type.
   //----------------------------------------------------------------------------
   
-  var square = new Power2(map);
+  var square = new Square(map);
   
   //----------------------------------------------------------------------------
   // Schedule an Action.
