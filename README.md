@@ -1,6 +1,6 @@
 # Undone
 
-A little undo-redo library.
+Undo and redo your actions.
 
 [![Build Status](https://drone.io/github.com/rmsmith/undone/status.png)][badge]
 
