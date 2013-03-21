@@ -56,8 +56,15 @@ document.onKeyUp.listen((e) {
 });
 ```
 
+## Run the Examples
+
+The code above can be found [here][readme].  For more fun, try to [nudge][] a 
+box around a canvas - its fun!
+
 _Undone uses the MIT license as described in the LICENSE file, and follows
 [semantic versioning][]._
 
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
+[nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
+[readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
 [semantic versioning]: http://semver.org/
