@@ -59,7 +59,7 @@ document.onKeyUp.listen((e) {
 ## Run the Examples
 
 The code above can be found [here][readme].  For more fun, try to [nudge][] a 
-box around a canvas - its fun!
+box around a canvas - its undoable!
 
 _Undone uses the MIT license as described in the LICENSE file, and follows
 [semantic versioning][]._
