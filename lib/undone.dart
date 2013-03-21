@@ -1,5 +1,5 @@
 
-/// A little undo-redo library.
+/// A library for undo and redo.
 library undone;
 
 import 'dart:async';
