@@ -25,6 +25,8 @@ class Power2 extends Action {
   static _squareRoot(a, r) => a['value'] = math.sqrt(a['value']);  
   Power2(map): super(map, _square, _squareRoot);  
 }
+
+var square = new Power2(map);
 ```
 
 ### Schedule an Action
@@ -36,9 +38,7 @@ increment().then((result) => print('$result')); // prints '43'
 
 ### Schedule a Transaction
 
-```dart
-var square = new Power2(map);
-  
+```dart  
 transact(() {
     increment();
     square();
