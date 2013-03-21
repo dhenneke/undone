@@ -4,9 +4,16 @@ library undone;
 
 import 'dart:async';
 
+/// A function to do an operation on an [arg] and return a result.
 typedef R Do<A, R>(A arg);
+
+/// A function to do an async operation on an [arg] and complete a result.
 typedef Future<R> DoAsync<A, R>(A arg);
+
+/// A function to undo an operation on an [arg] given the prior [result].
 typedef void Undo<A, R>(A arg, R result);
+
+/// A function to undo an async operation on an [arg] given the prior [result].
 typedef Future UndoAsync<A, R>(A arg, R result);
 
 Schedule _schedule;
