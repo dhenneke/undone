@@ -1,6 +1,8 @@
 # Undone Changes
 
-## 0.0.4-dev
+## 0.0.4
+
+- README improvements.
 
 ## 0.0.3
 
