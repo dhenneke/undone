@@ -32,16 +32,29 @@ action().then((result) => print('$result')); // prints '43'
 ### Undo and Redo
 
 ```dart
-// Undo your action.
-undo().then((_) => print('${map["value"]}')); // prints '42'
-
-// Redo your action.
-redo().then((_) => print('${map["value"]}')); // prints '43'
+// Bind undo / redo to keyboard events.
+document.onKeyUp.listen((e) {    
+  if (e.ctrlKey) {
+    if (e.keyCode == KeyCode.Z)           undo();
+    else if (e.keyCode == KeyCode.Y)      redo();
+  }
+});
 ```
 
 ### Group Actions in a Transaction
 
-TODO:
+```dart
+// Define another action to determine the square of the map's 'value'
+Do square = (a) => a['value'] = a['value'] * a['value'];
+Undo squareRoot = (a, _) => a['value'] = math.sqrt(a['value']);
+var action2 = new Action(map, square, squareRoot);
+  
+// Schedule a transaction that contains both actions (increment then square).
+transact(() {
+    action();
+    action2();
+}).then((_) => print('${map["value"]}')); // prints '1936'
+```
 
 _Undone uses the MIT license as described in the LICENSE file, and follows
 [semantic versioning][]._
