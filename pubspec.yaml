@@ -1,6 +1,6 @@
 name: undone
 version: 0.0.5-dev
-description: A little undo-redo library.
+description: Undo and redo your actions.
 author: Ross Smith <ross.dart.lang@gmail.com>
 homepage: https://github.com/rmsmith/undone
 dependencies:
