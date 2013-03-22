@@ -192,7 +192,7 @@ class Transaction extends Action {
 /// as possible.  Methods to change the history such as [undo] and [redo] can 
 /// _not_ be invoked when the schedule is [busy].  This ensures that all queued 
 /// actions are called and the schedule reaches an idle state before the history 
-/// may be modified.  The schedule is a state machine, and its [states] are 
+/// may be modified.  Each schedule is a state machine, and its [states] are 
 /// observable as a stream; this provides a convenient means to connect a user 
 /// interface to the history control methods.
 class Schedule {
