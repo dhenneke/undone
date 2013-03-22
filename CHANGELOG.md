@@ -1,6 +1,8 @@
 # Undone Changes
 
-## 0.1.1-dev
+## 0.1.1
+
+- Added `documentation` link to pubspec.
 
 ## 0.1.0
 

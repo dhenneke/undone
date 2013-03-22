@@ -1,8 +1,9 @@
 name: undone
-version: 0.1.1-dev
+version: 0.1.1
 description: Undo and redo your actions.
 author: Ross Smith <ross.dart.lang@gmail.com>
 homepage: https://github.com/rmsmith/undone
+documentation: http://rmsmith.github.com/undone
 dependencies:
   browser: '>=0.4.2'  
 dev_dependencies:
