@@ -1,0 +1,168 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>undone Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="undone">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="undone.html">undone</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>undone</strong> library</h2>
+<div class="doc"><p>A library for undo and redo.</p></div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="schedule">
+<button class="show-code">Code</button>
+final <a href="undone/Schedule.html">Schedule</a>         <strong>schedule</strong> <a class="anchor-link"
+            href="#schedule"
+            title="Permalink to schedule">#</a>
+        </h4>
+        <div class="doc">
+<p>The isolate's top-level <a class="crossref" href="undone/Schedule.html">Schedule</a>.</p>
+<pre class="source">
+Schedule get schedule {
+ if (_schedule == null) _schedule = new Schedule();
+ return _schedule;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="redo">
+<button class="show-code">Code</button>
+Future&lt;bool&gt; <strong>redo</strong>() <a class="anchor-link" href="#redo"
+              title="Permalink to redo">#</a></h4>
+<div class="doc">
+<p>Redo the next action to be redone in the top-level <a class="crossref" href="undone.html#schedule">schedule</a>, if any.
+Completes <em>true</em> if an action was redone or else completes <em>false</em>.</p>
+<pre class="source">
+Future&lt;bool&gt; redo() =&gt; schedule.redo();
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="undo">
+<button class="show-code">Code</button>
+Future&lt;bool&gt; <strong>undo</strong>() <a class="anchor-link" href="#undo"
+              title="Permalink to undo">#</a></h4>
+<div class="doc">
+<p>Undo the next action to be undone in the top-level <a class="crossref" href="undone.html#schedule">schedule</a>, if any.
+Completes <em>true</em> if an action was undone or else completes <em>false</em>.</p>
+<pre class="source">
+Future&lt;bool&gt; undo() =&gt; schedule.undo();
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="transact">
+<button class="show-code">Code</button>
+Future <strong>transact</strong>(void build()) <a class="anchor-link" href="#transact"
+              title="Permalink to transact">#</a></h4>
+<div class="doc">
+<p>Build and compute a <a class="crossref" href="undone/Transaction.html">Transaction</a> using the top-level <a class="crossref" href="undone.html#schedule">schedule</a>.
+Returns a Future for the transaction's completion.</p>
+<pre class="source">
+Future transact(void build()) {
+ assert(_transaction == null);  
+ var txn = new Transaction();
+ _transaction = txn;
+ try {
+   build();
+ } catch(e) {
+   // Clear the deferred future for each action that was added in the build.
+   _transaction._arg.forEach((action) =&gt; action._deferred = null);
+   return new Future.immediateError(e);
+ } finally {
+   _transaction = null;
+ }
+ return txn();
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Classes</h3>
+          <div class="type">
+          <h4>
+            <a href="undone/Action.html"><strong>Action&lt;A, R&gt;</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="undone/Schedule.html"><strong>Schedule</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="undone/Transaction.html"><strong>Transaction</strong></a>
+          </h4>
+          </div>
+          
+</div>
+<div>
+<h3>Typedefs</h3>
+          <div class="type">
+          <h4>
+            <a href="undone/Do.html"><strong>Do&lt;A, R&gt;</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="undone/DoAsync.html"><strong>DoAsync&lt;A, R&gt;</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="undone/Undo.html"><strong>Undo&lt;A, R&gt;</strong></a>
+          </h4>
+          </div>
+          
+          <div class="type">
+          <h4>
+            <a href="undone/UndoAsync.html"><strong>UndoAsync&lt;A, R&gt;</strong></a>
+          </h4>
+          </div>
+          
+</div>
+<div>
+<h3>Exceptions</h3>
+          <div class="type">
+          <h4>
+            <a href="undone/TransactionError.html"><strong>TransactionError</strong></a>
+          </h4>
+          </div>
+          
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-03-22 21:21:07.555</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        
