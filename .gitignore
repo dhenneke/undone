@@ -1,3 +1,5 @@
 pubspec.lock
 packages/
+example/
+test/
 docs/
