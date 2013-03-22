@@ -1,0 +1,642 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Schedule class / undone Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="undone" data-type="Schedule">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../undone.html">undone</a> &rsaquo; <a href="../undone/Schedule.html">Schedule</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+<h2><div class="icon-library"></div><a href="../undone.html">undone</a></h2><ul class="icon">
+<li><a href="../undone/Action.html"><div class="icon-class"></div>Action&lt;A, R&gt;</a></li>
+<li><a href="../undone/Do.html"><div class="icon-interface"></div>Do&lt;A, R&gt;</a></li>
+<li><a href="../undone/DoAsync.html"><div class="icon-interface"></div>DoAsync&lt;A, R&gt;</a></li>
+<li><div class="icon-class"></div><strong>Schedule</strong></li>
+<li><a href="../undone/Transaction.html"><div class="icon-class"></div>Transaction</a></li>
+<li><a href="../undone/Undo.html"><div class="icon-interface"></div>Undo&lt;A, R&gt;</a></li>
+<li><a href="../undone/UndoAsync.html"><div class="icon-interface"></div>UndoAsync&lt;A, R&gt;</a></li>
+<li><a href="../undone/TransactionError.html"><div class="icon-exception"></div>TransactionError</a></li>
+</ul>
+</div>
+<div class="content">
+        <h2><strong>Schedule</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>An asynchronous schedule of actions.</p>
+<p>A schedule is a <code>Function</code> that can be <a class="crossref" href="../undone/Schedule.html#call">call</a>ed with <a class="crossref" href="../undone/Action.html">Action</a>s.  The order 
+of such calls is preserved in a history to allow for <a class="crossref" href="../undone/Schedule.html#undo">undo</a> and <a class="crossref" href="../undone/Schedule.html#redo">redo</a>.  An 
+action may be scheduled at any time; if the schedule is not <a class="crossref" href="../undone/Schedule.html#busy">busy</a> then it 
+will be called immediately, otherwise it will be queued to be called as soon 
+as possible.  Methods to change the history such as <a class="crossref" href="../undone/Schedule.html#undo">undo</a> and <a class="crossref" href="../undone/Schedule.html#redo">redo</a> can 
+<em>not</em> be invoked when the schedule is <a class="crossref" href="../undone/Schedule.html#busy">busy</a>.  This ensures that all queued 
+actions are called and the schedule reaches an idle state before the history 
+may be modified.  Each schedule is a state machine, and its <a class="crossref" href="../undone/Schedule.html#states">states</a> are 
+observable as a stream; this provides a convenient means to connect a user 
+interface to the history control methods.</p>
+<pre class="source">
+class Schedule {
+ /// A schedule is idle (not busy).
+ static const int STATE_IDLE = 0;
+ /// A schedule is busy executing a new action.
+ static const int STATE_CALL = 1;
+ /// A schedule is busy flushing pending actions.
+ static const int STATE_FLUSH = 2;
+ /// A schedule is busy performing a redo operation.
+ static const int STATE_REDO = 4;
+ /// A schedule is busy performing an undo operation.
+ static const int STATE_UNDO = 8;
+ /// A schedule is busy performing a to operation.
+ static const int STATE_TO = 16;
+ /// A schedule has an error.
+ static const int STATE_ERROR = 32;
+ 
+ final _actions = new List&lt;Action&gt;();
+ // Actions that are called while this schedule is busy are pending to be done.
+ final _pending = new List&lt;Action&gt;();
+ int _nextUndo = -1;
+ int _currState = STATE_IDLE;
+ var _err;
+ 
+ /// Whether or not this schedule is busy performing another action.
+ /// This is always _true_ when called from any continuations that are
+ /// chained to Futures returned by methods on this schedule.
+ /// This is also _true_ if this schedule has an [error].
+ bool get busy =&gt; _state != STATE_IDLE;
+ 
+ /// Whether or not this schedule can be [clear]ed at the present time.
+ bool get canClear =&gt; !busy || hasError;
+ 
+ bool get _canRedo =&gt; _nextUndo &lt; _actions.length - 1;
+ /// Whether or not the [redo] method may be called at the present time.
+ bool get canRedo =&gt; !busy &amp;&amp; _canRedo;
+ 
+ bool get _canUndo =&gt; _nextUndo &gt;= 0;
+ /// Whether or not the [undo] method may be called at the present time.
+ bool get canUndo =&gt; !busy &amp;&amp; _canUndo;
+ 
+ /// Whether or not this schedule has an [error].
+ bool get hasError =&gt; _state == STATE_ERROR;
+   
+ /// The current error, if [hasError] is _true_.  This schedule will remain
+ /// [busy] for as long as this schedule [hasError].  You may [clear] this
+ /// schedule after dealing with the error condition in order to use it again.
+ get error =&gt; _err;
+ set _error(e) {
+   _err = e;
+   _state = STATE_ERROR;
+ }
+ 
+ // The current state of this schedule.
+ int get _state =&gt; _currState;
+ set _state(int nextState) {
+   if (nextState != _currState) {
+     _currState = nextState;
+     _states.add(_currState);
+   }
+ }
+ 
+ final _states = new StreamController&lt;int&gt;();
+ /// An observable stream of this schedule's state transitions.
+ Stream&lt;int&gt; get states =&gt; _states.stream;
+     
+ /// Schedule the given [action] to be called.  If this schedule is not [busy], 
+ /// the action will be called immediately.  Else, the action will be deferred 
+ /// in order behind any other pending actions to be called once this schedule 
+ /// reaches an idle state.
+ Future call(Action action) {
+   if (hasError) {
+     _error = new StateError('Cannot call if Schedule.hasError.');
+     return new Future.immediateError(error); 
+   }
+   if (_actions.contains(action) || _pending.contains(action)) {
+     _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
+     return new Future.immediateError(error);
+   }
+   if (busy) {
+     _pending.add(action);
+     return action._defer();
+   }
+   _state = STATE_CALL;
+   return _do(action);
+ }
+ 
+ /// Clears this schedule if [canClear] is _true_ at this time and returns
+ /// _true_ if the operation succeeds or _false_ if it does not succeed.
+ bool clear() {
+   if (!canClear) return false;
+   _actions.clear();
+   _pending.clear();
+   _nextUndo = -1;
+   _state = STATE_IDLE;
+   _err = null;
+   return true;
+ }
+ 
+ Future _do(action) {    
+   var completer = new Completer();
+   action._execute()
+     .then((result) {
+       // Truncate the end of list (redo actions) when adding a new action.
+       _actions.removeRange(_nextUndo + 1, _actions.length - 1 - _nextUndo);
+       action._result = result;
+       _actions.add(action);
+       _nextUndo++;
+       // Complete the result before we flush pending and transition to idle.
+       // This ensures 2 things:
+       //    1) The continuations of the action see the state as the result of 
+       //       this action and _not_ the state of further pending actions.
+       //    2) The order of pending actions is preserved as the user is not
+       //       able to undo or redo (busy == true) in continuations.
+       completer.complete(result);
+       // Flush any pending actions that were deferred as we did this action.        
+       _flush();
+     })
+     .catchError((e) {
+       _error = e;
+       completer.completeError(e);
+     });    
+   return completer.future;    
+ }
+ 
+ Future _flush() {
+   // Nothing pending means no work to do but we still must return a future.
+   if (!_pending.isEmpty) _state = STATE_FLUSH;
+   // Copy _pending actions to a new list to iterate because new actions 
+   // may be added to _pending while we are iterating.
+   final _flushing = _pending.toList();
+   _pending.clear();
+   return Future
+     .forEach(_flushing, (action) =&gt; _do(action)) 
+     .then((_) =&gt; _state = STATE_IDLE)
+     // The action will complete the error to its continuations, but we will 
+     // also receive it here in order to transition to the error state.
+     .catchError((e) =&gt; _error = e);
+ }
+ 
+ /// Undo or redo all ordered actions in this schedule until the given [action] 
+ /// is done.  The state of the schedule after this operation is equal to the 
+ /// state upon completion of the given action. Completes _false_ if any undo 
+ /// or redo operations performed complete _false_, if the schedule does not 
+ /// contain the given action, or if the schedule is [busy].
+ Future&lt;bool&gt; to(action) { 
+   var completer = new Completer();    
+   if (!_actions.contains(action) || 
+       !(_state == STATE_TO || _state == STATE_IDLE)) {
+     completer.complete(false);
+   } else {      
+     _state = STATE_TO;
+     _to(action, completer);
+   }
+   return completer.future;
+ }
+ 
+ void _to(action, completer) {
+   final handleError = (e) { _error = e; completer.completeError(e); };
+   final int actionIndex = _actions.indexOf(action);
+   if (actionIndex == _nextUndo) {
+     // Complete before we flush pending and transition to idle.
+     // This ensures that continuations of 'to' see the state as the 
+     // result of 'to' and _not_ the state of further pending actions.
+     completer.complete(true);
+     _flush();
+   } else if (actionIndex &lt; _nextUndo) {
+     // Undo towards the desired action.
+     undo()
+       .then((success) {
+         if (!success) completer.complete(false);
+         else _to(action, completer);
+       })
+       .catchError(handleError);
+   } else {
+     // Redo towards the desired action.
+     redo()
+       .then((success) {
+         if (!success) completer.complete(false); 
+         else _to(action, completer);
+       })
+       .catchError(handleError);
+   }
+ }
+ 
+ /// Redo the next action to be redone in this schedule, if any.
+ /// Completes _true_ if an action was redone or else completes _false_.
+ Future&lt;bool&gt; redo() { 
+   var completer = new Completer&lt;bool&gt;();
+   if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+     completer.complete(false);
+   } else {
+     if (_state == STATE_IDLE) _state = STATE_REDO;
+     final action = _actions[_nextUndo + 1];
+     action._execute()
+       .then((result) {
+         _nextUndo++;
+         action._result = result;
+         // Complete before we flush pending and transition to idle.
+         // This ensures that continuations of redo see the state as the 
+         // result of redo and _not_ the state of further pending actions. 
+         completer.complete(true);
+         // Don't flush if we are in STATE_TO, it will flush when it is done.
+         if (_state == STATE_REDO) _flush();
+       })
+       .catchError((e) {
+         _error = e;
+         completer.completeError(e);
+       });
+   }
+   return completer.future;
+ }
+ 
+ /// Undo the next action to be undone in this schedule, if any.
+ /// Completes _true_ if an action was undone or else completes _false_.
+ Future&lt;bool&gt; undo() { 
+   var completer = new Completer&lt;bool&gt;();
+   if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+     completer.complete(false);
+   } else {
+     if (_state == STATE_IDLE) _state = STATE_UNDO;
+     final action = _actions[_nextUndo];
+     action._unexecute()                
+       .then((_) {
+         _nextUndo--;
+         // Complete before we flush pending and transition to idle.
+         // This ensures that continuations of undo see the state as the 
+         // result of undo and _not_ the state of further pending actions. 
+         completer.complete(true);
+         // Don't flush if we are in STATE_TO, it will flush when it is done.
+         if (_state == STATE_UNDO) _flush();
+       })
+       .catchError((e) {
+         _error = e;
+         completer.completeError(e);
+       });
+   }
+   return completer.future;
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Static Properties</h3>
+<div class="field"><h4 id="STATE_CALL">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_CALL</strong> <a class="anchor-link"
+            href="#STATE_CALL"
+            title="Permalink to Schedule.STATE_CALL">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_CALL = 1
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="STATE_ERROR">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_ERROR</strong> <a class="anchor-link"
+            href="#STATE_ERROR"
+            title="Permalink to Schedule.STATE_ERROR">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_ERROR = 32
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="STATE_FLUSH">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_FLUSH</strong> <a class="anchor-link"
+            href="#STATE_FLUSH"
+            title="Permalink to Schedule.STATE_FLUSH">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_FLUSH = 2
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="STATE_IDLE">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_IDLE</strong> <a class="anchor-link"
+            href="#STATE_IDLE"
+            title="Permalink to Schedule.STATE_IDLE">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_IDLE = 0
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="STATE_REDO">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_REDO</strong> <a class="anchor-link"
+            href="#STATE_REDO"
+            title="Permalink to Schedule.STATE_REDO">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_REDO = 4
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="STATE_TO">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_TO</strong> <a class="anchor-link"
+            href="#STATE_TO"
+            title="Permalink to Schedule.STATE_TO">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_TO = 16
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="STATE_UNDO">
+<button class="show-code">Code</button>
+const <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>STATE_UNDO</strong> <a class="anchor-link"
+            href="#STATE_UNDO"
+            title="Permalink to Schedule.STATE_UNDO">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+STATE_UNDO = 8
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="busy">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>busy</strong> <a class="anchor-link"
+            href="#busy"
+            title="Permalink to Schedule.busy">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not this schedule is busy performing another action.
+This is always <em>true</em> when called from any continuations that are
+chained to Futures returned by methods on this schedule.
+This is also <em>true</em> if this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
+<pre class="source">
+bool get busy =&gt; _state != STATE_IDLE;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="canClear">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>canClear</strong> <a class="anchor-link"
+            href="#canClear"
+            title="Permalink to Schedule.canClear">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not this schedule can be <a class="crossref" href="../undone/Schedule.html#clear">clear</a>ed at the present time.</p>
+<pre class="source">
+bool get canClear =&gt; !busy || hasError;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="canRedo">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>canRedo</strong> <a class="anchor-link"
+            href="#canRedo"
+            title="Permalink to Schedule.canRedo">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not the <a class="crossref" href="../undone/Schedule.html#redo">redo</a> method may be called at the present time.</p>
+<pre class="source">
+bool get canRedo =&gt; !busy &amp;&amp; _canRedo;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="canUndo">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>canUndo</strong> <a class="anchor-link"
+            href="#canUndo"
+            title="Permalink to Schedule.canUndo">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not the <a class="crossref" href="../undone/Schedule.html#undo">undo</a> method may be called at the present time.</p>
+<pre class="source">
+bool get canUndo =&gt; !busy &amp;&amp; _canUndo;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="error">
+<button class="show-code">Code</button>
+final         <strong>error</strong> <a class="anchor-link"
+            href="#error"
+            title="Permalink to Schedule.error">#</a>
+        </h4>
+        <div class="doc">
+<p>The current error, if <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a> is <em>true</em>.  This schedule will remain
+<a class="crossref" href="../undone/Schedule.html#busy">busy</a> for as long as this schedule <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a>.  You may <a class="crossref" href="../undone/Schedule.html#clear">clear</a> this
+schedule after dealing with the error condition in order to use it again.</p>
+<pre class="source">
+get error =&gt; _err;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="hasError">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/bool.html">bool</a>         <strong>hasError</strong> <a class="anchor-link"
+            href="#hasError"
+            title="Permalink to Schedule.hasError">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
+<pre class="source">
+bool get hasError =&gt; _state == STATE_ERROR;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="states">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_async/Stream.html">Stream</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt;         <strong>states</strong> <a class="anchor-link"
+            href="#states"
+            title="Permalink to Schedule.states">#</a>
+        </h4>
+        <div class="doc">
+<p>An observable stream of this schedule's state transitions.</p>
+<pre class="source">
+Stream&lt;int&gt; get states =&gt; _states.stream;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="call">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>call</strong>(<a href="../undone/Action.html">Action</a> action) <a class="anchor-link" href="#call"
+              title="Permalink to Schedule.call">#</a></h4>
+<div class="doc">
+<p>Schedule the given 
+<span class="param">action</span> to be called.  If this schedule is not <a class="crossref" href="../undone/Schedule.html#busy">busy</a>, 
+the action will be called immediately.  Else, the action will be deferred 
+in order behind any other pending actions to be called once this schedule 
+reaches an idle state.</p>
+<pre class="source">
+Future call(Action action) {
+ if (hasError) {
+   _error = new StateError('Cannot call if Schedule.hasError.');
+   return new Future.immediateError(error); 
+ }
+ if (_actions.contains(action) || _pending.contains(action)) {
+   _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
+   return new Future.immediateError(error);
+ }
+ if (busy) {
+   _pending.add(action);
+   return action._defer();
+ }
+ _state = STATE_CALL;
+ return _do(action);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="clear">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>clear</strong>() <a class="anchor-link" href="#clear"
+              title="Permalink to Schedule.clear">#</a></h4>
+<div class="doc">
+<p>Clears this schedule if <a class="crossref" href="../undone/Schedule.html#canClear">canClear</a> is <em>true</em> at this time and returns
+<em>true</em> if the operation succeeds or <em>false</em> if it does not succeed.</p>
+<pre class="source">
+bool clear() {
+ if (!canClear) return false;
+ _actions.clear();
+ _pending.clear();
+ _nextUndo = -1;
+ _state = STATE_IDLE;
+ _err = null;
+ return true;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="redo">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>redo</strong>() <a class="anchor-link" href="#redo"
+              title="Permalink to Schedule.redo">#</a></h4>
+<div class="doc">
+<p>Redo the next action to be redone in this schedule, if any.
+Completes <em>true</em> if an action was redone or else completes <em>false</em>.</p>
+<pre class="source">
+Future&lt;bool&gt; redo() { 
+ var completer = new Completer&lt;bool&gt;();
+ if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+   completer.complete(false);
+ } else {
+   if (_state == STATE_IDLE) _state = STATE_REDO;
+   final action = _actions[_nextUndo + 1];
+   action._execute()
+     .then((result) {
+       _nextUndo++;
+       action._result = result;
+       // Complete before we flush pending and transition to idle.
+       // This ensures that continuations of redo see the state as the 
+       // result of redo and _not_ the state of further pending actions. 
+       completer.complete(true);
+       // Don't flush if we are in STATE_TO, it will flush when it is done.
+       if (_state == STATE_REDO) _flush();
+     })
+     .catchError((e) {
+       _error = e;
+       completer.completeError(e);
+     });
+ }
+ return completer.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="to">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>to</strong>(action) <a class="anchor-link" href="#to"
+              title="Permalink to Schedule.to">#</a></h4>
+<div class="doc">
+<p>Undo or redo all ordered actions in this schedule until the given 
+<span class="param">action</span> 
+is done.  The state of the schedule after this operation is equal to the 
+state upon completion of the given action. Completes <em>false</em> if any undo 
+or redo operations performed complete <em>false</em>, if the schedule does not 
+contain the given action, or if the schedule is <a class="crossref" href="../undone/Schedule.html#busy">busy</a>.</p>
+<pre class="source">
+Future&lt;bool&gt; to(action) { 
+ var completer = new Completer();    
+ if (!_actions.contains(action) || 
+     !(_state == STATE_TO || _state == STATE_IDLE)) {
+   completer.complete(false);
+ } else {      
+   _state = STATE_TO;
+   _to(action, completer);
+ }
+ return completer.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="undo">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt; <strong>undo</strong>() <a class="anchor-link" href="#undo"
+              title="Permalink to Schedule.undo">#</a></h4>
+<div class="doc">
+<p>Undo the next action to be undone in this schedule, if any.
+Completes <em>true</em> if an action was undone or else completes <em>false</em>.</p>
+<pre class="source">
+Future&lt;bool&gt; undo() { 
+ var completer = new Completer&lt;bool&gt;();
+ if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+   completer.complete(false);
+ } else {
+   if (_state == STATE_IDLE) _state = STATE_UNDO;
+   final action = _actions[_nextUndo];
+   action._unexecute()                
+     .then((_) {
+       _nextUndo--;
+       // Complete before we flush pending and transition to idle.
+       // This ensures that continuations of undo see the state as the 
+       // result of undo and _not_ the state of further pending actions. 
+       completer.complete(true);
+       // Don't flush if we are in STATE_TO, it will flush when it is done.
+       if (_state == STATE_UNDO) _flush();
+     })
+     .catchError((e) {
+       _error = e;
+       completer.completeError(e);
+     });
+ }
+ return completer.future;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-03-22 14:07:52.945</div>
+        </div>
+        <script async src="../client-static.js"></script>
+        </body></html>
+        
