@@ -112,7 +112,7 @@ class Action<A, R> {
       return _do(_arg)
         .then((result) => _deferred.complete(result))
         .catchError(
-            (e) => throw new StateError('Error wrongfully caught.'), 
+            (e) { throw new StateError('Error wrongfully caught.'); }, 
             test: (e) {
               // Complete the error to the deferred future, but allow the error
               // to propogate back to the schedule also so that it can 
