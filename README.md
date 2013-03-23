@@ -65,9 +65,14 @@ document.onKeyUp.listen((e) {
 The code above can be found [here][readme].  For more fun, try to [nudge][] a 
 box around a canvas - its undoable!
 
+## Read the Article
+
+Learn more about the design decisions by reading this [article][].
+
 _Undone uses the MIT license as described in the LICENSE file, and follows
 [semantic versioning][]._
 
+[article]: http://futureperfect.info/2013/03/22/undone-not-a-song-about-sweaters.html
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
 [nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
 [readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
