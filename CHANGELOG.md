@@ -1,6 +1,8 @@
 # Undone Changes
 
-## 0.1.2-dev
+## 0.1.2
+
+- Added a link to an article in the README.
 
 ## 0.1.1
 
