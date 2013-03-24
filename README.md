@@ -14,7 +14,7 @@ var map = { 'value' : 42 };
   
 // Actions bind a 'Do' functon and an 'Undo' function together with arguments.
 Do _increment = (a) => ++a['value'];
-Undo _decrement = (a, _) => --a['value'];     
+Undo _decrement = (a, r) => --a['value'];     
 var increment = new Action(map, _increment, _decrement);
 ```
 
@@ -69,11 +69,12 @@ box around a canvas - its undoable!
 
 Learn more about the design decisions by reading this [article][].
 
-_Undone uses the MIT license as described in the LICENSE file, and follows
-[semantic versioning][]._
+_Undone uses the MIT license as described in the [LICENSE][license] file, and 
+follows [semantic versioning][]._
 
 [article]: http://futureperfect.info/2013/03/22/undone-not-a-song-about-sweaters.html
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
+[license]: https://github.com/rmsmith/undone/blob/master/LICENSE
 [nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
 [readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
 [semantic versioning]: http://semver.org/

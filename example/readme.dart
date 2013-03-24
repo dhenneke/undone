@@ -22,7 +22,7 @@ main() {
   
   // Actions bind a 'Do' functon and an 'Undo' function together with arguments.
   Do _increment = (a) => ++a['value'];
-  Undo _decrement = (a, _) => --a['value'];     
+  Undo _decrement = (a, r) => --a['value'];     
   var increment = new Action(map, _increment, _decrement);
   
   //----------------------------------------------------------------------------
