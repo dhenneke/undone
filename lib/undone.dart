@@ -43,17 +43,17 @@ Future transact(void build()) {
 }
 
 /// Undo the next action to be undone in the top-level [schedule], if any.
-/// Completes _true_ if an action was undone or else completes _false_.
+/// Completes `true` if an action was undone or else completes `false`.
 Future<bool> undo() => schedule.undo();
 
 /// Redo the next action to be redone in the top-level [schedule], if any.
-/// Completes _true_ if an action was redone or else completes _false_.
+/// Completes `true` if an action was redone or else completes `false`.
 Future<bool> redo() => schedule.redo();
 
 /// An action that can be done and undone.
 ///
 /// Actions are comprised of a pair of functions: one to [Do] the action and
-/// another to [Undo] the action.  The action object is itself a [Function] that 
+/// another to [Undo] the action.  The action object is itself a function that 
 /// can be [call]ed to schedule it to be done on the top-level [schedule] or
 /// to add it to a [Transaction] if called within the scope of [transact].
 /// Actions may also be constructed with a pair of [DoAsync] and [UndoAsync]
@@ -185,7 +185,7 @@ class Transaction extends Action {
 
 /// An asynchronous schedule of actions.
 ///
-/// A schedule is a [Function] that can be [call]ed with [Action]s.  The order 
+/// A schedule is a function that can be [call]ed with [Action]s.  The order 
 /// of such calls is preserved in a history to allow for [undo] and [redo].  An 
 /// action may be scheduled at any time; if the schedule is not [busy] then it 
 /// will be called immediately, otherwise it will be queued to be called as soon 
@@ -219,9 +219,9 @@ class Schedule {
   var _err;
   
   /// Whether or not this schedule is busy performing another action.
-  /// This is always _true_ when called from any continuations that are
+  /// This is always `true` when called from any continuations that are
   /// chained to Futures returned by methods on this schedule.
-  /// This is also _true_ if this schedule has an [error].
+  /// This is also `true` if this schedule has an [error].
   bool get busy => _state != STATE_IDLE;
   
   /// Whether or not this schedule can be [clear]ed at the present time.
@@ -238,7 +238,7 @@ class Schedule {
   /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
     
-  /// The current error, if [hasError] is _true_.  This schedule will remain
+  /// The current error, if [hasError] is `true`.  This schedule will remain
   /// [busy] for as long as this schedule [hasError].  You may [clear] this
   /// schedule after dealing with the error condition in order to use it again.
   get error => _err;
@@ -281,8 +281,8 @@ class Schedule {
     return _do(action);
   }
   
-  /// Clears this schedule if [canClear] is _true_ at this time and returns
-  /// _true_ if the operation succeeds or _false_ if it does not succeed.
+  /// Clears this schedule if [canClear] is `true` at this time and returns
+  /// `true` if the operation succeeds or `false` if it does not succeed.
   bool clear() {
     if (!canClear) return false;
     _actions.clear();
@@ -336,8 +336,8 @@ class Schedule {
   
   /// Undo or redo all ordered actions in this schedule until the given [action] 
   /// is done.  The state of the schedule after this operation is equal to the 
-  /// state upon completion of the given action. Completes _false_ if any undo 
-  /// or redo operations performed complete _false_, if the schedule does not 
+  /// state upon completion of the given action. Completes `false` if any undo 
+  /// or redo operations performed complete `false`, if the schedule does not 
   /// contain the given action, or if the schedule is [busy].
   Future<bool> to(action) { 
     var completer = new Completer();    
@@ -380,7 +380,7 @@ class Schedule {
   }
   
   /// Redo the next action to be redone in this schedule, if any.
-  /// Completes _true_ if an action was redone or else completes _false_.
+  /// Completes `true` if an action was redone or else completes `false`.
   Future<bool> redo() { 
     var completer = new Completer<bool>();
     if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
@@ -408,7 +408,7 @@ class Schedule {
   }
   
   /// Undo the next action to be undone in this schedule, if any.
-  /// Completes _true_ if an action was undone or else completes _false_.
+  /// Completes `true` if an action was undone or else completes `false`.
   Future<bool> undo() { 
     var completer = new Completer<bool>();
     if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
