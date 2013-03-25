@@ -132,7 +132,7 @@ class TransactionError {
   /// The caught object that caused the transaction to err.
   final cause;  
   var _rollbackError;
-  /// An error encountered during transaction rollback; may be null if none.
+  /// An error encountered during transaction rollback; may be `null` if none.
   get rollbackError => _rollbackError;
   /// Constructs a new transaction error with the given cause.
   TransactionError(this.cause);
