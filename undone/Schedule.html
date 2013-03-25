@@ -33,7 +33,7 @@
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
 <p>An asynchronous schedule of actions.</p>
-<p>A schedule is a <code>Function</code> that can be <a class="crossref" href="../undone/Schedule.html#call">call</a>ed with <a class="crossref" href="../undone/Action.html">Action</a>s.  The order 
+<p>A schedule is a function that can be <a class="crossref" href="../undone/Schedule.html#call">call</a>ed with <a class="crossref" href="../undone/Action.html">Action</a>s.  The order 
 of such calls is preserved in a history to allow for <a class="crossref" href="../undone/Schedule.html#undo">undo</a> and <a class="crossref" href="../undone/Schedule.html#redo">redo</a>.  An 
 action may be scheduled at any time; if the schedule is not <a class="crossref" href="../undone/Schedule.html#busy">busy</a> then it 
 will be called immediately, otherwise it will be queued to be called as soon 
@@ -68,9 +68,9 @@ class Schedule {
  var _err;
  
  /// Whether or not this schedule is busy performing another action.
- /// This is always _true_ when called from any continuations that are
+ /// This is always `true` when called from any continuations that are
  /// chained to Futures returned by methods on this schedule.
- /// This is also _true_ if this schedule has an [error].
+ /// This is also `true` if this schedule has an [error].
  bool get busy =&gt; _state != STATE_IDLE;
  
  /// Whether or not this schedule can be [clear]ed at the present time.
@@ -87,7 +87,7 @@ class Schedule {
  /// Whether or not this schedule has an [error].
  bool get hasError =&gt; _state == STATE_ERROR;
    
- /// The current error, if [hasError] is _true_.  This schedule will remain
+ /// The current error, if [hasError] is `true`.  This schedule will remain
  /// [busy] for as long as this schedule [hasError].  You may [clear] this
  /// schedule after dealing with the error condition in order to use it again.
  get error =&gt; _err;
@@ -130,8 +130,8 @@ class Schedule {
    return _do(action);
  }
  
- /// Clears this schedule if [canClear] is _true_ at this time and returns
- /// _true_ if the operation succeeds or _false_ if it does not succeed.
+ /// Clears this schedule if [canClear] is `true` at this time and returns
+ /// `true` if the operation succeeds or `false` if it does not succeed.
  bool clear() {
    if (!canClear) return false;
    _actions.clear();
@@ -185,8 +185,8 @@ class Schedule {
  
  /// Undo or redo all ordered actions in this schedule until the given [action] 
  /// is done.  The state of the schedule after this operation is equal to the 
- /// state upon completion of the given action. Completes _false_ if any undo 
- /// or redo operations performed complete _false_, if the schedule does not 
+ /// state upon completion of the given action. Completes `false` if any undo 
+ /// or redo operations performed complete `false`, if the schedule does not 
  /// contain the given action, or if the schedule is [busy].
  Future&lt;bool&gt; to(action) { 
    var completer = new Completer();    
@@ -229,7 +229,7 @@ class Schedule {
  }
  
  /// Redo the next action to be redone in this schedule, if any.
- /// Completes _true_ if an action was redone or else completes _false_.
+ /// Completes `true` if an action was redone or else completes `false`.
  Future&lt;bool&gt; redo() { 
    var completer = new Completer&lt;bool&gt;();
    if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
@@ -257,7 +257,7 @@ class Schedule {
  }
  
  /// Undo the next action to be undone in this schedule, if any.
- /// Completes _true_ if an action was undone or else completes _false_.
+ /// Completes `true` if an action was undone or else completes `false`.
  Future&lt;bool&gt; undo() { 
    var completer = new Completer&lt;bool&gt;();
    if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
@@ -382,9 +382,9 @@ final bool         <strong>busy</strong> <a class="anchor-link"
         </h4>
         <div class="doc">
 <p>Whether or not this schedule is busy performing another action.
-This is always <em>true</em> when called from any continuations that are
+This is always <code>true</code> when called from any continuations that are
 chained to Futures returned by methods on this schedule.
-This is also <em>true</em> if this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
+This is also <code>true</code> if this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
 <pre class="source">
 bool get busy =&gt; _state != STATE_IDLE;
 </pre>
@@ -436,7 +436,7 @@ final         <strong>error</strong> <a class="anchor-link"
             title="Permalink to Schedule.error">#</a>
         </h4>
         <div class="doc">
-<p>The current error, if <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a> is <em>true</em>.  This schedule will remain
+<p>The current error, if <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a> is <code>true</code>.  This schedule will remain
 <a class="crossref" href="../undone/Schedule.html#busy">busy</a> for as long as this schedule <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a>.  You may <a class="crossref" href="../undone/Schedule.html#clear">clear</a> this
 schedule after dealing with the error condition in order to use it again.</p>
 <pre class="source">
@@ -508,8 +508,8 @@ Future call(Action action) {
 bool <strong>clear</strong>() <a class="anchor-link" href="#clear"
               title="Permalink to Schedule.clear">#</a></h4>
 <div class="doc">
-<p>Clears this schedule if <a class="crossref" href="../undone/Schedule.html#canClear">canClear</a> is <em>true</em> at this time and returns
-<em>true</em> if the operation succeeds or <em>false</em> if it does not succeed.</p>
+<p>Clears this schedule if <a class="crossref" href="../undone/Schedule.html#canClear">canClear</a> is <code>true</code> at this time and returns
+<code>true</code> if the operation succeeds or <code>false</code> if it does not succeed.</p>
 <pre class="source">
 bool clear() {
  if (!canClear) return false;
@@ -529,7 +529,7 @@ Future&lt;bool&gt; <strong>redo</strong>() <a class="anchor-link" href="#redo"
               title="Permalink to Schedule.redo">#</a></h4>
 <div class="doc">
 <p>Redo the next action to be redone in this schedule, if any.
-Completes <em>true</em> if an action was redone or else completes <em>false</em>.</p>
+Completes <code>true</code> if an action was redone or else completes <code>false</code>.</p>
 <pre class="source">
 Future&lt;bool&gt; redo() { 
  var completer = new Completer&lt;bool&gt;();
@@ -567,8 +567,8 @@ Future&lt;bool&gt; <strong>to</strong>(action) <a class="anchor-link" href="#to"
 <p>Undo or redo all ordered actions in this schedule until the given 
 <span class="param">action</span> 
 is done.  The state of the schedule after this operation is equal to the 
-state upon completion of the given action. Completes <em>false</em> if any undo 
-or redo operations performed complete <em>false</em>, if the schedule does not 
+state upon completion of the given action. Completes <code>false</code> if any undo 
+or redo operations performed complete <code>false</code>, if the schedule does not 
 contain the given action, or if the schedule is <a class="crossref" href="../undone/Schedule.html#busy">busy</a>.</p>
 <pre class="source">
 Future&lt;bool&gt; to(action) { 
@@ -591,7 +591,7 @@ Future&lt;bool&gt; <strong>undo</strong>() <a class="anchor-link" href="#undo"
               title="Permalink to Schedule.undo">#</a></h4>
 <div class="doc">
 <p>Undo the next action to be undone in this schedule, if any.
-Completes <em>true</em> if an action was undone or else completes <em>false</em>.</p>
+Completes <code>true</code> if an action was undone or else completes <code>false</code>.</p>
 <pre class="source">
 Future&lt;bool&gt; undo() { 
  var completer = new Completer&lt;bool&gt;();
@@ -625,7 +625,7 @@ Future&lt;bool&gt; undo() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-03-24 02:09:49.646</div>
+          <div>This page was generated at 2013-03-25 01:11:36.346</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
