@@ -1,6 +1,12 @@
 # Undone Changes
 
-## 0.1.4-dev
+## 0.1.4
+
+- Added `timeoutMs` to `wait` test utility function; drone.io was hanging since
+the new SDK (0.4.3_r20444) so this was added to try and catch the error but now
+the error is not reproducing.  This should catch future hangs.  
+- Opened issue #1 to implement a feature that would help to get rid of the 
+`wait` method altogether.
 
 ## 0.1.3
 
