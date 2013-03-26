@@ -2,6 +2,8 @@
 
 ## 0.1.5-dev
 
+- Fixed a possible race condition in `Schedule.to`.
+
 ## 0.1.4
 
 - Added `timeoutMs` to `wait` test utility function; drone.io was hanging since
