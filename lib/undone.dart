@@ -387,10 +387,9 @@ class Schedule {
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_REDO;
-      final action = _actions[_nextUndo + 1];
+      final action = _actions[++_nextUndo];
       action._execute()
         .then((result) {
-          _nextUndo++;
           action._result = result;
           // Complete before we flush pending and transition to idle.
           // This ensures that continuations of redo see the state as the 
@@ -415,10 +414,9 @@ class Schedule {
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_UNDO;
-      final action = _actions[_nextUndo];
+      final action = _actions[_nextUndo--];
       action._unexecute()                
         .then((_) {
-          _nextUndo--;
           // Complete before we flush pending and transition to idle.
           // This ensures that continuations of undo see the state as the 
           // result of undo and _not_ the state of further pending actions. 
