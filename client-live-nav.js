@@ -36,8 +36,7 @@ $$.ListIterator = {"": "Object;_iterable,_liblib$_length,_index,_liblib$_current
 
 $$.WhereIterable = {"": "Iterable;_iterable,_f",
   get$iterator: function(_) {
-    var t1 = this._iterable;
-    return $.WhereIterator$(t1.get$iterator(t1), this._f);
+    return $.WhereIterator$($.get$iterator$ax(this._iterable), this._f);
   }
 };
 
