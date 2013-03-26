@@ -101,12 +101,16 @@ UndoAsync squareRootAsync = (a, _) =>
     new Future.delayed(const Duration(milliseconds: 5), () => squareRoot(a, _));
 
 // Utility function to wait until the given test passes.
-Future wait(bool test()) {
+Future wait(bool test(), {int timeoutMs: 200}) {
   var c = new Completer();
+  var stopWatch = new Stopwatch()..start();
   new Timer.periodic(const Duration(milliseconds: 2), (t) {
-    if(test()) {
+    if (test()) {
       t.cancel();
       c.complete();
+    } else if (stopWatch.elapsedMilliseconds > timeoutMs) {
+      t.cancel();
+      c.completeError('Timed out waiting for test condition.');
     }
   });
   return c.future;
