@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.1.5-dev
+## 0.1.5
 
 - Added logging code to the library; default disabled for dead code elimination. 
 - Fixed a number of bugs.
