@@ -343,13 +343,8 @@ class Schedule {
         //       able to undo or redo (busy == true) in continuations.
         completer.complete(result);
         // Flush any pending action calls that were deferred as we did this 
-        // action.  The continuations on the above completer.future might 
-        // enqueue further actions, which we will keep on flushing; however, a 
-        // continuation might also perform an undo / redo / to operation, in 
-        // which case we do not want to flush; When that undo / redo / to 
-        // operation finishes, it will flush on its own.  We also want to flush 
-        // if there is an error, to make sure that pending actions that were
-        // deferred prior to the error receive a completion.
+        // action.  Also flush if we see STATE_ERROR, to ensure that pending
+        // actions that were called prior to the error receive a completion.
         if (_state == STATE_CALL || _state == STATE_ERROR) _flush();
       })
       .catchError((e) {
