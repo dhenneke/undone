@@ -3,12 +3,18 @@ library undone.test;
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:logging/logging.dart';
 import 'package:unittest/unittest.dart';
 import 'package:undone/undone.dart';
 
 void main() {
+  // To turn on logging, set `const bool _logEnabled = true` in `undone.dart`.
+  // Else, the following logger configuration will not print anything.
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) => print('${record.message}'));
+  
   group('[basic]', () {
-    setUp(() => wait(() => !schedule.busy).then((_) => schedule.clear()));
+    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
     test('Test the initial state of a freshly constructed schedule.', 
         testScheduleInitialState);
     test('Test that action constructors succeed when given valid arguments.', 
@@ -37,7 +43,7 @@ void main() {
     test('Test the successful clear of a schedule.', testClear);
   });
   group('[concurrent]', () {
-    setUp(() => wait(() => !schedule.busy).then((_) => schedule.clear()));
+    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
     test('Test the expected order of two concurrent actions.', 
         testActionDuringAction);
     test('Test that an error thrown by a pending action does not affect other.', 
@@ -62,7 +68,7 @@ void main() {
          testActionDuringFlush);    
   });  
   group('[transaction]', () {
-    setUp(() => wait(() => !schedule.busy).then((_) => schedule.clear()));
+    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
     test('Test that a transaction computes as expected.', testTransaction);
     test('Test that a transaction rollback succeeds when an error is thrown.', 
         testTransactionRollback);
@@ -100,20 +106,14 @@ DoAsync squareAsync = (a) =>
 UndoAsync squareRootAsync = (a, _) => 
     new Future.delayed(const Duration(milliseconds: 5), () => squareRoot(a, _));
 
-// Utility function to wait until the given test passes.
-Future wait(bool test(), {int timeoutMs: 200}) {
-  var c = new Completer();
-  var stopWatch = new Stopwatch()..start();
-  new Timer.periodic(const Duration(milliseconds: 2), (t) {
-    if (test()) {
-      t.cancel();
-      c.complete();
-    } else if (stopWatch.elapsedMilliseconds > timeoutMs) {
-      t.cancel();
-      c.completeError('Timed out waiting for test condition.');
-    }
-  });
-  return c.future;
+Future waitError(Schedule s) {
+  if (s.hasError) return new Future.immediate(Schedule.STATE_ERROR);
+  return s.states.firstWhere((state) => state == Schedule.STATE_ERROR);
+}
+
+Future waitIdle(Schedule s) {
+  if (!s.busy) return new Future.immediate(Schedule.STATE_IDLE);
+  return s.states.firstWhere((state) => state == Schedule.STATE_IDLE);
 }
 
 // -----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ void testUndo() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -238,7 +238,7 @@ void testUndoThrows() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .catchError(expectAsync1((e) {
       expect(e, const isInstanceOf<AsyncError>());      
@@ -257,13 +257,13 @@ void testRedo() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.redo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -285,13 +285,13 @@ void testRedoThrows() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.redo())
     .catchError(expectAsync1((e) {
       expect(e, const isInstanceOf<AsyncError>());      
@@ -333,13 +333,13 @@ void testTo() {
       expect(result, equals(1850));
       expect(map['val'], equals(1850));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.to(action1))
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })    
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.to(action3))
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -361,7 +361,7 @@ void testClear() {
       expect(result, equals(1850));
       expect(map['val'], equals(1850));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then(expectAsync1((_) {
       expect(schedule.canClear, isTrue);
       expect(schedule.clear(), isTrue);
@@ -418,7 +418,7 @@ void testActionThrowsDuringAction() {
       expect(e, const isInstanceOf<AsyncError>());      
       expect(e.error, equals('crowbar'));    
     }))
-    .then((_) => wait(() => schedule.hasError))
+    .then((_) => waitError(schedule))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error.error, equals('crowbar'));
@@ -495,6 +495,11 @@ void testActionDuringUndo() {
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, increment, restore);
   
+  var verifyUndo = expectAsync1((success) {
+    expect(success, isTrue);
+    expect(map['val'], equals(43));
+  });
+  
   schedule(action1)
     .then((result) {
       expect(result, equals(43));
@@ -505,16 +510,13 @@ void testActionDuringUndo() {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) {
       expect(schedule.canUndo, isTrue);   
       // The undo() needs to take more than 1 frame of the event loop
       // in order for this test case to be valid; we want to test that the
       // action is performed after the completion of the undo.
-      schedule.undo().then((success) {
-        expect(success, isTrue);
-        expect(map['val'], equals(43));
-      });
+      schedule.undo().then(verifyUndo);
       return schedule(action3);
     })
     .then(expectAsync1((result) {
@@ -540,7 +542,7 @@ void testActionThrowsDuringUndo() {
     expect(result, equals(1849));
     expect(map['val'], equals(1849));
   })
-  .then((_) => wait(() => !schedule.busy))
+  .then((_) => waitIdle(schedule))
   .then((_) {
     expect(schedule.canUndo, isTrue);   
     // The undo() needs to take more than 1 frame of the event loop
@@ -556,7 +558,7 @@ void testActionThrowsDuringUndo() {
     expect(e, const isInstanceOf<AsyncError>());      
     expect(e.error, equals('crowbar'));    
   }))
-  .then((_) => wait(() => schedule.hasError))
+  .then((_) => waitError(schedule))
   .then(expectAsync1((_) {
     expect(schedule.hasError, isTrue);
     expect(schedule.error.error, equals('crowbar'));
@@ -580,13 +582,13 @@ void testActionDuringRedo() {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) {
       expect(schedule.canRedo, isTrue);   
       // The redo() needs to take more than 1 frame of the event loop
@@ -613,13 +615,13 @@ void testActionThrowsDuringRedo() {
   
   schedule(action1);
   schedule(action2)
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) {
       expect(schedule.canRedo, isTrue);   
       // The redo() needs to take more than 1 frame of the event loop
@@ -635,7 +637,7 @@ void testActionThrowsDuringRedo() {
       expect(e, const isInstanceOf<AsyncError>());      
       expect(e.error, equals('crowbar'));    
     }))
-    .then((_) => wait(() => schedule.hasError))
+    .then((_) => waitError(schedule))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error.error, equals('crowbar'));
@@ -652,7 +654,7 @@ void testActionDuringTo() {
   action1();
   action2();
   action3()
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) {
       schedule.to(action1).then((success) {
         expect(success, isTrue);
@@ -677,7 +679,7 @@ void testActionThrowsDuringTo() {
   schedule(action1);
   schedule(action2);
   schedule(action3)
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) {
       schedule.to(action1).then((success) => 
           // The to() should have success since the error should occur later.
@@ -688,7 +690,7 @@ void testActionThrowsDuringTo() {
       expect(e, const isInstanceOf<AsyncError>());      
       expect(e.error, equals('crowbar'));    
     }))
-    .then((_) => wait(() => schedule.hasError))
+    .then((_) => waitError(schedule))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error.error, equals('crowbar'));
@@ -802,7 +804,7 @@ void testTransactionUndo() {
   
   schedule(transaction)
     .then((_) => expect(map['val'], equals(1850)))
-    .then((_) => wait(() => !schedule.busy))
+    .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
     .then(expectAsync1((success) {
       expect(success, isTrue);

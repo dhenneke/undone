@@ -2,7 +2,9 @@
 
 ## 0.1.5-dev
 
-- Fixed a possible race condition in `Schedule.to`.
+- Added logging code to the library; default disabled for dead code elimination. 
+- Fixed a number of bugs.
+- Removed the Timer-based `wait` utility function from the tests.
 
 ## 0.1.4
 

@@ -4,6 +4,8 @@ description: A library for undo and redo.
 author: Ross Smith <ross.dart.lang@gmail.com>
 homepage: https://github.com/rmsmith/undone
 documentation: http://rmsmith.github.com/undone
+dependencies:
+  logging: '>0.4.3'
 dev_dependencies:
-  browser: '>=0.4.3' 
+  browser: '>=0.4.3'   
   unittest: '>=0.4.3'

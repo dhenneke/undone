@@ -3,6 +3,7 @@
 library undone;
 
 import 'dart:async';
+import 'package:logging/logging.dart';
 
 /// A function to do an operation on an [arg] and return a result.
 typedef R Do<A, R>(A arg);
@@ -15,6 +16,12 @@ typedef void Undo<A, R>(A arg, R result);
 
 /// A function to undo an async operation on an [arg] given the prior [result].
 typedef Future UndoAsync<A, R>(A arg, R result);
+
+// Logging is disabled with a `const bool` to ensure that by default all logging 
+// related code and string literals get stripped as dead code.  To enable 
+// logging this must be changed to `true` manually.
+const bool _logEnabled = false;
+Logger _logger = new Logger('undone');
 
 Schedule _schedule;
 /// The isolate's top-level [Schedule].
@@ -110,7 +117,10 @@ class Action<A, R> {
     else {
       // If the action was deferred, we complete the future we handed out prior.
       return _do(_arg)
-        .then((result) => _deferred.complete(result))
+        .then((result) {
+          _deferred.complete(result);
+          return new Future.immediate(result);
+        })
         .catchError(
             (e) { throw new StateError('Error wrongfully caught.'); }, 
             test: (e) {
@@ -125,6 +135,8 @@ class Action<A, R> {
   }
   
   Future _unexecute() => _undo(_arg, _result);  
+  
+  String toString() => 'action($hashCode)';
 }
 
 /// An error encountered during a transaction.
@@ -250,9 +262,22 @@ class Schedule {
   // The current state of this schedule.
   int get _state => _currState;
   set _state(int nextState) {
-    if (nextState != _currState) {
+    if (nextState != _currState && _currState != STATE_ERROR) {
       _currState = nextState;
+      _log(() => '--- enter state ---');
       _states.add(_currState);
+    }
+  }
+  
+  String get _stateString {
+    switch(_state) {
+      case Schedule.STATE_IDLE:   return '[IDLE]';
+      case Schedule.STATE_CALL:   return '[CALL]';
+      case Schedule.STATE_FLUSH:  return '[FLUSH]';
+      case Schedule.STATE_REDO:   return '[REDO]';
+      case Schedule.STATE_UNDO:   return '[UNDO]';
+      case Schedule.STATE_TO:     return '[TO]';
+      case Schedule.STATE_ERROR:  return '[ERROR]';
     }
   }
   
@@ -274,6 +299,7 @@ class Schedule {
       return new Future.immediateError(error);
     }
     if (busy) {
+      _log(() => 'defer $action');
       _pending.add(action);
       return action._defer();
     }
@@ -285,23 +311,30 @@ class Schedule {
   /// `true` if the operation succeeds or `false` if it does not succeed.
   bool clear() {
     if (!canClear) return false;
+    _log(() => 'clear');
     _actions.clear();
     _pending.clear();
     _nextUndo = -1;
-    _state = STATE_IDLE;
+    // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
+    if (_currState != STATE_IDLE) {
+      _currState = STATE_IDLE;
+      _states.add(_currState);
+    }
     _err = null;
     return true;
   }
   
   Future _do(action) {    
     var completer = new Completer();
+    // Truncate the end of list (redo actions) when adding a new action.
+    _actions.removeRange(_nextUndo + 1, _actions.length - 1 - _nextUndo);
+    _actions.add(action);        
+    _nextUndo++;
+    _log(() => 'execute $action [$_nextUndo]');
     action._execute()
       .then((result) {
-        // Truncate the end of list (redo actions) when adding a new action.
-        _actions.removeRange(_nextUndo + 1, _actions.length - 1 - _nextUndo);
-        action._result = result;
-        _actions.add(action);
-        _nextUndo++;
+        _log(() => '$action complete w/ $result');
+        action._result = result;        
         // Complete the result before we flush pending and transition to idle.
         // This ensures 2 things:
         //    1) The continuations of the action see the state as the result of 
@@ -309,8 +342,15 @@ class Schedule {
         //    2) The order of pending actions is preserved as the user is not
         //       able to undo or redo (busy == true) in continuations.
         completer.complete(result);
-        // Flush any pending actions that were deferred as we did this action.        
-        _flush();
+        // Flush any pending action calls that were deferred as we did this 
+        // action.  The continuations on the above completer.future might 
+        // enqueue further actions, which we will keep on flushing; however, a 
+        // continuation might also perform an undo / redo / to operation, in 
+        // which case we do not want to flush; When that undo / redo / to 
+        // operation finishes, it will flush on its own.  We also want to flush 
+        // if there is an error, to make sure that pending actions that were
+        // deferred prior to the error receive a completion.
+        if (_state == STATE_CALL || _state == STATE_ERROR) _flush();
       })
       .catchError((e) {
         _error = e;
@@ -320,15 +360,30 @@ class Schedule {
   }
   
   Future _flush() {
-    // Nothing pending means no work to do but we still must return a future.
-    if (!_pending.isEmpty) _state = STATE_FLUSH;
+    // If nothing is pending then complete immediate and go to STATE_IDLE.
+    if (_pending.isEmpty) {
+      _state = STATE_IDLE;
+      return new Future.immediate(null);
+    }
+    _state = STATE_FLUSH;
     // Copy _pending actions to a new list to iterate because new actions 
     // may be added to _pending while we are iterating.
     final _flushing = _pending.toList();
     _pending.clear();
+    _log(() => 'flushing ${_flushing.length} actions');
     return Future
       .forEach(_flushing, (action) => _do(action)) 
-      .then((_) => _state = STATE_IDLE)
+      .then((_) {        
+        // If we get new _pending actions during flush we want to flush again.
+        if (!_pending.isEmpty) {
+          _log(() => 'new actions pending - flushing again');
+          return _flush();
+        }
+        else {
+          _log(() => 'flush complete');
+          _state = STATE_IDLE;
+        }        
+      })
       // The action will complete the error to its continuations, but we will 
       // also receive it here in order to transition to the error state.
       .catchError((e) => _error = e);
@@ -384,12 +439,15 @@ class Schedule {
   Future<bool> redo() { 
     var completer = new Completer<bool>();
     if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+      _log(() => 'can not redo');
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_REDO;
       final action = _actions[++_nextUndo];
+      _log(() => 'execute ${action} [${_nextUndo-1}]');
       action._execute()
         .then((result) {
+          _log(() => '${action} execute complete w/ $result');
           action._result = result;
           // Complete before we flush pending and transition to idle.
           // This ensures that continuations of redo see the state as the 
@@ -411,12 +469,15 @@ class Schedule {
   Future<bool> undo() { 
     var completer = new Completer<bool>();
     if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+      _log(() => 'can not undo');
       completer.complete(false);
     } else {
-      if (_state == STATE_IDLE) _state = STATE_UNDO;
+      if (_state == STATE_IDLE) _state = STATE_UNDO;      
       final action = _actions[_nextUndo--];
-      action._unexecute()                
+      _log(() => 'unexecute ${action} [${_nextUndo+1}]');
+      action._unexecute()
         .then((_) {
+          _log(() => '${action} unexecute complete');
           // Complete before we flush pending and transition to idle.
           // This ensures that continuations of undo see the state as the 
           // result of undo and _not_ the state of further pending actions. 
@@ -430,5 +491,12 @@ class Schedule {
         });
     }
     return completer.future;
+  }
+  
+  // TODO(rms): verify that this results in dead code removal as designed.
+  void _log(String message()) {
+    if (_logEnabled) {
+      _logger.fine('${_stateString}: ${message()}');
+    }
   }
 }
