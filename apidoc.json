@@ -1,1 +1,1 @@
-{"location":"0","name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"name":"package:logging/logging.dart","refId":"logging"},{"name":"package:meta/meta.dart","refId":"meta"},{"refId":"undone"}],"revision":"0"}
+{"location":"0","name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"refId":"undone"}],"revision":"0"}
