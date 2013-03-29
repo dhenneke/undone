@@ -36,7 +36,8 @@ $$.ListIterator = {"": "Object;_iterable,_liblib$_length,_index,_liblib$_current
 
 $$.WhereIterable = {"": "Iterable;_iterable,_f",
   get$iterator: function(_) {
-    return $.WhereIterator$($.get$iterator$ax(this._iterable), this._f);
+    var t1 = this._iterable;
+    return $.WhereIterator$(t1.get$iterator(t1), this._f);
   }
 };
 
@@ -9635,13 +9636,14 @@ $.JSNumber_methods = $.JSNumber.prototype;
 $.CONSTANT166 = new $.Keyword("var", false, false, $.CONSTANT97);
 $.CONSTANT167 = new $.StringWrapper("/=");
 $.CONSTANT168 = new $.StringWrapper(">=");
-$.CONSTANT169 = new $.StringWrapper("~");
-$.CONSTANT50 = new $.PrecedenceInfo($.CONSTANT169, 0, 126);
-$.CONSTANT170 = new $.StringWrapper(";");
-$.CONSTANT23 = new $.PrecedenceInfo($.CONSTANT170, 0, 59);
-$.CONSTANT171 = new $.Keyword("switch", false, false, $.CONSTANT97);
-$.CONSTANT172 = new $.StringWrapper("<=");
-$.CONSTANT77 = new $.PrecedenceInfo($.CONSTANT172, 10, 129);
+$.JSArray_methods = $.JSArray.prototype;
+$.CONSTANT169 = new $.StringWrapper(";");
+$.CONSTANT23 = new $.PrecedenceInfo($.CONSTANT169, 0, 59);
+$.CONSTANT170 = new $.Keyword("switch", false, false, $.CONSTANT97);
+$.CONSTANT171 = new $.StringWrapper("<=");
+$.CONSTANT77 = new $.PrecedenceInfo($.CONSTANT171, 10, 129);
+$.CONSTANT172 = new $.StringWrapper("~");
+$.CONSTANT50 = new $.PrecedenceInfo($.CONSTANT172, 0, 126);
 $.CONSTANT173 = new $.Keyword("on", true, false, $.CONSTANT97);
 $.CONSTANT174 = new $.StringWrapper("is");
 $.CONSTANT175 = new $.StringWrapper("$");
@@ -9731,9 +9733,8 @@ $.CONSTANT214 = new $.Keyword("const", false, false, $.CONSTANT97);
 $.CONSTANT215 = new $.Keyword("with", false, false, $.CONSTANT97);
 $.CONSTANT216 = new $.Keyword("as", false, true, $.CONSTANT101);
 $.CONSTANT217 = new $.Keyword("set", false, true, $.CONSTANT97);
-$.CONSTANT41 = Isolate.makeConstantList([$.CONSTANT190, $.CONSTANT178, $.CONSTANT163, $.CONSTANT202, $.CONSTANT206, $.CONSTANT214, $.CONSTANT162, $.CONSTANT158, $.CONSTANT207, $.CONSTANT205, $.CONSTANT131, $.CONSTANT191, $.CONSTANT199, $.CONSTANT211, $.CONSTANT204, $.CONSTANT198, $.CONSTANT106, $.CONSTANT154, $.CONSTANT193, $.CONSTANT141, $.CONSTANT125, $.CONSTANT171, $.CONSTANT203, $.CONSTANT123, $.CONSTANT115, $.CONSTANT210, $.CONSTANT166, $.CONSTANT195, $.CONSTANT188, $.CONSTANT215, $.CONSTANT208, $.CONSTANT200, $.CONSTANT216, $.CONSTANT196, $.CONSTANT189, $.CONSTANT213, $.CONSTANT192, $.CONSTANT112, $.CONSTANT160, $.CONSTANT103, $.CONSTANT201, $.CONSTANT157, $.CONSTANT137, $.CONSTANT127, $.CONSTANT217, $.CONSTANT98, $.CONSTANT212, $.CONSTANT197, $.CONSTANT209, $.CONSTANT135, $.CONSTANT173, $.CONSTANT139, $.CONSTANT183]);
+$.CONSTANT41 = Isolate.makeConstantList([$.CONSTANT190, $.CONSTANT178, $.CONSTANT163, $.CONSTANT202, $.CONSTANT206, $.CONSTANT214, $.CONSTANT162, $.CONSTANT158, $.CONSTANT207, $.CONSTANT205, $.CONSTANT131, $.CONSTANT191, $.CONSTANT199, $.CONSTANT211, $.CONSTANT204, $.CONSTANT198, $.CONSTANT106, $.CONSTANT154, $.CONSTANT193, $.CONSTANT141, $.CONSTANT125, $.CONSTANT170, $.CONSTANT203, $.CONSTANT123, $.CONSTANT115, $.CONSTANT210, $.CONSTANT166, $.CONSTANT195, $.CONSTANT188, $.CONSTANT215, $.CONSTANT208, $.CONSTANT200, $.CONSTANT216, $.CONSTANT196, $.CONSTANT189, $.CONSTANT213, $.CONSTANT192, $.CONSTANT112, $.CONSTANT160, $.CONSTANT103, $.CONSTANT201, $.CONSTANT157, $.CONSTANT137, $.CONSTANT127, $.CONSTANT217, $.CONSTANT98, $.CONSTANT212, $.CONSTANT197, $.CONSTANT209, $.CONSTANT135, $.CONSTANT173, $.CONSTANT139, $.CONSTANT183]);
 $.CONSTANT71 = new $.PrecedenceInfo($.CONSTANT155, 0, 130);
-$.JSArray_methods = $.JSArray.prototype;
 $.lazyPort = null;
 $.ReceivePortImpl__nextFreeId = 1;
 $.Primitives_hashCodeSeed = 0;

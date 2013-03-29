@@ -46,25 +46,25 @@ interface to the history control methods.</p>
 <pre class="source">
 class Schedule {
  /// A schedule is idle (not busy).
- static const int STATE_IDLE = 0;
+ static const String STATE_IDLE = 'IDLE';
  /// A schedule is busy executing a new action.
- static const int STATE_CALL = 1;
+ static const String STATE_CALL = 'CALL';
  /// A schedule is busy flushing pending actions.
- static const int STATE_FLUSH = 2;
+ static const String STATE_FLUSH = 'FLUSH';
  /// A schedule is busy performing a redo operation.
- static const int STATE_REDO = 4;
+ static const String STATE_REDO = 'REDO';
  /// A schedule is busy performing an undo operation.
- static const int STATE_UNDO = 8;
+ static const String STATE_UNDO = 'UNDO';
  /// A schedule is busy performing a to operation.
- static const int STATE_TO = 16;
+ static const String STATE_TO = 'TO';
  /// A schedule has an error.
- static const int STATE_ERROR = 32;
+ static const String STATE_ERROR = 'ERROR';
  
  final _actions = new List&lt;Action&gt;();
  // Actions that are called while this schedule is busy are pending to be done.
  final _pending = new List&lt;Action&gt;();
  int _nextUndo = -1;
- int _currState = STATE_IDLE;
+ String _currState = STATE_IDLE;
  var _err;
  
  /// Whether or not this schedule is busy performing another action.
@@ -97,30 +97,18 @@ class Schedule {
  }
  
  // The current state of this schedule.
- int get _state =&gt; _currState;
- set _state(int nextState) {
+ String get _state =&gt; _currState;
+ set _state(String nextState) {
    if (nextState != _currState &amp;&amp; _currState != STATE_ERROR) {
      _currState = nextState;
      _log(() =&gt; '--- enter state ---');
      _states.add(_currState);
    }
  }
- 
- String get _stateString {
-   switch(_state) {
-     case Schedule.STATE_IDLE:   return '[IDLE]';
-     case Schedule.STATE_CALL:   return '[CALL]';
-     case Schedule.STATE_FLUSH:  return '[FLUSH]';
-     case Schedule.STATE_REDO:   return '[REDO]';
-     case Schedule.STATE_UNDO:   return '[UNDO]';
-     case Schedule.STATE_TO:     return '[TO]';
-     case Schedule.STATE_ERROR:  return '[ERROR]';
-   }
- }
- 
- final _states = new StreamController&lt;int&gt;();
+   
+ final _states = new StreamController&lt;String&gt;();
  /// An observable stream of this schedule's state transitions.
- Stream&lt;int&gt; get states =&gt; _states.stream;
+ Stream&lt;String&gt; get states =&gt; _states.stream;
      
  /// Schedule the given [action] to be called.  If this schedule is not [busy], 
  /// the action will be called immediately.  Else, the action will be deferred 
@@ -328,7 +316,7 @@ class Schedule {
  // TODO(rms): verify that this results in dead code removal as designed.
  void _log(String message()) {
    if (_logEnabled) {
-     _logger.fine('${_stateString}: ${message()}');
+     _logger.fine('[${_state}]: ${message()}');
    }
  }
 }
@@ -338,85 +326,85 @@ class Schedule {
 <h3>Static Properties</h3>
 <div class="field"><h4 id="STATE_CALL">
 <button class="show-code">Code</button>
-const int         <strong>STATE_CALL</strong> <a class="anchor-link"
+const String         <strong>STATE_CALL</strong> <a class="anchor-link"
             href="#STATE_CALL"
             title="Permalink to Schedule.STATE_CALL">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_CALL = 1
+STATE_CALL = 'CALL'
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="STATE_ERROR">
 <button class="show-code">Code</button>
-const int         <strong>STATE_ERROR</strong> <a class="anchor-link"
+const String         <strong>STATE_ERROR</strong> <a class="anchor-link"
             href="#STATE_ERROR"
             title="Permalink to Schedule.STATE_ERROR">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_ERROR = 32
+STATE_ERROR = 'ERROR'
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="STATE_FLUSH">
 <button class="show-code">Code</button>
-const int         <strong>STATE_FLUSH</strong> <a class="anchor-link"
+const String         <strong>STATE_FLUSH</strong> <a class="anchor-link"
             href="#STATE_FLUSH"
             title="Permalink to Schedule.STATE_FLUSH">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_FLUSH = 2
+STATE_FLUSH = 'FLUSH'
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="STATE_IDLE">
 <button class="show-code">Code</button>
-const int         <strong>STATE_IDLE</strong> <a class="anchor-link"
+const String         <strong>STATE_IDLE</strong> <a class="anchor-link"
             href="#STATE_IDLE"
             title="Permalink to Schedule.STATE_IDLE">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_IDLE = 0
+STATE_IDLE = 'IDLE'
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="STATE_REDO">
 <button class="show-code">Code</button>
-const int         <strong>STATE_REDO</strong> <a class="anchor-link"
+const String         <strong>STATE_REDO</strong> <a class="anchor-link"
             href="#STATE_REDO"
             title="Permalink to Schedule.STATE_REDO">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_REDO = 4
+STATE_REDO = 'REDO'
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="STATE_TO">
 <button class="show-code">Code</button>
-const int         <strong>STATE_TO</strong> <a class="anchor-link"
+const String         <strong>STATE_TO</strong> <a class="anchor-link"
             href="#STATE_TO"
             title="Permalink to Schedule.STATE_TO">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_TO = 16
+STATE_TO = 'TO'
 </pre>
 </div>
 </div>
 <div class="field"><h4 id="STATE_UNDO">
 <button class="show-code">Code</button>
-const int         <strong>STATE_UNDO</strong> <a class="anchor-link"
+const String         <strong>STATE_UNDO</strong> <a class="anchor-link"
             href="#STATE_UNDO"
             title="Permalink to Schedule.STATE_UNDO">#</a>
         </h4>
         <div class="doc">
 <pre class="source">
-STATE_UNDO = 8
+STATE_UNDO = 'UNDO'
 </pre>
 </div>
 </div>
@@ -508,14 +496,14 @@ bool get hasError =&gt; _state == STATE_ERROR;
 </div>
 <div class="field"><h4 id="states">
 <button class="show-code">Code</button>
-final Stream&lt;int&gt;         <strong>states</strong> <a class="anchor-link"
+final Stream&lt;String&gt;         <strong>states</strong> <a class="anchor-link"
             href="#states"
             title="Permalink to Schedule.states">#</a>
         </h4>
         <div class="doc">
 <p>An observable stream of this schedule's state transitions.</p>
 <pre class="source">
-Stream&lt;int&gt; get states =&gt; _states.stream;
+Stream&lt;String&gt; get states =&gt; _states.stream;
 </pre>
 </div>
 </div>
@@ -684,7 +672,7 @@ Future&lt;bool&gt; undo() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-03-28 17:27:38.112</div>
+          <div>This page was generated at 2013-03-29 00:03:53.148</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
