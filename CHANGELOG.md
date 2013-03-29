@@ -1,6 +1,9 @@
 # Undone Changes
 
-## 0.1.6-dev
+## 0.1.6
+
+- Changed the type of `Schedule.states` to `Stream<String>` and states are now
+enumerated as `static const String`.
 
 ## 0.1.5
 

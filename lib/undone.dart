@@ -209,25 +209,25 @@ class Transaction extends Action {
 /// interface to the history control methods.
 class Schedule {
   /// A schedule is idle (not busy).
-  static const int STATE_IDLE = 0;
+  static const String STATE_IDLE = 'IDLE';
   /// A schedule is busy executing a new action.
-  static const int STATE_CALL = 1;
+  static const String STATE_CALL = 'CALL';
   /// A schedule is busy flushing pending actions.
-  static const int STATE_FLUSH = 2;
+  static const String STATE_FLUSH = 'FLUSH';
   /// A schedule is busy performing a redo operation.
-  static const int STATE_REDO = 4;
+  static const String STATE_REDO = 'REDO';
   /// A schedule is busy performing an undo operation.
-  static const int STATE_UNDO = 8;
+  static const String STATE_UNDO = 'UNDO';
   /// A schedule is busy performing a to operation.
-  static const int STATE_TO = 16;
+  static const String STATE_TO = 'TO';
   /// A schedule has an error.
-  static const int STATE_ERROR = 32;
+  static const String STATE_ERROR = 'ERROR';
   
   final _actions = new List<Action>();
   // Actions that are called while this schedule is busy are pending to be done.
   final _pending = new List<Action>();
   int _nextUndo = -1;
-  int _currState = STATE_IDLE;
+  String _currState = STATE_IDLE;
   var _err;
   
   /// Whether or not this schedule is busy performing another action.
@@ -260,30 +260,18 @@ class Schedule {
   }
   
   // The current state of this schedule.
-  int get _state => _currState;
-  set _state(int nextState) {
+  String get _state => _currState;
+  set _state(String nextState) {
     if (nextState != _currState && _currState != STATE_ERROR) {
       _currState = nextState;
       _log(() => '--- enter state ---');
       _states.add(_currState);
     }
   }
-  
-  String get _stateString {
-    switch(_state) {
-      case Schedule.STATE_IDLE:   return '[IDLE]';
-      case Schedule.STATE_CALL:   return '[CALL]';
-      case Schedule.STATE_FLUSH:  return '[FLUSH]';
-      case Schedule.STATE_REDO:   return '[REDO]';
-      case Schedule.STATE_UNDO:   return '[UNDO]';
-      case Schedule.STATE_TO:     return '[TO]';
-      case Schedule.STATE_ERROR:  return '[ERROR]';
-    }
-  }
-  
-  final _states = new StreamController<int>();
+    
+  final _states = new StreamController<String>();
   /// An observable stream of this schedule's state transitions.
-  Stream<int> get states => _states.stream;
+  Stream<String> get states => _states.stream;
       
   /// Schedule the given [action] to be called.  If this schedule is not [busy], 
   /// the action will be called immediately.  Else, the action will be deferred 
@@ -491,7 +479,7 @@ class Schedule {
   // TODO(rms): verify that this results in dead code removal as designed.
   void _log(String message()) {
     if (_logEnabled) {
-      _logger.fine('${_stateString}: ${message()}');
+      _logger.fine('[${_state}]: ${message()}');
     }
   }
 }
