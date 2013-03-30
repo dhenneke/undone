@@ -1,9 +1,9 @@
 name: undone
-version: 0.1.6
+version: 0.1.7-dev
 description: A library for undo and redo.
 author: Ross Smith <ross.dart.lang@gmail.com>
 homepage: https://github.com/rmsmith/undone
-documentation: http://rmsmith.github.com/undone
+documentation: http://rmsmith.github.com/undone/undone.html
 dependencies:
   logging: '>=0.4.3'
 dev_dependencies:
