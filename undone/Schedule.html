@@ -313,11 +313,13 @@ class Schedule {
    return completer.future;
  }
  
- // TODO(rms): verify that this results in dead code removal as designed.
  void _log(String message()) {
-   if (_logEnabled) {
+   // Assert will be stripped in 'production' mode; the result is that all
+   // logging code should be removed as dead code by the tree shaking.
+   assert(() {
      _logger.fine('[${_state}]: ${message()}');
-   }
+     return true;
+   });
  }
 }
 </pre>
@@ -672,7 +674,7 @@ Future&lt;bool&gt; undo() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-04-04 04:17:25.144</div>
+          <div>This page was generated at 2013-04-05 02:42:05.441</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
