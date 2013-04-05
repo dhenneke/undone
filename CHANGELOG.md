@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.1.7-dev
+## 0.1.7
 
 - Updated to SDK 0.4.4_r20810.
 - Switched to using `assert` for dead code removal of logging code instead of a
