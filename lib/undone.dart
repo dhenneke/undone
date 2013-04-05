@@ -17,10 +17,6 @@ typedef void Undo<A, R>(A arg, R result);
 /// A function to undo an async operation on an [arg] given the prior [result].
 typedef Future UndoAsync<A, R>(A arg, R result);
 
-// Logging is disabled with a `const bool` to ensure that by default all logging 
-// related code and string literals get stripped as dead code.  To enable 
-// logging this must be changed to `true` manually.
-const bool _logEnabled = false;
 Logger _logger = new Logger('undone');
 
 Schedule _schedule;
@@ -476,10 +472,12 @@ class Schedule {
     return completer.future;
   }
   
-  // TODO(rms): verify that this results in dead code removal as designed.
   void _log(String message()) {
-    if (_logEnabled) {
+    // Assert will be stripped in 'production' mode; the result is that all
+    // logging code should be removed as dead code by the tree shaking.
+    assert(() {
       _logger.fine('[${_state}]: ${message()}');
-    }
+      return true;
+    });
   }
 }

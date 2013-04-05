@@ -8,8 +8,6 @@ import 'package:unittest/unittest.dart';
 import 'package:undone/undone.dart';
 
 void main() {
-  // To turn on logging, set `const bool _logEnabled = true` in `undone.dart`.
-  // Else, the following logger configuration will not print anything.
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) => print('${record.message}'));
   

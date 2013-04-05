@@ -2,6 +2,12 @@
 
 ## 0.1.7-dev
 
+- Updated to SDK 0.4.4_r20810.
+- Switched to using `assert` for dead code removal of logging code instead of a
+`const bool`; the old mechanism required users to modify the library code to
+enable logging, which was not ideal.  Now, logging will be enabled in 'checked'
+mode and it will be stripped in 'production' mode.
+
 ## 0.1.6
 
 - Changed the type of `Schedule.states` to `Stream<String>` and states are now
