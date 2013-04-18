@@ -105,12 +105,12 @@ UndoAsync squareRootAsync = (a, _) =>
     new Future.delayed(const Duration(milliseconds: 5), () => squareRoot(a, _));
 
 Future waitError(Schedule s) {
-  if (s.hasError) return new Future.immediate(Schedule.STATE_ERROR);
+  if (s.hasError) return new Future.value(Schedule.STATE_ERROR);
   return s.states.firstWhere((state) => state == Schedule.STATE_ERROR);
 }
 
 Future waitIdle(Schedule s) {
-  if (!s.busy) return new Future.immediate(Schedule.STATE_IDLE);
+  if (!s.busy) return new Future.value(Schedule.STATE_IDLE);
   return s.states.firstWhere((state) => state == Schedule.STATE_IDLE);
 }
 
@@ -164,9 +164,8 @@ void testActionThrows() {
   var schedule = new Schedule();
   var action = new Action(14, (x) => throw 'snarf', (x, y) => true);  
   schedule(action)
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('snarf'));
+    .catchError(expectAsync1((e) { 
+      expect(e, equals('snarf'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
    }));
@@ -181,10 +180,9 @@ void testScheduleSameActionTwiceThrows() {
     .then(expectAsync1((result) => expect(result, equals(43))))
     .then((_) => schedule(action))
     .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());
-      expect(e.error, const isInstanceOf<StateError>());
+      expect(e, const isInstanceOf<StateError>());
       expect(schedule.hasError, isTrue);
-      expect(schedule.error, equals(e.error));
+      expect(schedule.error, equals(e));
     }));
 }
 
@@ -196,17 +194,15 @@ void testScheduleHasErrorActionThrows() {
   
   // The first action should throw and put the schedule in an error state.
   schedule(action1)
-    .catchError((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('snarf'));
+    .catchError((e) {  
+      expect(e, equals('snarf'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
     })
     // The second action should cause a StateError to be thrown.
     .then((_) => schedule(action2))
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, const isInstanceOf<StateError>());
+    .catchError(expectAsync1((e) {   
+      expect(e, const isInstanceOf<StateError>());
     }));
 }
 
@@ -238,9 +234,8 @@ void testUndoThrows() {
     })
     .then((_) => waitIdle(schedule))
     .then((_) => schedule.undo())
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('uh-oh'));
+    .catchError(expectAsync1((e) { 
+      expect(e, equals('uh-oh'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
    }));
@@ -291,9 +286,8 @@ void testRedoThrows() {
     })
     .then((_) => waitIdle(schedule))
     .then((_) => schedule.redo())
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('overdone'));
+    .catchError(expectAsync1((e) { 
+      expect(e, equals('overdone'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
    }));
@@ -412,14 +406,13 @@ void testActionThrowsDuringAction() {
   // Schedule a synchronous action that we expect to be called after the first
   // completes, so we expect the thrown error to have no affect on the first.
   schedule(action2)
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('crowbar'));    
+    .catchError(expectAsync1((e) {    
+      expect(e, equals('crowbar'));    
     }))
     .then((_) => waitError(schedule))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
-      expect(schedule.error.error, equals('crowbar'));
+      expect(schedule.error, equals('crowbar'));
     }));
 }
 
@@ -479,10 +472,9 @@ void testDeferSameActionTwiceThrows() {
   
   schedule(action2)
     .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());
-      expect(e.error, const isInstanceOf<StateError>());
+      expect(e, const isInstanceOf<StateError>());
       expect(schedule.hasError, isTrue);
-      expect(schedule.error, equals(e.error));
+      expect(schedule.error, equals(e));
     }));
 }
 
@@ -552,14 +544,13 @@ void testActionThrowsDuringUndo() {
         expect(success, isTrue));
     return schedule(action3);
   })
-  .catchError(expectAsync1((e) {
-    expect(e, const isInstanceOf<AsyncError>());      
-    expect(e.error, equals('crowbar'));    
+  .catchError(expectAsync1((e) {   
+    expect(e, equals('crowbar'));    
   }))
   .then((_) => waitError(schedule))
   .then(expectAsync1((_) {
     expect(schedule.hasError, isTrue);
-    expect(schedule.error.error, equals('crowbar'));
+    expect(schedule.error, equals('crowbar'));
   }));
 }
 
@@ -631,14 +622,13 @@ void testActionThrowsDuringRedo() {
           expect(success, isTrue));      
       return schedule(action3);
     })
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('crowbar'));    
+    .catchError(expectAsync1((e) {   
+      expect(e, equals('crowbar'));    
     }))
     .then((_) => waitError(schedule))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
-      expect(schedule.error.error, equals('crowbar'));
+      expect(schedule.error, equals('crowbar'));
     }));
 }
 
@@ -684,14 +674,13 @@ void testActionThrowsDuringTo() {
           expect(success, isTrue)); 
       return schedule(action4);
     })
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, equals('crowbar'));    
+    .catchError(expectAsync1((e) {  
+      expect(e, equals('crowbar'));    
     }))
     .then((_) => waitError(schedule))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
-      expect(schedule.error.error, equals('crowbar'));
+      expect(schedule.error, equals('crowbar'));
     }));
 }
 
@@ -762,10 +751,9 @@ void testTransactionRollback() {
   
   schedule(transaction)
     .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, const isInstanceOf<TransactionError>());
-      expect(e.error.cause.error, equals("bomb"));
-      expect(e.error.rollbackError, isNull);
+      expect(e, const isInstanceOf<TransactionError>());
+      expect(e.cause, equals("bomb"));
+      expect(e.rollbackError, isNull);
       expect(map['val'], equals(42));
    }));
 }
@@ -782,10 +770,9 @@ void testTransactionRollbackError() {
   
   schedule(transaction)
     .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<AsyncError>());      
-      expect(e.error, const isInstanceOf<TransactionError>());
-      expect(e.error.cause.error, equals("bomb"));
-      expect(e.error.rollbackError.error, equals("nuke"));
+      expect(e, const isInstanceOf<TransactionError>());
+      expect(e.cause, equals("bomb"));
+      expect(e.rollbackError, equals("nuke"));
       expect(map['val'], equals(43));
    }));  
 }
@@ -833,8 +820,7 @@ void testTransactThrows() {
     throw 'trouble';
   })
   .catchError(expectAsync1((e) {
-    expect(e, const isInstanceOf<AsyncError>());
-    expect(e.error, equals('trouble'));
+    expect(e, equals('trouble'));
   }));  
   // Verify that we can successfully do a transaction now.
   transact(() {

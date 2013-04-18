@@ -38,7 +38,7 @@ Future transact(void build()) {
   } catch(e) {
     // Clear the deferred future for each action that was added in the build.
     _transaction._arg.forEach((action) => action._deferred = null);
-    return new Future.immediateError(e);
+    return new Future.error(e);
   } finally {
     _transaction = null;
   }
@@ -77,8 +77,8 @@ class Action<A, R> {
   /// [Undo] function.  The given synchronous functions are automatically 
   /// wrapped in futures prior to being called on a schedule.
   Action(A arg, Do d, Undo u) : this._(arg,
-    d == null ? d : (a) => new Future.of(() => d(a)), 
-    u == null ? u : (a, r) => new Future.of(() => u(a, r)));
+    d == null ? d : (a) => new Future.sync(() => d(a)), 
+    u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
   
   /// Constructs a new action with the given [arg]uments, [DoAsync] function, 
   /// and [UndoAsync] function.
@@ -115,7 +115,7 @@ class Action<A, R> {
       return _do(_arg)
         .then((result) {
           _deferred.complete(result);
-          return new Future.immediate(result);
+          return new Future.value(result);
         })
         .catchError(
             (e) { throw new StateError('Error wrongfully caught.'); }, 
@@ -276,11 +276,11 @@ class Schedule {
   Future call(Action action) {
     if (hasError) {
       _error = new StateError('Cannot call if Schedule.hasError.');
-      return new Future.immediateError(error); 
+      return new Future.error(error); 
     }
     if (_actions.contains(action) || _pending.contains(action)) {
       _error = new StateError('Cannot call $action >1 time on same schedule.');
-      return new Future.immediateError(error);
+      return new Future.error(error);
     }
     if (busy) {
       _log(() => 'defer $action');
@@ -311,7 +311,7 @@ class Schedule {
   Future _do(action) {    
     var completer = new Completer();
     // Truncate the end of list (redo actions) when adding a new action.
-    _actions.removeRange(_nextUndo + 1, _actions.length - 1 - _nextUndo);
+    if (_nextUndo >= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
     _actions.add(action);        
     _nextUndo++;
     _log(() => 'execute $action [$_nextUndo]');
@@ -342,7 +342,7 @@ class Schedule {
     // If nothing is pending then complete immediate and go to STATE_IDLE.
     if (_pending.isEmpty) {
       _state = STATE_IDLE;
-      return new Future.immediate(null);
+      return new Future.value();
     }
     _state = STATE_FLUSH;
     // Copy _pending actions to a new list to iterate because new actions 
