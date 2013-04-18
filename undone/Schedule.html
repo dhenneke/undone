@@ -117,11 +117,11 @@ class Schedule {
  Future call(Action action) {
    if (hasError) {
      _error = new StateError('Cannot call if Schedule.hasError.');
-     return new Future.immediateError(error); 
+     return new Future.error(error); 
    }
    if (_actions.contains(action) || _pending.contains(action)) {
      _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
-     return new Future.immediateError(error);
+     return new Future.error(error);
    }
    if (busy) {
      _log(() =&gt; 'defer $action');
@@ -152,7 +152,7 @@ class Schedule {
  Future _do(action) {    
    var completer = new Completer();
    // Truncate the end of list (redo actions) when adding a new action.
-   _actions.removeRange(_nextUndo + 1, _actions.length - 1 - _nextUndo);
+   if (_nextUndo &gt;= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
    _actions.add(action);        
    _nextUndo++;
    _log(() =&gt; 'execute $action [$_nextUndo]');
@@ -183,7 +183,7 @@ class Schedule {
    // If nothing is pending then complete immediate and go to STATE_IDLE.
    if (_pending.isEmpty) {
      _state = STATE_IDLE;
-     return new Future.immediate(null);
+     return new Future.value();
    }
    _state = STATE_FLUSH;
    // Copy _pending actions to a new list to iterate because new actions 
@@ -533,11 +533,11 @@ reaches an idle state.</p>
 Future call(Action action) {
  if (hasError) {
    _error = new StateError('Cannot call if Schedule.hasError.');
-   return new Future.immediateError(error); 
+   return new Future.error(error); 
  }
  if (_actions.contains(action) || _pending.contains(action)) {
    _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
-   return new Future.immediateError(error);
+   return new Future.error(error);
  }
  if (busy) {
    _log(() =&gt; 'defer $action');
@@ -681,7 +681,7 @@ Future&lt;bool&gt; undo() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-04-09 06:32:20.391</div>
+          <div>This page was generated at 2013-04-18 04:44:16.590</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
