@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.2.0-dev
+## 0.2.0
 
 - Updated to SDK 0.5.0_r21823.
 
