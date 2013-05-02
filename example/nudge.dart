@@ -70,8 +70,8 @@ main() {
     }
   });
   
-  final undoButton = query('#undo');
-  final redoButton = query('#redo');
+  final ButtonElement undoButton = query('#undo');
+  final ButtonElement redoButton = query('#redo');
   undoButton.onClick.listen((e) => undo());
   redoButton.onClick.listen((e) => redo());
   
@@ -93,7 +93,7 @@ main() {
 
 render() {
   var canvas = document.query("#content") as CanvasElement;
-  var ctx = canvas.getContext("2d");
+  var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   // Clear the canvas.
   ctx.setFillColorRgb(200, 200, 100);
   ctx.fillRect(0, 0, canvas.width, canvas.height);  
