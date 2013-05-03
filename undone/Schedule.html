@@ -102,7 +102,7 @@ class Schedule {
    if (nextState != _currState &amp;&amp; _currState != STATE_ERROR) {
      _currState = nextState;
      _log(() =&gt; '--- enter state ---');
-     _states.add(_currState);
+     if (_states.hasListener &amp;&amp; !_states.isPaused) _states.add(_currState);
    }
  }
    
@@ -143,7 +143,7 @@ class Schedule {
    // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
    if (_currState != STATE_IDLE) {
      _currState = STATE_IDLE;
-     _states.add(_currState);
+     if (_states.hasListener &amp;&amp; !_states.isPaused) _states.add(_currState);
    }
    _err = null;
    return true;
@@ -567,7 +567,7 @@ bool clear() {
  // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
  if (_currState != STATE_IDLE) {
    _currState = STATE_IDLE;
-   _states.add(_currState);
+   if (_states.hasListener &amp;&amp; !_states.isPaused) _states.add(_currState);
  }
  _err = null;
  return true;
@@ -681,7 +681,7 @@ Future&lt;bool&gt; undo() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-02 17:32:22.286</div>
+          <div>This page was generated at 2013-05-03 02:31:50.800</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
