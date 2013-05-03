@@ -3,6 +3,9 @@
 ## 0.2.1-dev
 
 - Updated to SDK 0.5.3_r22223.
+- Avoid streaming `states` events unless there is a listener and the stream is 
+not paused.  This avoids potential memory leaks that might arise with buffered
+events.
 
 ## 0.2.0
 

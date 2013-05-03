@@ -24,7 +24,7 @@ void main() {
     test('Test that an error thrown by an action is handled as expected.', 
         testActionThrows);
     test('Test that an attempt to schedule the same action twice throws error.',
-         testScheduleSameActionTwiceThrows);
+        testScheduleSameActionTwiceThrows);
     test('Test that an action call throws StateError if the Schedule hasError.', 
         testScheduleHasErrorActionThrows);
     test('Test the successful completion of an undo operation.', testUndo);
@@ -49,7 +49,7 @@ void main() {
     test('Test the expected order of multiple concurrent actions.', 
         testMultipleActionsDuringAction);
     test('Test that an attempt to defer the same action twice throws error.',
-         testDeferSameActionTwiceThrows);
+        testDeferSameActionTwiceThrows);
     test('Test the expected order of an action called during undo.', 
         testActionDuringUndo);   
     test('Test that an error thrown by a pending action does not affect undo.',
@@ -63,7 +63,7 @@ void main() {
     test('Test that an error thrown by a pending action does not affect to.', 
         testActionThrowsDuringTo);
     test('Test that an action called in the flush state is done before idle.', 
-         testActionDuringFlush);    
+        testActionDuringFlush);    
   });  
   group('[transaction]', () {
     setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
@@ -77,7 +77,14 @@ void main() {
     test('Test that a transact builds and computes a transaction as expected.', 
         testTransact);
     test('Test that an error thrown in the body of transact is handled.', 
-         testTransactThrows);
+        testTransactThrows);
+  });
+  group('[states]', () {
+    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    test('Test that no events are added to the states stream if no listeners.', 
+        testNoStatesListener);
+    test('Test that no events are added to the states stream when paused.', 
+        testPauseStatesListener);
   });
 }
 
@@ -827,4 +834,61 @@ void testTransactThrows() {
     action1().then(expectAsync1((result) => expect(result, equals(43))));
     action2().then(expectAsync1((result) => expect(result, equals(1849))));
   }).then(expectAsync1((_) => expect(map['val'], equals(1849))));
+}
+
+// -----------------------------------------------------------------------------
+// States
+// -----------------------------------------------------------------------------
+
+void testNoStatesListener() {
+  var schedule = new Schedule();
+  // Do an action to cause state transitions to happen.
+  var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
+  schedule(action).then(expectAsync1((result) {
+    expect(result, equals(15));    
+    final noop = expectAsync0(() { });
+    
+    // Defer to let the schedule return to idle.
+    runAsync(() {
+      expect(schedule.busy, isFalse);
+      
+      // Now attach a listener.
+      schedule.states.listen((state) {
+        fail('No states should be buffered.');
+      });
+      
+      // Delay test completion to make sure no events are flushed to listener.
+      runAsync(noop);
+    });
+  }));  
+}
+
+void testPauseStatesListener() {
+  var schedule = new Schedule();
+  
+  // Attach a listener.
+  var subscribe = schedule.states.listen((state) {
+    fail('No states should be buffered during pause.');
+  });
+  
+  // Pause the subscription.
+  subscribe.pause();
+  
+  // Do an action to cause state transitions to happen.
+  var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
+  schedule(action).then(expectAsync1((result) {
+    expect(result, equals(15));    
+    final noop = expectAsync0(() { });
+    
+    // Defer to let the schedule return to idle.
+    runAsync(() {
+      expect(schedule.busy, isFalse);
+      
+      // Resume the subscription.
+      subscribe.resume();
+      
+      // Delay test completion to make sure no events are flushed to listener.
+      runAsync(noop);
+    });
+  }));  
 }

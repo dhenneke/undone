@@ -261,7 +261,7 @@ class Schedule {
     if (nextState != _currState && _currState != STATE_ERROR) {
       _currState = nextState;
       _log(() => '--- enter state ---');
-      _states.add(_currState);
+      if (_states.hasListener && !_states.isPaused) _states.add(_currState);
     }
   }
     
@@ -302,7 +302,7 @@ class Schedule {
     // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
     if (_currState != STATE_IDLE) {
       _currState = STATE_IDLE;
-      _states.add(_currState);
+      if (_states.hasListener && !_states.isPaused) _states.add(_currState);
     }
     _err = null;
     return true;
