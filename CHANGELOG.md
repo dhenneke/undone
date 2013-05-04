@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.2.1-dev
+## 0.2.1
 
 - Updated to SDK 0.5.3_r22223.
 - Avoid streaming `states` events unless there is a listener and the stream is 
