@@ -85,6 +85,8 @@ void main() {
         testNoStatesListener);
     test('Test that no events are added to the states stream when paused.', 
         testPauseStatesListener);
+    test('Test that the states stream is not a broadcast stream.', 
+         testStatesNotBroadcast);
   });
 }
 
@@ -891,4 +893,12 @@ void testPauseStatesListener() {
       runAsync(noop);
     });
   }));  
+}
+
+void testStatesNotBroadcast() {
+  var schedule = new Schedule();
+  schedule.states.listen((state) { /* noop */ });  
+  expect(() { 
+    schedule.states.listen((state) { /* noop */ }); 
+  }, throwsA(isStateError));
 }
