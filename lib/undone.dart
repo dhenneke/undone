@@ -318,18 +318,20 @@ class Schedule {
     action._execute()
       .then((result) {
         _log(() => '$action complete w/ $result');
-        action._result = result;        
+        action._result = result;
+        // Flush any pending action calls that were deferred as we did this 
+        // action.  Also flush if we see STATE_ERROR, to ensure that pending
+        // actions that were called prior to the error receive a completion.
+        if (_state == STATE_CALL || _state == STATE_ERROR) {
+          completer.future.whenComplete(_flush);        
+        }
         // Complete the result before we flush pending and transition to idle.
         // This ensures 2 things:
         //    1) The continuations of the action see the state as the result of 
         //       this action and _not_ the state of further pending actions.
         //    2) The order of pending actions is preserved as the user is not
         //       able to undo or redo (busy == true) in continuations.
-        completer.complete(result);
-        // Flush any pending action calls that were deferred as we did this 
-        // action.  Also flush if we see STATE_ERROR, to ensure that pending
-        // actions that were called prior to the error receive a completion.
-        if (_state == STATE_CALL || _state == STATE_ERROR) _flush();
+        completer.complete(result);        
       })
       .catchError((e) {
         _error = e;
@@ -389,11 +391,11 @@ class Schedule {
     final handleError = (e) { _error = e; completer.completeError(e); };
     final int actionIndex = _actions.indexOf(action);
     if (actionIndex == _nextUndo) {
+      completer.future.whenComplete(_flush);
       // Complete before we flush pending and transition to idle.
       // This ensures that continuations of 'to' see the state as the 
       // result of 'to' and _not_ the state of further pending actions.
       completer.complete(true);
-      _flush();
     } else if (actionIndex < _nextUndo) {
       // Undo towards the desired action.
       undo()
@@ -428,12 +430,12 @@ class Schedule {
         .then((result) {
           _log(() => '${action} execute complete w/ $result');
           action._result = result;
+          // Don't flush if we are in STATE_TO, it will flush when it is done.
+          if (_state == STATE_REDO) completer.future.whenComplete(_flush);
           // Complete before we flush pending and transition to idle.
           // This ensures that continuations of redo see the state as the 
           // result of redo and _not_ the state of further pending actions. 
-          completer.complete(true);
-          // Don't flush if we are in STATE_TO, it will flush when it is done.
-          if (_state == STATE_REDO) _flush();
+          completer.complete(true);          
         })
         .catchError((e) {
           _error = e;
@@ -457,12 +459,12 @@ class Schedule {
       action._unexecute()
         .then((_) {
           _log(() => '${action} unexecute complete');
+          // Don't flush if we are in STATE_TO, it will flush when it is done.
+          if (_state == STATE_UNDO) completer.future.whenComplete(_flush);
           // Complete before we flush pending and transition to idle.
           // This ensures that continuations of undo see the state as the 
           // result of undo and _not_ the state of further pending actions. 
-          completer.complete(true);
-          // Don't flush if we are in STATE_TO, it will flush when it is done.
-          if (_state == STATE_UNDO) _flush();
+          completer.complete(true);          
         })
         .catchError((e) {
           _error = e;
