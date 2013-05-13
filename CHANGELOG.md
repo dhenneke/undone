@@ -1,8 +1,11 @@
 # Undone Changes
 
-## 0.2.2-dev
+## 0.2.2
 
-- Updated to SDK 0.5.5_r22416.
+- Updated to SDK 0.5.7_r22611.
+- Handle the change to Completer behavior; they are now completed asynchronously
+by default.  A schedule will now flush pending actions at the end of the series
+of asynchronous events trigerred by its completers, making it more bulletproof.
 
 ## 0.2.1
 
