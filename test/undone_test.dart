@@ -150,10 +150,10 @@ void testActionConstructorNullThrows() {
   expect(() => new Action(7, (x) => x + 1, null), 
       throwsA(const isInstanceOf<ArgumentError>()));
   expect(() => new Action.async(11, null, 
-      (x, y) =>new Future.of(() => x = y)), 
+      (x, y) =>new Future(() => x = y)), 
       throwsA(const isInstanceOf<ArgumentError>()));
   expect(() => new Action.async(11,
-      (x) => new Future.of(() => x - 1), null), 
+      (x) => new Future(() => x - 1), null), 
       throwsA(const isInstanceOf<ArgumentError>())); 
 }
 
