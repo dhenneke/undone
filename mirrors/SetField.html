@@ -32,6 +32,8 @@
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
+<p>An <code>Action</code> to set a field of an <code>Object</code>.</p>
+<p>This action uses synchronous mirror reflection to do and undo its operation.</p>
 <pre class="source">
 class SetField extends Action {
  
@@ -50,6 +52,8 @@ class SetField extends Action {
    mirror.setField(fieldName, oldArg);
  }
  
+ /// Constructs a new action to set the field with the given [fieldName] on the
+ /// object instance reflected by the given [mirror] to the given [arg].
  SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
    : super([mirror, fieldName, arg], _do, _undo);
 }
@@ -65,6 +69,11 @@ class SetField extends Action {
 new <strong>SetField</strong>(InstanceMirror mirror, Symbol fieldName, Object arg) <a class="anchor-link" href="#SetField"
               title="Permalink to SetField.SetField">#</a></h4>
 <div class="doc">
+<p>Constructs a new action to set the field with the given 
+<span class="param">fieldName</span> on the
+object instance reflected by the given 
+<span class="param">mirror</span> to the given 
+<span class="param">arg</span>.</p>
 <pre class="source">
 SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
  : super([mirror, fieldName, arg], _do, _undo);
@@ -112,7 +121,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-31 06:36:26.765</div>
+          <div>This page was generated at 2013-05-31 07:06:06.411</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
