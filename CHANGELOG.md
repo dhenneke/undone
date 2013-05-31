@@ -3,6 +3,8 @@
 ## 0.2.3-dev
 
 - Updated to SDK 0.5.11_r23200.
+- Added `mirrors.dart` library with a `SetField` action; this is a separate 
+library so that users conciously import it and its dependency on `dart:mirrors`.
 
 ## 0.2.2
 
