@@ -4,8 +4,9 @@ library undone.test;
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:logging/logging.dart';
-import 'package:unittest/unittest.dart';
+import 'package:undone/mirrors.dart';
 import 'package:undone/undone.dart';
+import 'package:unittest/unittest.dart';
 
 void main() {
   Logger.root.level = Level.ALL;
@@ -88,6 +89,12 @@ void main() {
     test('Test that the states stream is not a broadcast stream.', 
          testStatesNotBroadcast);
   });
+  group('[mirrors]', () {
+    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    test('Test the success of a set field action.', testSetField);
+    test('Test the successful undo of a set field action.', testSetFieldUndo);
+    test('Test the successful redo of a set field action.', testSetFieldRedo);
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -121,6 +128,10 @@ Future waitError(Schedule s) {
 Future waitIdle(Schedule s) {
   if (!s.busy) return new Future.value(Schedule.STATE_IDLE);
   return s.states.firstWhere((state) => state == Schedule.STATE_IDLE);
+}
+
+class HasFields {
+  int i = 7;
 }
 
 // -----------------------------------------------------------------------------
@@ -901,4 +912,48 @@ void testStatesNotBroadcast() {
   expect(() { 
     schedule.states.listen((state) { /* noop */ }); 
   }, throwsA(isStateError));
+}
+
+// -----------------------------------------------------------------------------
+// Mirrors
+// -----------------------------------------------------------------------------
+
+void testSetField() {
+  final o = new HasFields();
+  expect(o.i, equals(7));  
+  final action = new SetField(o, const Symbol('i'), 42);
+  action();  
+  expect(o.i, equals(42));
+}
+
+void testSetFieldUndo() {
+  final o = new HasFields();
+  final action = new SetField(o, const Symbol('i'), 42);
+  action()
+    .then((result) {
+      expect(o.i, equals(42));
+    })
+    .then((_) => waitIdle(schedule))
+    .then((_) => undo())
+    .then(expectAsync1((success) {
+      expect(success, isTrue);
+      expect(o.i, equals(7));
+    }));
+}
+
+void testSetFieldRedo() {
+  final o = new HasFields();
+  final action = new SetField(o, const Symbol('i'), 42);
+  action()
+    .then((result) {
+      expect(o.i, equals(42));
+    })
+    .then((_) => waitIdle(schedule))
+    .then((_) => undo())
+    .then((_) => waitIdle(schedule))
+    .then((_) => redo())
+    .then(expectAsync1((success) {
+      expect(success, isTrue);
+      expect(o.i, equals(42));
+    }));
 }
