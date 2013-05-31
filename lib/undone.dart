@@ -370,6 +370,45 @@ class Schedule {
       .catchError((e) => _error = e);
   }
   
+  void _log(String message()) {
+    // Assert will be stripped in 'production' mode; the result is that all
+    // logging code should be removed as dead code by the tree shaking.
+    assert(() {
+      _logger.fine('[${_state}]: ${message()}');
+      return true;
+    });
+  }
+  
+  /// Redo the next action to be redone in this schedule, if any.
+  /// Completes `true` if an action was redone or else completes `false`.
+  Future<bool> redo() { 
+    var completer = new Completer<bool>();
+    if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+      _log(() => 'can not redo');
+      completer.complete(false);
+    } else {
+      if (_state == STATE_IDLE) _state = STATE_REDO;
+      final action = _actions[++_nextUndo];
+      _log(() => 'execute ${action} [${_nextUndo-1}]');
+      action._execute()
+        .then((result) {
+          _log(() => '${action} execute complete w/ $result');
+          action._result = result;
+          // Don't flush if we are in STATE_TO, it will flush when it is done.
+          if (_state == STATE_REDO) completer.future.whenComplete(_flush);
+          // Complete before we flush pending and transition to idle.
+          // This ensures that continuations of redo see the state as the 
+          // result of redo and _not_ the state of further pending actions. 
+          completer.complete(true);          
+        })
+        .catchError((e) {
+          _error = e;
+          completer.completeError(e);
+        });
+    }
+    return completer.future;
+  }
+  
   /// Undo or redo all ordered actions in this schedule until the given [action] 
   /// is done.  The state of the schedule after this operation is equal to the 
   /// state upon completion of the given action. Completes `false` if any undo 
@@ -415,36 +454,6 @@ class Schedule {
     }
   }
   
-  /// Redo the next action to be redone in this schedule, if any.
-  /// Completes `true` if an action was redone or else completes `false`.
-  Future<bool> redo() { 
-    var completer = new Completer<bool>();
-    if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-      _log(() => 'can not redo');
-      completer.complete(false);
-    } else {
-      if (_state == STATE_IDLE) _state = STATE_REDO;
-      final action = _actions[++_nextUndo];
-      _log(() => 'execute ${action} [${_nextUndo-1}]');
-      action._execute()
-        .then((result) {
-          _log(() => '${action} execute complete w/ $result');
-          action._result = result;
-          // Don't flush if we are in STATE_TO, it will flush when it is done.
-          if (_state == STATE_REDO) completer.future.whenComplete(_flush);
-          // Complete before we flush pending and transition to idle.
-          // This ensures that continuations of redo see the state as the 
-          // result of redo and _not_ the state of further pending actions. 
-          completer.complete(true);          
-        })
-        .catchError((e) {
-          _error = e;
-          completer.completeError(e);
-        });
-    }
-    return completer.future;
-  }
-  
   /// Undo the next action to be undone in this schedule, if any.
   /// Completes `true` if an action was undone or else completes `false`.
   Future<bool> undo() { 
@@ -474,12 +483,12 @@ class Schedule {
     return completer.future;
   }
   
-  void _log(String message()) {
-    // Assert will be stripped in 'production' mode; the result is that all
-    // logging code should be removed as dead code by the tree shaking.
-    assert(() {
-      _logger.fine('[${_state}]: ${message()}');
-      return true;
-    });
+  /// Wait for this schedule to reach the given [state].
+  /// Completes on the next transition to the given state, or immediately if the 
+  /// state is the current state of this schedule.
+  Future<String> wait(String state) {
+    // TODO(rms): validate that state is one of the possible values; oh enum!
+    if (_state == state) return new Future.value(_state);
+    return states.firstWhere((s) => s == state);
   }
 }

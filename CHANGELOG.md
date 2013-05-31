@@ -2,6 +2,11 @@
 
 ## 0.2.4-dev
 
+- Added `Future<String> wait(String state)` method to `Schedule` and updated the 
+tests to use this instead of their former utility function equivalent; the 
+motivation for this is that I have other use cases for this function now outside
+of testing.
+
 ## 0.2.3
 
 - Updated to SDK 0.5.11_r23200.

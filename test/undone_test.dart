@@ -14,7 +14,8 @@ void main() {
   Logger.root.onRecord.listen((record) => print('${record.message}'));
   
   group('[basic]', () {
-    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    setUp(() => 
+        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
     test('Test the initial state of a freshly constructed schedule.', 
         testScheduleInitialState);
     test('Test that action constructors succeed when given valid arguments.', 
@@ -43,7 +44,8 @@ void main() {
     test('Test the successful clear of a schedule.', testClear);
   });
   group('[concurrent]', () {
-    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    setUp(() => 
+        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
     test('Test the expected order of two concurrent actions.', 
         testActionDuringAction);
     test('Test that an error thrown by a pending action does not affect other.', 
@@ -68,7 +70,8 @@ void main() {
         testActionDuringFlush);    
   });  
   group('[transaction]', () {
-    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    setUp(() => 
+        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
     test('Test that a transaction computes as expected.', testTransaction);
     test('Test that a transaction rollback succeeds when an error is thrown.', 
         testTransactionRollback);
@@ -82,7 +85,8 @@ void main() {
         testTransactThrows);
   });
   group('[states]', () {
-    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    setUp(() => 
+        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
     test('Test that no events are added to the states stream if no listeners.', 
         testNoStatesListener);
     test('Test that no events are added to the states stream when paused.', 
@@ -91,7 +95,8 @@ void main() {
          testStatesNotBroadcast);
   });
   group('[mirrors]', () {
-    setUp(() => waitIdle(schedule).then((_) => schedule.clear()));
+    setUp(() => 
+        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
     test('Test the success of a set field action.', testSetField);
     test('Test the successful undo of a set field action.', testSetFieldUndo);
     test('Test the successful redo of a set field action.', testSetFieldRedo);
@@ -120,16 +125,6 @@ DoAsync squareAsync = (a) =>
     new Future.delayed(const Duration(milliseconds: 3), () => square(a));
 UndoAsync squareRootAsync = (a, _) => 
     new Future.delayed(const Duration(milliseconds: 5), () => squareRoot(a, _));
-
-Future waitError(Schedule s) {
-  if (s.hasError) return new Future.value(Schedule.STATE_ERROR);
-  return s.states.firstWhere((state) => state == Schedule.STATE_ERROR);
-}
-
-Future waitIdle(Schedule s) {
-  if (!s.busy) return new Future.value(Schedule.STATE_IDLE);
-  return s.states.firstWhere((state) => state == Schedule.STATE_IDLE);
-}
 
 class HasFields {
   int i = 7;
@@ -236,7 +231,7 @@ void testUndo() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -253,7 +248,7 @@ void testUndoThrows() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .catchError(expectAsync1((e) { 
       expect(e, equals('uh-oh'));
@@ -271,13 +266,13 @@ void testRedo() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.redo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -299,13 +294,13 @@ void testRedoThrows() {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.redo())
     .catchError(expectAsync1((e) { 
       expect(e, equals('overdone'));
@@ -346,13 +341,13 @@ void testTo() {
       expect(result, equals(1850));
       expect(map['val'], equals(1850));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.to(action1))
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })    
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.to(action3))
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -374,7 +369,7 @@ void testClear() {
       expect(result, equals(1850));
       expect(map['val'], equals(1850));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then(expectAsync1((_) {
       expect(schedule.canClear, isTrue);
       expect(schedule.clear(), isTrue);
@@ -430,7 +425,7 @@ void testActionThrowsDuringAction() {
     .catchError(expectAsync1((e) {    
       expect(e, equals('crowbar'));    
     }))
-    .then((_) => waitError(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_ERROR))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
@@ -521,7 +516,7 @@ void testActionDuringUndo() {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) {
       expect(schedule.canUndo, isTrue);   
       // The undo() needs to take more than 1 frame of the event loop
@@ -553,7 +548,7 @@ void testActionThrowsDuringUndo() {
     expect(result, equals(1849));
     expect(map['val'], equals(1849));
   })
-  .then((_) => waitIdle(schedule))
+  .then((_) => schedule.wait(Schedule.STATE_IDLE))
   .then((_) {
     expect(schedule.canUndo, isTrue);   
     // The undo() needs to take more than 1 frame of the event loop
@@ -568,7 +563,7 @@ void testActionThrowsDuringUndo() {
   .catchError(expectAsync1((e) {   
     expect(e, equals('crowbar'));    
   }))
-  .then((_) => waitError(schedule))
+  .then((_) => schedule.wait(Schedule.STATE_ERROR))
   .then(expectAsync1((_) {
     expect(schedule.hasError, isTrue);
     expect(schedule.error, equals('crowbar'));
@@ -592,13 +587,13 @@ void testActionDuringRedo() {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) {
       expect(schedule.canRedo, isTrue);   
       // The redo() needs to take more than 1 frame of the event loop
@@ -625,13 +620,13 @@ void testActionThrowsDuringRedo() {
   
   schedule(action1);
   schedule(action2)
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) {
       expect(schedule.canRedo, isTrue);   
       // The redo() needs to take more than 1 frame of the event loop
@@ -646,7 +641,7 @@ void testActionThrowsDuringRedo() {
     .catchError(expectAsync1((e) {   
       expect(e, equals('crowbar'));    
     }))
-    .then((_) => waitError(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_ERROR))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
@@ -663,7 +658,7 @@ void testActionDuringTo() {
   action1();
   action2();
   action3()
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) {
       schedule.to(action1).then((success) {
         expect(success, isTrue);
@@ -688,7 +683,7 @@ void testActionThrowsDuringTo() {
   schedule(action1);
   schedule(action2);
   schedule(action3)
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) {
       schedule.to(action1).then((success) => 
           // The to() should have success since the error should occur later.
@@ -698,7 +693,7 @@ void testActionThrowsDuringTo() {
     .catchError(expectAsync1((e) {  
       expect(e, equals('crowbar'));    
     }))
-    .then((_) => waitError(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_ERROR))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
@@ -810,7 +805,7 @@ void testTransactionUndo() {
   
   schedule(transaction)
     .then((_) => expect(map['val'], equals(1850)))
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -934,7 +929,7 @@ void testSetFieldUndo() {
     .then((result) {
       expect(o.i, equals(42));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => undo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
@@ -949,9 +944,9 @@ void testSetFieldRedo() {
     .then((result) {
       expect(o.i, equals(42));
     })
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => undo())
-    .then((_) => waitIdle(schedule))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => redo())
     .then(expectAsync1((success) {
       expect(success, isTrue);
