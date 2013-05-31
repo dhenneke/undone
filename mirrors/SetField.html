@@ -50,8 +50,8 @@ class SetField extends Action {
    mirror.setField(fieldName, oldArg);
  }
  
- SetField(Object o, Symbol fieldName, Object arg) 
-   : super([reflect(o), fieldName, arg], _do, _undo);
+ SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
+   : super([mirror, fieldName, arg], _do, _undo);
 }
 </pre>
 </div>
@@ -62,12 +62,12 @@ class SetField extends Action {
 <h3>Constructors</h3>
 <div class="method"><h4 id="SetField">
 <button class="show-code">Code</button>
-new <strong>SetField</strong>(Object o, Symbol fieldName, Object arg) <a class="anchor-link" href="#SetField"
+new <strong>SetField</strong>(InstanceMirror mirror, Symbol fieldName, Object arg) <a class="anchor-link" href="#SetField"
               title="Permalink to SetField.SetField">#</a></h4>
 <div class="doc">
 <pre class="source">
-SetField(Object o, Symbol fieldName, Object arg) 
- : super([reflect(o), fieldName, arg], _do, _undo);
+SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
+ : super([mirror, fieldName, arg], _do, _undo);
 </pre>
 </div>
 </div>
@@ -112,7 +112,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-31 06:30:14.248</div>
+          <div>This page was generated at 2013-05-31 06:36:26.765</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
