@@ -5,6 +5,9 @@ library mirrors;
 import 'dart:mirrors';
 import 'undone.dart';
 
+/// An [Action] to set a field of an [Object].
+///
+/// This action uses synchronous mirror reflection to do and undo its operation.
 class SetField extends Action {
   
   static Object _do(List args) {
@@ -22,6 +25,8 @@ class SetField extends Action {
     mirror.setField(fieldName, oldArg);
   }
   
+  /// Constructs a new action to set the field with the given [fieldName] on the
+  /// object instance reflected by the given [mirror] to the given [arg].
   SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
     : super([mirror, fieldName, arg], _do, _undo);
 }
