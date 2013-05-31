@@ -22,6 +22,6 @@ class SetField extends Action {
     mirror.setField(fieldName, oldArg);
   }
   
-  SetField(Object o, Symbol fieldName, Object arg) 
-    : super([reflect(o), fieldName, arg], _do, _undo);
+  SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
+    : super([mirror, fieldName, arg], _do, _undo);
 }

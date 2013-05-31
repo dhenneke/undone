@@ -3,6 +3,7 @@ library undone.test;
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:mirrors' as mirrors;
 import 'package:logging/logging.dart';
 import 'package:undone/mirrors.dart';
 import 'package:undone/undone.dart';
@@ -921,14 +922,14 @@ void testStatesNotBroadcast() {
 void testSetField() {
   final o = new HasFields();
   expect(o.i, equals(7));  
-  final action = new SetField(o, const Symbol('i'), 42);
+  final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
   action();  
   expect(o.i, equals(42));
 }
 
 void testSetFieldUndo() {
   final o = new HasFields();
-  final action = new SetField(o, const Symbol('i'), 42);
+  final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
   action()
     .then((result) {
       expect(o.i, equals(42));
@@ -943,7 +944,7 @@ void testSetFieldUndo() {
 
 void testSetFieldRedo() {
   final o = new HasFields();
-  final action = new SetField(o, const Symbol('i'), 42);
+  final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
   action()
     .then((result) {
       expect(o.i, equals(42));
