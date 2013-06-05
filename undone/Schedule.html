@@ -102,11 +102,11 @@ class Schedule {
    if (nextState != _currState &amp;&amp; _currState != STATE_ERROR) {
      _currState = nextState;
      _log(() =&gt; '--- enter state ---');
-     if (_states.hasListener &amp;&amp; !_states.isPaused) _states.add(_currState);
+     if (_states.hasListener) _states.add(_currState);
    }
  }
    
- final _states = new StreamController&lt;String&gt;();
+ final _states = new StreamController&lt;String&gt;.broadcast();
  /// An observable stream of this schedule's state transitions.
  Stream&lt;String&gt; get states =&gt; _states.stream;
      
@@ -143,7 +143,7 @@ class Schedule {
    // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
    if (_currState != STATE_IDLE) {
      _currState = STATE_IDLE;
-     if (_states.hasListener &amp;&amp; !_states.isPaused) _states.add(_currState);
+     if (_states.hasListener) _states.add(_currState);
    }
    _err = null;
    return true;
@@ -578,7 +578,7 @@ bool clear() {
  // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
  if (_currState != STATE_IDLE) {
    _currState = STATE_IDLE;
-   if (_states.hasListener &amp;&amp; !_states.isPaused) _states.add(_currState);
+   if (_states.hasListener) _states.add(_currState);
  }
  _err = null;
  return true;
@@ -710,7 +710,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-05-31 08:40:48.992</div>
+          <div>This page was generated at 2013-06-05 07:38:05.186</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
