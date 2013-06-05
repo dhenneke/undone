@@ -261,11 +261,11 @@ class Schedule {
     if (nextState != _currState && _currState != STATE_ERROR) {
       _currState = nextState;
       _log(() => '--- enter state ---');
-      if (_states.hasListener && !_states.isPaused) _states.add(_currState);
+      if (_states.hasListener) _states.add(_currState);
     }
   }
     
-  final _states = new StreamController<String>();
+  final _states = new StreamController<String>.broadcast();
   /// An observable stream of this schedule's state transitions.
   Stream<String> get states => _states.stream;
       
@@ -302,7 +302,7 @@ class Schedule {
     // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
     if (_currState != STATE_IDLE) {
       _currState = STATE_IDLE;
-      if (_states.hasListener && !_states.isPaused) _states.add(_currState);
+      if (_states.hasListener) _states.add(_currState);
     }
     _err = null;
     return true;

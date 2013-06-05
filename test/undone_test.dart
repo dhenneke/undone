@@ -89,10 +89,10 @@ void main() {
         schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
     test('Test that no events are added to the states stream if no listeners.', 
         testNoStatesListener);
-    test('Test that no events are added to the states stream when paused.', 
+    test('Test that events are buffered by a paused states stream subscriber.', 
         testPauseStatesListener);
-    test('Test that the states stream is not a broadcast stream.', 
-         testStatesNotBroadcast);
+    test('Test that the states stream is a broadcast stream.', 
+        testStatesIsBroadcast);
   });
   group('[mirrors]', () {
     setUp(() => 
@@ -869,45 +869,31 @@ void testNoStatesListener() {
       // Delay test completion to make sure no events are flushed to listener.
       runAsync(noop);
     });
-  }));  
+  }));
 }
 
 void testPauseStatesListener() {
   var schedule = new Schedule();
   
-  // Attach a listener.
-  var subscribe = schedule.states.listen((state) {
-    fail('No states should be buffered during pause.');
-  });
+  // Attach a listener, we expect to see both the CALL and IDLE states.
+  var subscribe = schedule.states.listen(expectAsync1((state) {}, count: 2));
   
   // Pause the subscription.
   subscribe.pause();
   
   // Do an action to cause state transitions to happen.
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
-  schedule(action).then(expectAsync1((result) {
-    expect(result, equals(15));    
-    final noop = expectAsync0(() { });
-    
-    // Defer to let the schedule return to idle.
-    runAsync(() {
-      expect(schedule.busy, isFalse);
-      
-      // Resume the subscription.
-      subscribe.resume();
-      
-      // Delay test completion to make sure no events are flushed to listener.
-      runAsync(noop);
-    });
-  }));  
+  schedule(action)
+    .then(expectAsync1((result) => expect(result, equals(15))))
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
+    // Resume the subscription.
+    .then((_) => subscribe.resume());
 }
 
-void testStatesNotBroadcast() {
+void testStatesIsBroadcast() {
   var schedule = new Schedule();
-  schedule.states.listen((state) { /* noop */ });  
-  expect(() { 
-    schedule.states.listen((state) { /* noop */ }); 
-  }, throwsA(isStateError));
+  schedule.states.listen((state) { /* noop */ });
+  schedule.states.listen((state) { /* noop */ });
 }
 
 // -----------------------------------------------------------------------------

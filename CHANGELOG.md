@@ -2,6 +2,12 @@
 
 ## 0.2.4-dev
 
+- Updated to SDK 0.5.13_r23552.
+- Switched `states` stream to use the new `StreamController.broadcast` that was
+re-introduced in this SDK version.  With this change the `Schedule` is no longer
+responsible for checking the paused state (a broadcast stream controller is 
+never considered paused) before adding events to the stream; each subscription
+will buffer events itself when paused.
 - Added `Future<String> wait(String state)` method to `Schedule` and updated the 
 tests to use this instead of their former utility function equivalent; the 
 motivation for this is that I have other use cases for this function now outside
