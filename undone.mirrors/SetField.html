@@ -1,0 +1,128 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>SetField class / undone.mirrors Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="undone.mirrors" data-type="SetField">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../undone.mirrors.html">undone.mirrors</a> &rsaquo; <a href="../undone.mirrors/SetField.html">SetField</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>SetField</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>An <code>Action</code> to set a field of an <code>Object</code>.</p>
+<p>This action uses synchronous mirror reflection to do and undo its operation.</p>
+<pre class="source">
+class SetField extends Action {
+ 
+ static Object _do(List args) {
+   final mirror = args[0];
+   final fieldName = args[1];
+   final arg = args[2];
+   final oldArg = mirror.getField(fieldName).reflectee;
+   mirror.setField(fieldName, arg);    
+   return oldArg;
+ }
+ 
+ static void _undo(List args, Object oldArg) {
+   final mirror = args[0];
+   final fieldName = args[1];
+   mirror.setField(fieldName, oldArg);
+ }
+ 
+ /// Constructs a new action to set the field with the given [fieldName] on the
+ /// object instance reflected by the given [mirror] to the given [arg].
+ SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
+   : super([mirror, fieldName, arg], _do, _undo);
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../undone/Action.html">Action</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>SetField</strong></span></p>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="SetField">
+<button class="show-code">Code</button>
+new <strong>SetField</strong>(InstanceMirror mirror, Symbol fieldName, Object arg) <a class="anchor-link" href="#SetField"
+              title="Permalink to SetField.SetField">#</a></h4>
+<div class="doc">
+<p>Constructs a new action to set the field with the given 
+<span class="param">fieldName</span> on the
+object instance reflected by the given 
+<span class="param">mirror</span> to the given 
+<span class="param">arg</span>.</p>
+<pre class="source">
+SetField(InstanceMirror mirror, Symbol fieldName, Object arg) 
+ : super([mirror, fieldName, arg], _do, _undo);
+</pre>
+</div>
+</div>
+</div>
+<div class="inherited">
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="call">
+<button class="show-code">Code</button>
+Future&lt;<a href="../undone.mirrors/SetField.html">R</a>&gt; <strong>call</strong>() <a class="anchor-link" href="#call"
+              title="Permalink to SetField.call">#</a></h4>
+<div class="inherited-from">inherited from <a href="../undone/Action.html">Action</a> </div><div class="doc">
+<p>Schedules this action to be called on the top-level <code>schedule</code>.  If this
+action is called within the scope of a top-level <code>transact</code> method it will
+instead be added to that transaction.  Completes with the result of the
+action in both cases.</p>
+<pre class="source">
+Future&lt;R&gt; call() {    
+ if (_transaction != null) {
+   _transaction.add(this);
+   return this._defer();
+ }
+ return schedule(this);
+}
+</pre>
+</div>
+</div>
+<div class="method inherited"><h4 id="toString">
+<button class="show-code">Code</button>
+String <strong>toString</strong>() <a class="anchor-link" href="#toString"
+              title="Permalink to SetField.toString">#</a></h4>
+<div class="inherited-from">inherited from <a href="../undone/Action.html">Action</a> </div><div class="doc">
+<div class="inherited">
+<p>Returns a string representation of this object.</p>
+<div class="docs-inherited-from">docs inherited from Object </div></div>
+<pre class="source">
+String toString() =&gt; 'action($hashCode)';
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-06-05 07:51:00.967</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
