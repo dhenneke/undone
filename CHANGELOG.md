@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.2.4-dev
+## 0.2.4
 
 - Updated to SDK 0.5.13_r23552.
 - Switched `states` stream to use the new `StreamController.broadcast` that was
