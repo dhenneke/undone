@@ -1,6 +1,6 @@
 
 /// Actions that use `dart:mirrors`.
-library mirrors;
+library undone.mirrors;
 
 import 'dart:mirrors';
 import 'undone.dart';
