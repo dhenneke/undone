@@ -38,7 +38,7 @@ another to <a class="crossref" href="../undone/Undo.html">Undo</a> the action.  
 can be <a class="crossref" href="../undone/Action.html#call">call</a>ed to schedule it to be done on the top-level <a class="crossref" href="../undone.html#schedule">schedule</a> or
 to add it to a <a class="crossref" href="../undone/Transaction.html">Transaction</a> if called within the scope of <a class="crossref" href="../undone.html#transact">transact</a>.
 Actions may also be constructed with a pair of <a class="crossref" href="../undone/DoAsync.html">DoAsync</a> and <a class="crossref" href="../undone/UndoAsync.html">UndoAsync</a>
-functions using the <a class="crossref" href="../undone/Action.html#Action.async">new Action.async</a> constructor.  All actions are done
+functions using the <a class="crossref" href="../undone/Action.html#async">new Action.async</a> constructor.  All actions are done
 and undone asynchronously, regardless of the functions themselves.  Actions
 may be optionally typed by their argument and result objects, <a class="crossref" href="../undone/Action.html">A</a> and <a class="crossref" href="../undone/Action.html">R</a>.
 The action type may be extended to define custom actions although this may
@@ -120,9 +120,9 @@ class Action&lt;A, R&gt; {
 <span class="type-box"><span class="icon-class"></span><a href="../undone.mirrors/SetField.html">SetField</a></span>, <span class="type-box"><span class="icon-class"></span><a href="../undone/Transaction.html">Transaction</a></span></p>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="Action">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>Action</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/Do.html">Do</a> d, <a href="../undone/Undo.html">Undo</a> u) <a class="anchor-link" href="#Action"
+new <strong>Action</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/Do.html">Do</a> d, <a href="../undone/Undo.html">Undo</a> u) <a class="anchor-link" href="#"
               title="Permalink to Action&lt;A, R&gt;.Action">#</a></h4>
 <div class="doc">
 <p>Constructs a new action with the given 
@@ -136,9 +136,9 @@ Action(A arg, Do d, Undo u) : this._(arg,
 </pre>
 </div>
 </div>
-<div class="method"><h4 id="Action.async">
+<div class="method"><h4 id="async">
 <button class="show-code">Code</button>
-new <strong>Action.async</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/DoAsync.html">DoAsync</a> d, <a href="../undone/UndoAsync.html">UndoAsync</a> u) <a class="anchor-link" href="#Action.async"
+new <strong>Action.async</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/DoAsync.html">DoAsync</a> d, <a href="../undone/UndoAsync.html">UndoAsync</a> u) <a class="anchor-link" href="#async"
               title="Permalink to Action&lt;A, R&gt;.Action.async">#</a></h4>
 <div class="doc">
 <p>Constructs a new action with the given 
@@ -190,7 +190,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-07-11 19:11:24.203</div>
+          <div>This page was generated at 2013-07-17 21:15:45.605</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
