@@ -4,6 +4,8 @@ library undone.test;
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:mirrors' as mirrors;
+import 'package:bench/bench.dart' as bench;
+import 'package:bench/meta.dart';
 import 'package:logging/logging.dart';
 import 'package:undone/mirrors.dart';
 import 'package:undone/undone.dart';
@@ -11,101 +13,18 @@ import 'package:unittest/unittest.dart';
 
 void main() {
   Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) => print('${record.message}'));
-  
-  group('[basic]', () {
-    setUp(() => 
-        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
-    test('Test the initial state of a freshly constructed schedule.', 
-        testScheduleInitialState);
-    test('Test that action constructors succeed when given valid arguments.', 
-        testActionConstructor);
-    test('Test that action constructors throw ArgumentError on null functions.', 
-        testActionConstructorNullThrows);
-    test('Test that an action computes as expected.', testAction);
-    test('Test that an async action computes as expected.', testActionAsync);
-    test('Test that an error thrown by an action is handled as expected.', 
-        testActionThrows);
-    test('Test that an attempt to schedule the same action twice throws error.',
-        testScheduleSameActionTwiceThrows);
-    test('Test that an action call throws StateError if the Schedule hasError.', 
-        testScheduleHasErrorActionThrows);
-    test('Test the successful completion of an undo operation.', testUndo);
-    test('Test that an error thrown by an action undo is handled as expected.', 
-        testUndoThrows);
-    test('Test the successful completion of an redo operation.', testRedo);
-    test('Test that an error thrown by an action redo is handled as expected.', 
-        testRedoThrows);
-    test('Test that an undo operation returns false if canUndo is false.', 
-        testUndoEmptyScheduleReturnsFalse);
-    test('Test that a redo operation returns false if canRedo is false.', 
-        testRedoEmptyScheduleReturnsFalse);
-    test('Test the successful completion of a to operation.', testTo);
-    test('Test the successful clear of a schedule.', testClear);
-  });
-  group('[concurrent]', () {
-    setUp(() => 
-        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
-    test('Test the expected order of two concurrent actions.', 
-        testActionDuringAction);
-    test('Test that an error thrown by a pending action does not affect other.', 
-        testActionThrowsDuringAction);
-    test('Test the expected order of multiple concurrent actions.', 
-        testMultipleActionsDuringAction);
-    test('Test that an attempt to defer the same action twice throws error.',
-        testDeferSameActionTwiceThrows);
-    test('Test the expected order of an action called during undo.', 
-        testActionDuringUndo);   
-    test('Test that an error thrown by a pending action does not affect undo.',
-        testActionThrowsDuringUndo);
-    test('Test the expected order of an action called during redo.', 
-        testActionDuringRedo);
-    test('Test that an error thrown by a pending action does not affect redo.', 
-        testActionThrowsDuringRedo);
-    test('Test the expected order of an action called during to.', 
-        testActionDuringTo);
-    test('Test that an error thrown by a pending action does not affect to.', 
-        testActionThrowsDuringTo);
-    test('Test that an action called in the flush state is done before idle.', 
-        testActionDuringFlush);    
-  });  
-  group('[transaction]', () {
-    setUp(() => 
-        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
-    test('Test that a transaction computes as expected.', testTransaction);
-    test('Test that a transaction rollback succeeds when an error is thrown.', 
-        testTransactionRollback);
-    test('Test the handling of an error thrown during transaction rollback.', 
-        testTransactionRollbackError);
-    test('Test the successful completion of a transaction undo operation.', 
-        testTransactionUndo);
-    test('Test that a transact builds and computes a transaction as expected.', 
-        testTransact);
-    test('Test that an error thrown in the body of transact is handled.', 
-        testTransactThrows);
-  });
-  group('[states]', () {
-    setUp(() => 
-        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
-    test('Test that no events are added to the states stream if no listeners.', 
-        testNoStatesListener);
-    test('Test that events are buffered by a paused states stream subscriber.', 
-        testPauseStatesListener);
-    test('Test that the states stream is a broadcast stream.', 
-        testStatesIsBroadcast);
-  });
-  group('[mirrors]', () {
-    setUp(() => 
-        schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear()));
-    test('Test the success of a set field action.', testSetField);
-    test('Test the successful undo of a set field action.', testSetFieldUndo);
-    test('Test the successful redo of a set field action.', testSetFieldRedo);
-  });
+  Logger.root.onRecord
+    .where((record) => record.loggerName == 'undone')
+    .listen((record) => print('${record.message}'));  
+  bench.main();
 }
 
 // -----------------------------------------------------------------------------
 // Setup
 // -----------------------------------------------------------------------------
+
+@Setup
+setup() => schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear());
 
 // Top-level functions used across test cases; stateless.
 Do increment = (a) { a['oldValue'] = a['val']; return ++a['val']; };
@@ -134,6 +53,7 @@ class HasFields {
 // Basic
 // -----------------------------------------------------------------------------
 
+@Test('Test the initial state of a freshly constructed schedule.')
 void testScheduleInitialState() {
   var schedule = new Schedule();
   expect(schedule.busy, isFalse);
@@ -144,6 +64,7 @@ void testScheduleInitialState() {
   expect(schedule.error, isNull);
 }
 
+@Test('Test that action constructors succeed when given valid arguments.')
 void testActionConstructor() {
   var action = new Action(7, (x) => x + 1, (x, y) => x = y);
   var actionAsync = new Action.async(11, 
@@ -151,6 +72,7 @@ void testActionConstructor() {
       (x, y) =>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
 }
 
+@Test('Test that action constructors throw ArgumentError on null functions.')
 void testActionConstructorNullThrows() {
   expect(() => new Action(7, null, (x, y) => x = y), 
       throwsA(const isInstanceOf<ArgumentError>()));
@@ -164,11 +86,13 @@ void testActionConstructorNullThrows() {
       throwsA(const isInstanceOf<ArgumentError>())); 
 }
 
+@Test('Test that an action computes as expected.')
 void testAction() {
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
   action().then(expectAsync1((result) => expect(result, equals(15))));
 }
 
+@Test('Test that an async action computes as expected.')
 void testActionAsync() {
   var action = new Action.async(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
@@ -176,6 +100,7 @@ void testActionAsync() {
   action().then(expectAsync1((result) => expect(result, equals(10))));
 }
 
+@Test('Test that an error thrown by an action is handled as expected.')
 void testActionThrows() {
   var schedule = new Schedule();
   var action = new Action(14, (x) => throw 'snarf', (x, y) => true);  
@@ -187,6 +112,7 @@ void testActionThrows() {
    }));
 }
 
+@Test('Test that an attempt to schedule the same action twice throws error.')
 void testScheduleSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -202,6 +128,7 @@ void testScheduleSameActionTwiceThrows() {
     }));
 }
 
+@Test('Test that an action call throws StateError if the Schedule hasError.')
 void testScheduleHasErrorActionThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -222,6 +149,7 @@ void testScheduleHasErrorActionThrows() {
     }));
 }
 
+@Test('Test the successful completion of an undo operation.')
 void testUndo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -239,6 +167,7 @@ void testUndo() {
     }));
 }
 
+@Test('Test that an error thrown by an action undo is handled as expected.')
 void testUndoThrows() {
   var schedule = new Schedule(); 
   var map = { 'val' : 42 };
@@ -257,6 +186,7 @@ void testUndoThrows() {
    }));
 }
 
+@Test('Test the successful completion of an redo operation.')
 void testRedo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -280,6 +210,7 @@ void testRedo() {
     }));
 }
 
+@Test('Test that an error thrown by an action redo is handled as expected.')
 void testRedoThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -309,16 +240,19 @@ void testRedoThrows() {
    }));
 }
 
+@Test('Test that an undo operation returns false if canUndo is false.')
 void testUndoEmptyScheduleReturnsFalse() {
   new Schedule()
     .undo().then(expectAsync1((success) => expect(success, isFalse)));
 }
 
+@Test('Test that a redo operation returns false if canRedo is false.')
 void testRedoEmptyScheduleReturnsFalse() {
   new Schedule()
     .redo().then(expectAsync1((success) => expect(success, isFalse)));
 }
 
+@Test('Test the successful completion of a to operation.')
 void testTo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -355,6 +289,7 @@ void testTo() {
     }));
 }
 
+@Test('Test the successful clear of a schedule.')
 void testClear() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -385,6 +320,7 @@ void testClear() {
 // Concurrent
 // -----------------------------------------------------------------------------
 
+@Test('Test the expected order of two concurrent actions.')
 void testActionDuringAction() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -406,6 +342,7 @@ void testActionDuringAction() {
     }));
 }
 
+@Test('Test that an error thrown by a pending action does not affect other.')
 void testActionThrowsDuringAction() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -432,6 +369,7 @@ void testActionThrowsDuringAction() {
     }));
 }
 
+@Test('Test the expected order of multiple concurrent actions.')
 void testMultipleActionsDuringAction() {  
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -465,6 +403,7 @@ void testMultipleActionsDuringAction() {
     }));  
 }
 
+@Test('Test that an attempt to defer the same action twice throws error.')
 void testDeferSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -494,6 +433,7 @@ void testDeferSameActionTwiceThrows() {
     }));
 }
 
+@Test('Test the expected order of an action called during undo.')
 void testActionDuringUndo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -531,6 +471,7 @@ void testActionDuringUndo() {
     }));
 }
 
+@Test('Test that an error thrown by a pending action does not affect undo.')
 void testActionThrowsDuringUndo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -570,6 +511,7 @@ void testActionThrowsDuringUndo() {
   }));
 }
 
+@Test('Test the expected order of an action called during redo.')
 void testActionDuringRedo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -611,6 +553,7 @@ void testActionDuringRedo() {
     }));
 }
 
+@Test('Test that an error thrown by a pending action does not affect redo.')
 void testActionThrowsDuringRedo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -648,6 +591,7 @@ void testActionThrowsDuringRedo() {
     }));
 }
 
+@Test('Test the expected order of an action called during to.')
 void testActionDuringTo() {
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
@@ -672,6 +616,7 @@ void testActionDuringTo() {
     }));
 }
 
+@Test('Test that an error thrown by a pending action does not affect to.')
 void testActionThrowsDuringTo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -700,6 +645,7 @@ void testActionThrowsDuringTo() {
     }));
 }
 
+@Test('Test that an action called in the flush state is done before idle.')
 void testActionDuringFlush() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -741,6 +687,7 @@ void testActionDuringFlush() {
 // Transaction
 // -----------------------------------------------------------------------------
 
+@Test('Test that a transaction computes as expected.')
 void testTransaction() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -755,6 +702,7 @@ void testTransaction() {
     .then(expectAsync1((_) => expect(map['val'], equals(1850))));
 }
 
+@Test('Test that a transaction rollback succeeds when an error is thrown.')
 void testTransactionRollback() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -774,6 +722,7 @@ void testTransactionRollback() {
    }));
 }
 
+@Test('Test the handling of an error thrown during transaction rollback.')
 void testTransactionRollbackError() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -793,6 +742,7 @@ void testTransactionRollbackError() {
    }));  
 }
 
+@Test('Test the successful completion of a transaction undo operation.')
 void testTransactionUndo() {    
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -813,6 +763,7 @@ void testTransactionUndo() {
     }));
 }
 
+@Test('Test that a transact builds and computes a transaction as expected.')
 void testTransact() {
   var map = { 'val' : 42 };
   var action1 = new Action(map, increment, decrement);
@@ -826,6 +777,7 @@ void testTransact() {
   }).then(expectAsync1((_) => expect(map['val'], equals(1850))));    
 }
 
+@Test('Test that an error thrown in the body of transact is handled.')
 void testTransactThrows() {
   var map = { 'val' : 42 };
   var action1 = new Action(map, increment, decrement);
@@ -849,6 +801,7 @@ void testTransactThrows() {
 // States
 // -----------------------------------------------------------------------------
 
+@Test('Test that no events are added to the states stream if no listeners.')
 void testNoStatesListener() {
   var schedule = new Schedule();
   // Do an action to cause state transitions to happen.
@@ -872,6 +825,7 @@ void testNoStatesListener() {
   }));
 }
 
+@Test('Test that events are buffered by a paused states stream subscriber.')
 void testPauseStatesListener() {
   var schedule = new Schedule();
   
@@ -890,6 +844,7 @@ void testPauseStatesListener() {
     .then((_) => subscribe.resume());
 }
 
+@Test('Test that the states stream is a broadcast stream.')
 void testStatesIsBroadcast() {
   var schedule = new Schedule();
   schedule.states.listen((state) { /* noop */ });
@@ -900,6 +855,7 @@ void testStatesIsBroadcast() {
 // Mirrors
 // -----------------------------------------------------------------------------
 
+@Test('Test the success of a set field action.')
 void testSetField() {
   final o = new HasFields();
   expect(o.i, equals(7));  
@@ -908,6 +864,7 @@ void testSetField() {
   expect(o.i, equals(42));
 }
 
+@Test('Test the successful undo of a set field action.')
 void testSetFieldUndo() {
   final o = new HasFields();
   final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
@@ -923,6 +880,7 @@ void testSetFieldUndo() {
     }));
 }
 
+@Test('Test the successful redo of a set field action.')
 void testSetFieldRedo() {
   final o = new HasFields();
   final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
