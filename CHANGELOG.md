@@ -3,6 +3,7 @@
 ## 0.2.6-dev
 
 - Updated to SDK 0.6.15_r25822.
+- Added the `bench` package to `dev_dependencies` to run the unit tests.
 
 ## 0.2.5
 
