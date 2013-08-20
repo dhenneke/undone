@@ -4,8 +4,7 @@ library undone.test;
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:mirrors' as mirrors;
-import 'package:bench/bench.dart' as bench;
-import 'package:bench/meta.dart';
+import 'package:bench/bench.dart';
 import 'package:logging/logging.dart';
 import 'package:undone/mirrors.dart';
 import 'package:undone/undone.dart';
@@ -16,7 +15,7 @@ void main() {
   Logger.root.onRecord
     .where((record) => record.loggerName == 'undone')
     .listen((record) => print('${record.message}'));  
-  bench.main();
+  reflectTests();
 }
 
 // -----------------------------------------------------------------------------
