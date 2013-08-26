@@ -4,6 +4,10 @@ A library for undo and redo.
 
 [![Build Status](https://drone.io/github.com/rmsmith/undone/status.png)][badge]
 
+## Documentation
+
+Please consult the [API documentation][api].
+
 ## Usage
 
 ### Create an Action from Functions
@@ -72,6 +76,7 @@ Learn more about the design decisions by reading this [article][].
 _Undone uses the MIT license as described in the [LICENSE][license] file, and 
 follows [semantic versioning][]._
 
+[api]: http://rmsmith.github.com/undone/undone.html
 [article]: http://futureperfect.info/2013/03/22/undone-not-a-song-about-sweaters.html
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
 [license]: https://github.com/rmsmith/undone/blob/master/LICENSE

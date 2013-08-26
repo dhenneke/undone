@@ -3,10 +3,8 @@ library undone.test;
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:mirrors' as mirrors;
 import 'package:bench/bench.dart';
 import 'package:logging/logging.dart';
-import 'package:undone/mirrors.dart';
 import 'package:undone/undone.dart';
 import 'package:unittest/unittest.dart';
 
@@ -848,51 +846,4 @@ void testStatesIsBroadcast() {
   var schedule = new Schedule();
   schedule.states.listen((state) { /* noop */ });
   schedule.states.listen((state) { /* noop */ });
-}
-
-// -----------------------------------------------------------------------------
-// Mirrors
-// -----------------------------------------------------------------------------
-
-@Test('Test the success of a set field action.')
-void testSetField() {
-  final o = new HasFields();
-  expect(o.i, equals(7));  
-  final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
-  action();  
-  expect(o.i, equals(42));
-}
-
-@Test('Test the successful undo of a set field action.')
-void testSetFieldUndo() {
-  final o = new HasFields();
-  final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
-  action()
-    .then((result) {
-      expect(o.i, equals(42));
-    })
-    .then((_) => schedule.wait(Schedule.STATE_IDLE))
-    .then((_) => undo())
-    .then(expectAsync1((success) {
-      expect(success, isTrue);
-      expect(o.i, equals(7));
-    }));
-}
-
-@Test('Test the successful redo of a set field action.')
-void testSetFieldRedo() {
-  final o = new HasFields();
-  final action = new SetField(mirrors.reflect(o), const Symbol('i'), 42);
-  action()
-    .then((result) {
-      expect(o.i, equals(42));
-    })
-    .then((_) => schedule.wait(Schedule.STATE_IDLE))
-    .then((_) => undo())
-    .then((_) => schedule.wait(Schedule.STATE_IDLE))
-    .then((_) => redo())
-    .then(expectAsync1((success) {
-      expect(success, isTrue);
-      expect(o.i, equals(42));
-    }));
 }

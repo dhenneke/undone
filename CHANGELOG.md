@@ -1,9 +1,12 @@
 # Undone Changes
 
-## 0.2.6-dev
+## 0.2.6
 
-- Updated to SDK 0.6.15_r25822.
+- Updated to SDK 0.6.19_r26297.
 - Added the `bench` package to `dev_dependencies` to run the unit tests.
+- Removed the `undone.mirrors` library as I believe it only added confusion; if
+you have a need for the removed `SetFieldAction` please open an issue in the
+tracker.
 
 ## 0.2.5
 
