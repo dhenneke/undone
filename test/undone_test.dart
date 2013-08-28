@@ -1,4 +1,4 @@
-@Group('Undone')
+@TestGroup('Undone')
 library undone.test;
 
 import 'dart:async';
