@@ -66,21 +66,26 @@ void testActionConstructor() {
   var action = new Action(7, (x) => x + 1, (x, y) => x = y);
   var actionAsync = new Action.async(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
-      (x, y) =>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
+      (x, y)=>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
+  expect(action.canUndo, isTrue);
+  expect(actionAsync.canUndo, isTrue);
+}
+
+@Test('Test the construction of a non-undoable action')
+void testActionConstructorNotUndoable() {
+  var action = new Action(7, (x) => x + 1, null);
+  var actionAsync = new Action.async(11, (x) => new Future(() => x - 1), null);
+  expect(action.canUndo, isFalse);
+  expect(actionAsync.canUndo, isFalse);
 }
 
 @Test('Test that action constructors throw ArgumentError on null functions.')
 void testActionConstructorNullThrows() {
   expect(() => new Action(7, null, (x, y) => x = y), 
       throwsA(const isInstanceOf<ArgumentError>()));
-  expect(() => new Action(7, (x) => x + 1, null), 
-      throwsA(const isInstanceOf<ArgumentError>()));
   expect(() => new Action.async(11, null, 
       (x, y) =>new Future(() => x = y)), 
       throwsA(const isInstanceOf<ArgumentError>()));
-  expect(() => new Action.async(11,
-      (x) => new Future(() => x - 1), null), 
-      throwsA(const isInstanceOf<ArgumentError>())); 
 }
 
 @Test('Test that an action computes as expected.')
@@ -107,6 +112,18 @@ void testActionThrows() {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
    }));
+}
+
+@Test('Test that a non-undoable action computes as expected.')
+void testActionNonUndoable() {
+  var action = new Action(14, (x) => x + 1);
+  action()
+    .then(expectAsync1((result) {
+      expect(result, equals(15));
+      expect(schedule.canUndo, isFalse);
+      expect(schedule.canRedo, isFalse);
+      expect(schedule.hasError, isFalse);
+    }));
 }
 
 @Test('Test that an attempt to schedule the same action twice throws error.')
@@ -697,6 +714,18 @@ void testTransaction() {
   
   schedule(transaction)
     .then(expectAsync1((_) => expect(map['val'], equals(1850))));
+}
+
+@Test('Test that adding a null action to a transaction throws an error.')
+@ExpectThrows(isArgumentError)
+void testTransactionAddNullActionThrows() {
+  new Transaction()..add(null);  
+}
+
+@Test('Test that adding a !undoable action to a transaction throws an error.')
+@ExpectThrows(isArgumentError)
+void testTransactionAddNonUndoableActionThrows() {
+  new Transaction()..add(new Action({ 'val' : 42 }, increment, null));
 }
 
 @Test('Test that a transaction rollback succeeds when an error is thrown.')
