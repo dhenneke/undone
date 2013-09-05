@@ -70,6 +70,7 @@ Future<bool> redo() => schedule.redo();
 /// often not be necessary; constructing an action with the functions to do and
 /// undo the desired operation is often the simplest and best approach.
 class Action<A, R> {
+  /// Whether or not this action can be undone.
   final bool canUndo;
   final A _arg;
   R _result; // The result of the most recent call().
