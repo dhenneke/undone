@@ -1,7 +1,8 @@
 # Undone Changes
 
-## 0.2.8-dev
+## 0.2.8
 
+- Updated to SDK 0.7.1_r27025.
 - Added support for non-undoable actions.  An undo function is now an optional 
 argument when constructing an action, and if it is `null` then the action's 
 `canUndo` field will be false.  Non-undoable actions may be executed on a 
