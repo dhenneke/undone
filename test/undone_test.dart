@@ -114,6 +114,18 @@ void testActionThrows() {
    }));
 }
 
+@Test('Test that a non-undoable action computes as expected.')
+void testActionNonUndoable() {
+  var action = new Action(14, (x) => x + 1);
+  action()
+    .then(expectAsync1((result) {
+      expect(result, equals(15));
+      expect(schedule.canUndo, isFalse);
+      expect(schedule.canRedo, isFalse);
+      expect(schedule.hasError, isFalse);
+    }));
+}
+
 @Test('Test that an attempt to schedule the same action twice throws error.')
 void testScheduleSameActionTwiceThrows() {
   var schedule = new Schedule();

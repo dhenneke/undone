@@ -327,11 +327,15 @@ class Schedule {
   
   Future _do(action) {    
     var completer = new Completer();
-    // Truncate the end of list (redo actions) when adding a new action.
-    if (_nextUndo >= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
-    _actions.add(action);        
-    _nextUndo++;
-    _log(() => 'execute $action [$_nextUndo]');
+    if (action.canUndo) {
+      // Truncate the end of list (redo actions) when adding a new action.
+      if (_nextUndo >= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
+      _actions.add(action);        
+      _nextUndo++;
+      _log(() => 'execute undoable $action [$_nextUndo]');
+    } else {
+      _log(() => 'execute non-undoable $action');
+    }
     action._execute()
       .then((result) {
         _log(() => '$action complete w/ $result');
