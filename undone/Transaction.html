@@ -75,8 +75,8 @@ class Transaction extends Action {
  
  /// Adds the given [action] to this transaction.
  /// 
- /// Only undoable actions may be added to a transaction.  An [ArgumentError]
- /// will be thrown if [action.canUndo] is `false`.
+ /// Only undoable actions may be added to a transaction.  An error will be 
+ /// thrown if [action.canUndo] is `false`.
  void add(Action action) {
    if (action == null) throw new ArgumentError('Action cannot be null');
    if (!action.canUndo) throw new ArgumentError(
@@ -127,8 +127,8 @@ void <strong>add</strong>(<a href="../undone/Action.html">Action</a> action) <a 
 <div class="doc">
 <p>Adds the given 
 <span class="param">action</span> to this transaction.</p>
-<p>Only undoable actions may be added to a transaction.  An <a class="crossref" href="../dart_core/ArgumentError.html">ArgumentError</a>
-will be thrown if <code>action.canUndo</code> is <code>false</code>.</p>
+<p>Only undoable actions may be added to a transaction.  An error will be 
+thrown if <code>action.canUndo</code> is <code>false</code>.</p>
 <pre class="source">
 void add(Action action) {
  if (action == null) throw new ArgumentError('Action cannot be null');
@@ -177,7 +177,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-09-05 10:07:24.959</div>
+          <div>This page was generated at 2013-09-05 10:10:32.980</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
