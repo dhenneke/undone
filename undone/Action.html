@@ -46,6 +46,7 @@ often not be necessary; constructing an action with the functions to do and
 undo the desired operation is often the simplest and best approach.</p>
 <pre class="source">
 class Action&lt;A, R&gt; {
+ final bool canUndo;
  final A _arg;
  R _result; // The result of the most recent call().
  final DoAsync _do;
@@ -53,25 +54,29 @@ class Action&lt;A, R&gt; {
  Completer _deferred;
  
  /// Constructs a new action with the given [arg]uments, [Do] function, and 
- /// [Undo] function.  The given synchronous functions are automatically 
- /// wrapped in futures prior to being called on a schedule.
- Action(A arg, Do d, Undo u) : this._(arg,
-   d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
-   u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
+ /// [Undo] function.  
+ /// 
+ /// The given synchronous functions are automatically wrapped in futures prior 
+ /// to being called on a schedule.
+ Action(A arg, Do d, [Undo u]) 
+     : this._(arg, d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
+                   u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
  
  /// Constructs a new action with the given [arg]uments, [DoAsync] function, 
  /// and [UndoAsync] function.
- Action.async(A arg, DoAsync d, UndoAsync u) : this._(arg, d, u);
+ Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
  
- Action._(this._arg, this._do, this._undo) {
-   if (_do == null) throw new ArgumentError('Do function must be !null.');
-   if (_undo == null) throw new ArgumentError('Undo function must be !null.');
+ Action._(this._arg, this._do, UndoAsync undo) 
+     : canUndo = (undo != null)
+     , _undo = undo {
+   if (_do == null) throw new ArgumentError('Do function must be !null.');    
  }
  
- /// Schedules this action to be called on the top-level [schedule].  If this
- /// action is called within the scope of a top-level [transact] method it will
- /// instead be added to that transaction.  Completes with the result of the
- /// action in both cases.
+ /// Schedules this action to be called on the top-level [schedule].  
+ /// 
+ /// If this action is called within the scope of a top-level [transact] method
+ /// it will instead be added to that transaction.  Completes with the result 
+ /// of the action in both cases.
  Future&lt;R&gt; call() {    
    if (_transaction != null) {
      _transaction.add(this);
@@ -122,30 +127,46 @@ class Action&lt;A, R&gt; {
 <h3>Constructors</h3>
 <div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>Action</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/Do.html">Do</a> d, <a href="../undone/Undo.html">Undo</a> u) <a class="anchor-link" href="#"
+new <strong>Action</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/Do.html">Do</a> d, [<a href="../undone/Undo.html">Undo</a> u]) <a class="anchor-link" href="#"
               title="Permalink to Action&lt;A, R&gt;.Action">#</a></h4>
 <div class="doc">
 <p>Constructs a new action with the given 
 <span class="param">arg</span>uments, <a class="crossref" href="../undone/Do.html">Do</a> function, and 
-<a class="crossref" href="../undone/Undo.html">Undo</a> function.  The given synchronous functions are automatically 
-wrapped in futures prior to being called on a schedule.</p>
+<a class="crossref" href="../undone/Undo.html">Undo</a> function.  </p>
+<p>The given synchronous functions are automatically wrapped in futures prior 
+to being called on a schedule.</p>
 <pre class="source">
-Action(A arg, Do d, Undo u) : this._(arg,
- d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
- u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
+Action(A arg, Do d, [Undo u]) 
+   : this._(arg, d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
+                 u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
 </pre>
 </div>
 </div>
 <div class="method"><h4 id="async">
 <button class="show-code">Code</button>
-new <strong>Action.async</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/DoAsync.html">DoAsync</a> d, <a href="../undone/UndoAsync.html">UndoAsync</a> u) <a class="anchor-link" href="#async"
+new <strong>Action.async</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/DoAsync.html">DoAsync</a> d, [<a href="../undone/UndoAsync.html">UndoAsync</a> u]) <a class="anchor-link" href="#async"
               title="Permalink to Action&lt;A, R&gt;.Action.async">#</a></h4>
 <div class="doc">
 <p>Constructs a new action with the given 
 <span class="param">arg</span>uments, <a class="crossref" href="../undone/DoAsync.html">DoAsync</a> function, 
 and <a class="crossref" href="../undone/UndoAsync.html">UndoAsync</a> function.</p>
 <pre class="source">
-Action.async(A arg, DoAsync d, UndoAsync u) : this._(arg, d, u);
+Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="canUndo">
+<button class="show-code">Code</button>
+final bool         <strong>canUndo</strong> <a class="anchor-link"
+            href="#canUndo"
+            title="Permalink to Action&lt;A, R&gt;.canUndo">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final bool canUndo
 </pre>
 </div>
 </div>
@@ -157,10 +178,10 @@ Action.async(A arg, DoAsync d, UndoAsync u) : this._(arg, d, u);
 Future&lt;<a href="../undone/Action.html">R</a>&gt; <strong>call</strong>() <a class="anchor-link" href="#call"
               title="Permalink to Action&lt;A, R&gt;.call">#</a></h4>
 <div class="doc">
-<p>Schedules this action to be called on the top-level <a class="crossref" href="../undone.html#schedule">schedule</a>.  If this
-action is called within the scope of a top-level <a class="crossref" href="../undone.html#transact">transact</a> method it will
-instead be added to that transaction.  Completes with the result of the
-action in both cases.</p>
+<p>Schedules this action to be called on the top-level <a class="crossref" href="../undone.html#schedule">schedule</a>.  </p>
+<p>If this action is called within the scope of a top-level <a class="crossref" href="../undone.html#transact">transact</a> method
+it will instead be added to that transaction.  Completes with the result 
+of the action in both cases.</p>
 <pre class="source">
 Future&lt;R&gt; call() {    
  if (_transaction != null) {
@@ -190,7 +211,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-09-05 05:25:02.552</div>
+          <div>This page was generated at 2013-09-05 10:02:32.305</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

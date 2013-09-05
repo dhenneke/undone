@@ -74,7 +74,12 @@ class Transaction extends Action {
  Transaction() : super._(new List&lt;Action&gt;(), _do_, _undo_);
  
  /// Adds the given [action] to this transaction.
- void add(Action action) =&gt; _arg.add(action);
+ void add(Action action) {
+   if (action == null) throw new ArgumentError('Action cannot be null');
+   if (!action.canUndo) throw new ArgumentError(
+       'Only undoable actions may be added to a transaction');
+   _arg.add(action);
+ }
 }
 </pre>
 </div>
@@ -95,6 +100,21 @@ Transaction() : super._(new List&lt;Action&gt;(), _do_, _undo_);
 </div>
 </div>
 </div>
+<div class="inherited">
+<h3>Properties</h3>
+<div class="field inherited"><h4 id="canUndo">
+<button class="show-code">Code</button>
+final bool         <strong>canUndo</strong> <a class="anchor-link"
+            href="#canUndo"
+            title="Permalink to Transaction.canUndo">#</a>
+        </h4>
+        <div class="inherited-from">inherited from <a href="../undone/Action.html">Action</a> </div><div class="doc">
+<pre class="source">
+final bool canUndo
+</pre>
+</div>
+</div>
+</div>
 <div>
 <h3>Methods</h3>
 <div class="method"><h4 id="add">
@@ -105,7 +125,12 @@ void <strong>add</strong>(<a href="../undone/Action.html">Action</a> action) <a 
 <p>Adds the given 
 <span class="param">action</span> to this transaction.</p>
 <pre class="source">
-void add(Action action) =&gt; _arg.add(action);
+void add(Action action) {
+ if (action == null) throw new ArgumentError('Action cannot be null');
+ if (!action.canUndo) throw new ArgumentError(
+     'Only undoable actions may be added to a transaction');
+ _arg.add(action);
+}
 </pre>
 </div>
 </div>
@@ -114,10 +139,10 @@ void add(Action action) =&gt; _arg.add(action);
 Future&lt;<a href="../undone/Transaction.html">R</a>&gt; <strong>call</strong>() <a class="anchor-link" href="#call"
               title="Permalink to Transaction.call">#</a></h4>
 <div class="inherited-from">inherited from <a href="../undone/Action.html">Action</a> </div><div class="doc">
-<p>Schedules this action to be called on the top-level <a class="crossref" href="../undone.html#schedule">schedule</a>.  If this
-action is called within the scope of a top-level <a class="crossref" href="../undone.html#transact">transact</a> method it will
-instead be added to that transaction.  Completes with the result of the
-action in both cases.</p>
+<p>Schedules this action to be called on the top-level <a class="crossref" href="../undone.html#schedule">schedule</a>.  </p>
+<p>If this action is called within the scope of a top-level <a class="crossref" href="../undone.html#transact">transact</a> method
+it will instead be added to that transaction.  Completes with the result 
+of the action in both cases.</p>
 <pre class="source">
 Future&lt;R&gt; call() {    
  if (_transaction != null) {
@@ -147,7 +172,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-09-05 05:25:02.518</div>
+          <div>This page was generated at 2013-09-05 10:02:32.274</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
