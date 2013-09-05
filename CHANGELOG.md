@@ -2,6 +2,14 @@
 
 ## 0.2.8-dev
 
+- Added support for non-undoable actions.  An undo function is now an optional 
+argument when constructing an action, and if it is `null` then the action's 
+`canUndo` field will be false.  Non-undoable actions may be executed on a 
+schedule in the same manner as undoable actions, and the order of their
+execution is guaranteed.  However, the non-undoable action is not preserved in 
+the history list (undo stack) and does not affect the state of the schedule in 
+any way.
+
 ## 0.2.7
 
 - Updated to SDK 0.6.21_r26639.
