@@ -704,6 +704,18 @@ void testTransaction() {
     .then(expectAsync1((_) => expect(map['val'], equals(1850))));
 }
 
+@Test('Test that adding a null action to a transaction throws an error.')
+@ExpectThrows(isArgumentError)
+void testTransactionAddNullActionThrows() {
+  new Transaction()..add(null);  
+}
+
+@Test('Test that adding a !undoable action to a transaction throws an error.')
+@ExpectThrows(isArgumentError)
+void testTransactionAddNonUndoableActionThrows() {
+  new Transaction()..add(new Action({ 'val' : 42 }, increment, null));
+}
+
 @Test('Test that a transaction rollback succeeds when an error is thrown.')
 void testTransactionRollback() {
   var schedule = new Schedule();

@@ -196,7 +196,12 @@ class Transaction extends Action {
   Transaction() : super._(new List<Action>(), _do_, _undo_);
   
   /// Adds the given [action] to this transaction.
-  void add(Action action) => _arg.add(action);
+  void add(Action action) {
+    if (action == null) throw new ArgumentError('Action cannot be null');
+    if (!action.canUndo) throw new ArgumentError(
+        'Only undoable actions may be added to a transaction');
+    _arg.add(action);
+  }
 }
 
 /// An asynchronous schedule of actions.
