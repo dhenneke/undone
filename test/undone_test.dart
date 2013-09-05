@@ -66,21 +66,26 @@ void testActionConstructor() {
   var action = new Action(7, (x) => x + 1, (x, y) => x = y);
   var actionAsync = new Action.async(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
-      (x, y) =>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
+      (x, y)=>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
+  expect(action.canUndo, isTrue);
+  expect(actionAsync.canUndo, isTrue);
+}
+
+@Test('Test the construction of a non-undoable action')
+void testActionConstructorNotUndoable() {
+  var action = new Action(7, (x) => x + 1, null);
+  var actionAsync = new Action.async(11, (x) => new Future(() => x - 1), null);
+  expect(action.canUndo, isFalse);
+  expect(actionAsync.canUndo, isFalse);
 }
 
 @Test('Test that action constructors throw ArgumentError on null functions.')
 void testActionConstructorNullThrows() {
   expect(() => new Action(7, null, (x, y) => x = y), 
       throwsA(const isInstanceOf<ArgumentError>()));
-  expect(() => new Action(7, (x) => x + 1, null), 
-      throwsA(const isInstanceOf<ArgumentError>()));
   expect(() => new Action.async(11, null, 
       (x, y) =>new Future(() => x = y)), 
       throwsA(const isInstanceOf<ArgumentError>()));
-  expect(() => new Action.async(11,
-      (x) => new Future(() => x - 1), null), 
-      throwsA(const isInstanceOf<ArgumentError>())); 
 }
 
 @Test('Test that an action computes as expected.')

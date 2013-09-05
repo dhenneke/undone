@@ -28,6 +28,7 @@ Schedule get schedule {
 
 Transaction _transaction;
 /// Build and compute a [Transaction] using the top-level [schedule].
+/// 
 /// Returns a Future for the transaction's completion.
 Future transact(void build()) {
   assert(_transaction == null);  
@@ -46,10 +47,12 @@ Future transact(void build()) {
 }
 
 /// Undo the next action to be undone in the top-level [schedule], if any.
+/// 
 /// Completes `true` if an action was undone or else completes `false`.
 Future<bool> undo() => schedule.undo();
 
 /// Redo the next action to be redone in the top-level [schedule], if any.
+/// 
 /// Completes `true` if an action was redone or else completes `false`.
 Future<bool> redo() => schedule.redo();
 
@@ -67,6 +70,7 @@ Future<bool> redo() => schedule.redo();
 /// often not be necessary; constructing an action with the functions to do and
 /// undo the desired operation is often the simplest and best approach.
 class Action<A, R> {
+  final bool canUndo;
   final A _arg;
   R _result; // The result of the most recent call().
   final DoAsync _do;
@@ -74,25 +78,29 @@ class Action<A, R> {
   Completer _deferred;
   
   /// Constructs a new action with the given [arg]uments, [Do] function, and 
-  /// [Undo] function.  The given synchronous functions are automatically 
-  /// wrapped in futures prior to being called on a schedule.
-  Action(A arg, Do d, Undo u) : this._(arg,
-    d == null ? d : (a) => new Future.sync(() => d(a)), 
-    u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
+  /// [Undo] function.  
+  /// 
+  /// The given synchronous functions are automatically wrapped in futures prior 
+  /// to being called on a schedule.
+  Action(A arg, Do d, [Undo u]) 
+      : this._(arg, d == null ? d : (a) => new Future.sync(() => d(a)), 
+                    u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
   
   /// Constructs a new action with the given [arg]uments, [DoAsync] function, 
   /// and [UndoAsync] function.
-  Action.async(A arg, DoAsync d, UndoAsync u) : this._(arg, d, u);
+  Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
   
-  Action._(this._arg, this._do, this._undo) {
-    if (_do == null) throw new ArgumentError('Do function must be !null.');
-    if (_undo == null) throw new ArgumentError('Undo function must be !null.');
+  Action._(this._arg, this._do, UndoAsync undo) 
+      : canUndo = (undo != null)
+      , _undo = undo {
+    if (_do == null) throw new ArgumentError('Do function must be !null.');    
   }
   
-  /// Schedules this action to be called on the top-level [schedule].  If this
-  /// action is called within the scope of a top-level [transact] method it will
-  /// instead be added to that transaction.  Completes with the result of the
-  /// action in both cases.
+  /// Schedules this action to be called on the top-level [schedule].  
+  /// 
+  /// If this action is called within the scope of a top-level [transact] method
+  /// it will instead be added to that transaction.  Completes with the result 
+  /// of the action in both cases.
   Future<R> call() {    
     if (_transaction != null) {
       _transaction.add(this);
@@ -227,6 +235,7 @@ class Schedule {
   var _err;
   
   /// Whether or not this schedule is busy performing another action.
+  /// 
   /// This is always `true` when called from any continuations that are
   /// chained to Futures returned by methods on this schedule.
   /// This is also `true` if this schedule has an [error].
@@ -246,9 +255,11 @@ class Schedule {
   /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
     
-  /// The current error, if [hasError] is `true`.  This schedule will remain
-  /// [busy] for as long as this schedule [hasError].  You may [clear] this
-  /// schedule after dealing with the error condition in order to use it again.
+  /// The current error, if [hasError] is `true`.  
+  /// 
+  /// This schedule will remain [busy] for as long as this schedule [hasError].  
+  /// You may [clear] this schedule after dealing with the error condition in 
+  /// order to use it again.
   get error => _err;
   set _error(e) {
     _err = e;
@@ -269,10 +280,11 @@ class Schedule {
   /// An observable stream of this schedule's state transitions.
   Stream<String> get states => _states.stream;
       
-  /// Schedule the given [action] to be called.  If this schedule is not [busy], 
-  /// the action will be called immediately.  Else, the action will be deferred 
-  /// in order behind any other pending actions to be called once this schedule 
-  /// reaches an idle state.
+  /// Schedule the given [action] to be called.  
+  /// 
+  /// If this schedule is not [busy], the action will be called immediately.  
+  /// Else, the action will be deferred in order behind any other pending 
+  /// actions to be called once this schedule reaches an idle state.
   Future call(Action action) {
     if (hasError) {
       _error = new StateError('Cannot call if Schedule.hasError.');
@@ -380,6 +392,7 @@ class Schedule {
   }
   
   /// Redo the next action to be redone in this schedule, if any.
+  /// 
   /// Completes `true` if an action was redone or else completes `false`.
   Future<bool> redo() { 
     var completer = new Completer<bool>();
@@ -410,10 +423,12 @@ class Schedule {
   }
   
   /// Undo or redo all ordered actions in this schedule until the given [action] 
-  /// is done.  The state of the schedule after this operation is equal to the 
-  /// state upon completion of the given action. Completes `false` if any undo 
-  /// or redo operations performed complete `false`, if the schedule does not 
-  /// contain the given action, or if the schedule is [busy].
+  /// is done.  
+  /// 
+  /// The state of the schedule after this operation is equal to the state upon 
+  /// completion of the given action. Completes `false` if any undo or redo 
+  /// operations performed complete `false`, if the schedule does not contain 
+  /// the given action, or if the schedule is [busy].
   Future<bool> to(action) { 
     var completer = new Completer();    
     if (!_actions.contains(action) || 
