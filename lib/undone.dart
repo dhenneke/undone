@@ -197,8 +197,8 @@ class Transaction extends Action {
   
   /// Adds the given [action] to this transaction.
   /// 
-  /// Only undoable actions may be added to a transaction.  An [ArgumentError]
-  /// will be thrown if [action.canUndo] is `false`.
+  /// Only undoable actions may be added to a transaction.  An error will be 
+  /// thrown if [action.canUndo] is `false`.
   void add(Action action) {
     if (action == null) throw new ArgumentError('Action cannot be null');
     if (!action.canUndo) throw new ArgumentError(
