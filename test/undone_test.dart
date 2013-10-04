@@ -20,8 +20,8 @@ void main() {
 // Setup
 // -----------------------------------------------------------------------------
 
-@Setup
-setup() => schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear());
+@Teardown
+teardown() => schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear());
 
 // Top-level functions used across test cases; stateless.
 Do increment = (a) { a['oldValue'] = a['val']; return ++a['val']; };
