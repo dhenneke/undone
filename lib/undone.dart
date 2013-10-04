@@ -227,18 +227,25 @@ class Transaction extends Action {
 /// observable as a stream; this provides a convenient means to connect a user 
 /// interface to the history control methods.
 class Schedule {
+  
   /// A schedule is idle (not busy).
   static const String STATE_IDLE = 'IDLE';
+  
   /// A schedule is busy executing a new action.
   static const String STATE_CALL = 'CALL';
+  
   /// A schedule is busy flushing pending actions.
   static const String STATE_FLUSH = 'FLUSH';
+  
   /// A schedule is busy performing a redo operation.
   static const String STATE_REDO = 'REDO';
+  
   /// A schedule is busy performing an undo operation.
   static const String STATE_UNDO = 'UNDO';
+  
   /// A schedule is busy performing a to operation.
   static const String STATE_TO = 'TO';
+  
   /// A schedule has an error.
   static const String STATE_ERROR = 'ERROR';
   
