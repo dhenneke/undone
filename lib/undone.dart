@@ -218,10 +218,10 @@ class Transaction extends Action {
 ///
 /// A schedule is a function that can be [call]ed with [Action]s.  The order 
 /// of such calls is preserved in a history to allow for [undo] and [redo].  An 
-/// action may be scheduled at any time; if the schedule is not [busy] then it 
-/// will be called immediately, otherwise it will be queued to be called as soon 
+/// action may be scheduled at any time; if the schedule [isIdle] then it will 
+/// be called immediately, otherwise it will be queued to be called as soon 
 /// as possible.  Methods to change the history such as [undo] and [redo] can 
-/// _not_ be invoked when the schedule is [busy].  This ensures that all queued 
+/// _not_ be invoked when the schedule [isBusy].  This ensures that all queued 
 /// actions are called and the schedule reaches an idle state before the history 
 /// may be modified.  Each schedule is a state machine, and its [states] are 
 /// observable as a stream; this provides a convenient means to connect a user 
@@ -261,27 +261,34 @@ class Schedule {
   /// This is always `true` when called from any continuations that are
   /// chained to Futures returned by methods on this schedule.
   /// This is also `true` if this schedule has an [error].
-  bool get busy => _state != STATE_IDLE;
+  /// 
+  /// This is equivalent to `!isIdle`.
+  bool get isBusy => !isIdle;
+  
+  /// Whether or not this schedule is in its [STATE_IDLE].
+  /// 
+  /// This is equivalent to `!isBusy`.
+  bool get isIdle => _state == STATE_IDLE;
   
   /// Whether or not this schedule can be [clear]ed at the present time.
-  bool get canClear => !busy || hasError;
+  bool get canClear => isIdle || hasError;
   
   bool get _canRedo => _nextUndo < _actions.length - 1;
   /// Whether or not the [redo] method may be called at the present time.
-  bool get canRedo => !busy && _canRedo;
+  bool get canRedo => isIdle && _canRedo;
   
   bool get _canUndo => _nextUndo >= 0;
   /// Whether or not the [undo] method may be called at the present time.
-  bool get canUndo => !busy && _canUndo;
+  bool get canUndo => isIdle && _canUndo;
   
   /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
     
   /// The current error, if [hasError] is `true`.  
   /// 
-  /// This schedule will remain [busy] for as long as this schedule [hasError].  
-  /// You may [clear] this schedule after dealing with the error condition in 
-  /// order to use it again.
+  /// Calling [isBusy] on this schedule will return `true` for as long as this 
+  /// schedule [hasError].  You may [clear] this schedule after dealing with the
+  /// error condition in order to use it again.
   get error => _err;
   set _error(e) {
     _err = e;
@@ -304,9 +311,9 @@ class Schedule {
       
   /// Schedule the given [action] to be called.  
   /// 
-  /// If this schedule is not [busy], the action will be called immediately.  
-  /// Else, the action will be deferred in order behind any other pending 
-  /// actions to be called once this schedule reaches an idle state.
+  /// If this schedule [isIdle], the action will be called immediately.  Else, 
+  /// the action will be deferred in order behind any other pending actions to 
+  /// be called once this schedule reaches an idle state.
   Future call(Action action) {
     if (hasError) {
       _error = new StateError('Cannot call if Schedule.hasError.');
@@ -316,7 +323,7 @@ class Schedule {
       _error = new StateError('Cannot call $action >1 time on same schedule.');
       return new Future.error(error);
     }
-    if (busy) {
+    if (isBusy) {
       _log(() => 'defer $action');
       _pending.add(action);
       return action._defer();
@@ -453,7 +460,7 @@ class Schedule {
   /// The state of the schedule after this operation is equal to the state upon 
   /// completion of the given action. Completes `false` if any undo or redo 
   /// operations performed complete `false`, if the schedule does not contain 
-  /// the given action, or if the schedule is [busy].
+  /// the given action, or if the schedule [isBusy].
   Future<bool> to(action) { 
     var completer = new Completer();    
     if (!_actions.contains(action) || 

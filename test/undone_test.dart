@@ -53,8 +53,9 @@ class HasFields {
 @Test('Test the initial state of a freshly constructed schedule.')
 void testScheduleInitialState() {
   var schedule = new Schedule();
-  expect(schedule.busy, isFalse);
-  expect(schedule.canClear, isTrue);  
+  expect(schedule.isBusy, isFalse);
+  expect(schedule.isIdle, isTrue);
+  expect(schedule.canClear, isTrue);
   expect(schedule.canRedo, isFalse);  
   expect(schedule.canUndo, isFalse);  
   expect(schedule.hasError, isFalse);  
@@ -840,7 +841,7 @@ void testNoStatesListener() {
     
     // Defer to let the schedule return to idle.
     runAsync(() {
-      expect(schedule.busy, isFalse);
+      expect(schedule.isBusy, isFalse);
       
       // Now attach a listener.
       schedule.states.listen((state) {

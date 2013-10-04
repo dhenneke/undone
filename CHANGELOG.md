@@ -2,6 +2,10 @@
 
 ## 0.2.9-dev
 
+- Updated to SDK 0.7.6_r28108.
+- Added an `isIdle` getter to the `Schedule` and renamed the `busy` getter to 
+`isBusy`; the new getter `isIdle` is for convenience and is equal to `!isBusy`.
+
 ## 0.2.8
 
 - Updated to SDK 0.7.1_r27025.
