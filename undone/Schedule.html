@@ -35,10 +35,10 @@
 <p>An asynchronous schedule of actions.</p>
 <p>A schedule is a function that can be <a class="crossref" href="../undone/Schedule.html#call">call</a>ed with <a class="crossref" href="../undone/Action.html">Action</a>s.  The order 
 of such calls is preserved in a history to allow for <a class="crossref" href="../undone/Schedule.html#undo">undo</a> and <a class="crossref" href="../undone/Schedule.html#redo">redo</a>.  An 
-action may be scheduled at any time; if the schedule is not <a class="crossref" href="../undone/Schedule.html#busy">busy</a> then it 
-will be called immediately, otherwise it will be queued to be called as soon 
+action may be scheduled at any time; if the schedule <a class="crossref" href="../undone/Schedule.html#isIdle">isIdle</a> then it will 
+be called immediately, otherwise it will be queued to be called as soon 
 as possible.  Methods to change the history such as <a class="crossref" href="../undone/Schedule.html#undo">undo</a> and <a class="crossref" href="../undone/Schedule.html#redo">redo</a> can 
-<em>not</em> be invoked when the schedule is <a class="crossref" href="../undone/Schedule.html#busy">busy</a>.  This ensures that all queued 
+<em>not</em> be invoked when the schedule <a class="crossref" href="../undone/Schedule.html#isBusy">isBusy</a>.  This ensures that all queued 
 actions are called and the schedule reaches an idle state before the history 
 may be modified.  Each schedule is a state machine, and its <a class="crossref" href="../undone/Schedule.html#states">states</a> are 
 observable as a stream; this provides a convenient means to connect a user 
@@ -79,27 +79,34 @@ class Schedule {
  /// This is always `true` when called from any continuations that are
  /// chained to Futures returned by methods on this schedule.
  /// This is also `true` if this schedule has an [error].
- bool get busy =&gt; _state != STATE_IDLE;
+ /// 
+ /// This is equivalent to `!isIdle`.
+ bool get isBusy =&gt; !isIdle;
+ 
+ /// Whether or not this schedule is in its [STATE_IDLE].
+ /// 
+ /// This is equivalent to `!isBusy`.
+ bool get isIdle =&gt; _state == STATE_IDLE;
  
  /// Whether or not this schedule can be [clear]ed at the present time.
- bool get canClear =&gt; !busy || hasError;
+ bool get canClear =&gt; isIdle || hasError;
  
  bool get _canRedo =&gt; _nextUndo &lt; _actions.length - 1;
  /// Whether or not the [redo] method may be called at the present time.
- bool get canRedo =&gt; !busy &amp;&amp; _canRedo;
+ bool get canRedo =&gt; isIdle &amp;&amp; _canRedo;
  
  bool get _canUndo =&gt; _nextUndo &gt;= 0;
  /// Whether or not the [undo] method may be called at the present time.
- bool get canUndo =&gt; !busy &amp;&amp; _canUndo;
+ bool get canUndo =&gt; isIdle &amp;&amp; _canUndo;
  
  /// Whether or not this schedule has an [error].
  bool get hasError =&gt; _state == STATE_ERROR;
    
  /// The current error, if [hasError] is `true`.  
  /// 
- /// This schedule will remain [busy] for as long as this schedule [hasError].  
- /// You may [clear] this schedule after dealing with the error condition in 
- /// order to use it again.
+ /// Calling [isBusy] on this schedule will return `true` for as long as this 
+ /// schedule [hasError].  You may [clear] this schedule after dealing with the
+ /// error condition in order to use it again.
  get error =&gt; _err;
  set _error(e) {
    _err = e;
@@ -122,9 +129,9 @@ class Schedule {
      
  /// Schedule the given [action] to be called.  
  /// 
- /// If this schedule is not [busy], the action will be called immediately.  
- /// Else, the action will be deferred in order behind any other pending 
- /// actions to be called once this schedule reaches an idle state.
+ /// If this schedule [isIdle], the action will be called immediately.  Else, 
+ /// the action will be deferred in order behind any other pending actions to 
+ /// be called once this schedule reaches an idle state.
  Future call(Action action) {
    if (hasError) {
      _error = new StateError('Cannot call if Schedule.hasError.');
@@ -134,7 +141,7 @@ class Schedule {
      _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
      return new Future.error(error);
    }
-   if (busy) {
+   if (isBusy) {
      _log(() =&gt; 'defer $action');
      _pending.add(action);
      return action._defer();
@@ -271,7 +278,7 @@ class Schedule {
  /// The state of the schedule after this operation is equal to the state upon 
  /// completion of the given action. Completes `false` if any undo or redo 
  /// operations performed complete `false`, if the schedule does not contain 
- /// the given action, or if the schedule is [busy].
+ /// the given action, or if the schedule [isBusy].
  Future&lt;bool&gt; to(action) { 
    var completer = new Completer();    
    if (!_actions.contains(action) || 
@@ -457,22 +464,6 @@ static const String STATE_UNDO = 'UNDO'
 </div>
 <div>
 <h3>Properties</h3>
-<div class="field"><h4 id="busy">
-<button class="show-code">Code</button>
-final bool         <strong>busy</strong> <a class="anchor-link"
-            href="#busy"
-            title="Permalink to Schedule.busy">#</a>
-        </h4>
-        <div class="doc">
-<p>Whether or not this schedule is busy performing another action.</p>
-<p>This is always <code>true</code> when called from any continuations that are
-chained to Futures returned by methods on this schedule.
-This is also <code>true</code> if this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
-<pre class="source">
-bool get busy =&gt; _state != STATE_IDLE;
-</pre>
-</div>
-</div>
 <div class="field"><h4 id="canClear">
 <button class="show-code">Code</button>
 final bool         <strong>canClear</strong> <a class="anchor-link"
@@ -482,7 +473,7 @@ final bool         <strong>canClear</strong> <a class="anchor-link"
         <div class="doc">
 <p>Whether or not this schedule can be <a class="crossref" href="../undone/Schedule.html#clear">clear</a>ed at the present time.</p>
 <pre class="source">
-bool get canClear =&gt; !busy || hasError;
+bool get canClear =&gt; isIdle || hasError;
 </pre>
 </div>
 </div>
@@ -495,7 +486,7 @@ final bool         <strong>canRedo</strong> <a class="anchor-link"
         <div class="doc">
 <p>Whether or not the <a class="crossref" href="../undone/Schedule.html#redo">redo</a> method may be called at the present time.</p>
 <pre class="source">
-bool get canRedo =&gt; !busy &amp;&amp; _canRedo;
+bool get canRedo =&gt; isIdle &amp;&amp; _canRedo;
 </pre>
 </div>
 </div>
@@ -508,7 +499,7 @@ final bool         <strong>canUndo</strong> <a class="anchor-link"
         <div class="doc">
 <p>Whether or not the <a class="crossref" href="../undone/Schedule.html#undo">undo</a> method may be called at the present time.</p>
 <pre class="source">
-bool get canUndo =&gt; !busy &amp;&amp; _canUndo;
+bool get canUndo =&gt; isIdle &amp;&amp; _canUndo;
 </pre>
 </div>
 </div>
@@ -520,9 +511,9 @@ final         <strong>error</strong> <a class="anchor-link"
         </h4>
         <div class="doc">
 <p>The current error, if <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a> is <code>true</code>.  </p>
-<p>This schedule will remain <a class="crossref" href="../undone/Schedule.html#busy">busy</a> for as long as this schedule <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a>.  
-You may <a class="crossref" href="../undone/Schedule.html#clear">clear</a> this schedule after dealing with the error condition in 
-order to use it again.</p>
+<p>Calling <a class="crossref" href="../undone/Schedule.html#isBusy">isBusy</a> on this schedule will return <code>true</code> for as long as this 
+schedule <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a>.  You may <a class="crossref" href="../undone/Schedule.html#clear">clear</a> this schedule after dealing with the
+error condition in order to use it again.</p>
 <pre class="source">
 get error =&gt; _err;
 </pre>
@@ -538,6 +529,37 @@ final bool         <strong>hasError</strong> <a class="anchor-link"
 <p>Whether or not this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
 <pre class="source">
 bool get hasError =&gt; _state == STATE_ERROR;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="isBusy">
+<button class="show-code">Code</button>
+final bool         <strong>isBusy</strong> <a class="anchor-link"
+            href="#isBusy"
+            title="Permalink to Schedule.isBusy">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not this schedule is busy performing another action.</p>
+<p>This is always <code>true</code> when called from any continuations that are
+chained to Futures returned by methods on this schedule.
+This is also <code>true</code> if this schedule has an <a class="crossref" href="../undone/Schedule.html#error">error</a>.</p>
+<p>This is equivalent to <code>!isIdle</code>.</p>
+<pre class="source">
+bool get isBusy =&gt; !isIdle;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="isIdle">
+<button class="show-code">Code</button>
+final bool         <strong>isIdle</strong> <a class="anchor-link"
+            href="#isIdle"
+            title="Permalink to Schedule.isIdle">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not this schedule is in its <a class="crossref" href="../undone/Schedule.html#STATE_IDLE">STATE_IDLE</a>.</p>
+<p>This is equivalent to <code>!isBusy</code>.</p>
+<pre class="source">
+bool get isIdle =&gt; _state == STATE_IDLE;
 </pre>
 </div>
 </div>
@@ -564,9 +586,9 @@ Future <strong>call</strong>(<a href="../undone/Action.html">Action</a> action) 
 <div class="doc">
 <p>Schedule the given 
 <span class="param">action</span> to be called.  </p>
-<p>If this schedule is not <a class="crossref" href="../undone/Schedule.html#busy">busy</a>, the action will be called immediately.  
-Else, the action will be deferred in order behind any other pending 
-actions to be called once this schedule reaches an idle state.</p>
+<p>If this schedule <a class="crossref" href="../undone/Schedule.html#isIdle">isIdle</a>, the action will be called immediately.  Else, 
+the action will be deferred in order behind any other pending actions to 
+be called once this schedule reaches an idle state.</p>
 <pre class="source">
 Future call(Action action) {
  if (hasError) {
@@ -577,7 +599,7 @@ Future call(Action action) {
    _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
    return new Future.error(error);
  }
- if (busy) {
+ if (isBusy) {
    _log(() =&gt; 'defer $action');
    _pending.add(action);
    return action._defer();
@@ -662,7 +684,7 @@ is done.  </p>
 <p>The state of the schedule after this operation is equal to the state upon 
 completion of the given action. Completes <code>false</code> if any undo or redo 
 operations performed complete <code>false</code>, if the schedule does not contain 
-the given action, or if the schedule is <a class="crossref" href="../undone/Schedule.html#busy">busy</a>.</p>
+the given action, or if the schedule <a class="crossref" href="../undone/Schedule.html#isBusy">isBusy</a>.</p>
 <pre class="source">
 Future&lt;bool&gt; to(action) { 
  var completer = new Completer();    
@@ -738,7 +760,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-04 07:11:14.498</div>
+          <div>This page was generated at 2013-10-04 09:59:51.504</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
