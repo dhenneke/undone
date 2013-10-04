@@ -120,8 +120,9 @@ class Action<A, R> {
   }
   
   Future<R> _execute() {
-    if (_deferred == null) return _do(_arg);
-    else {
+    if (_deferred == null) {
+      return _do(_arg);
+    } else {
       // If the action was deferred, we complete the future we handed out prior.
       return _do(_arg)
         .then((result) {
@@ -129,7 +130,7 @@ class Action<A, R> {
           return new Future.value(result);
         })
         .catchError(
-            (e) { throw new StateError('Error wrongfully caught.'); }, 
+            (e) => throw new StateError('Error wrongfully caught.'), 
             test: (e) {
               // Complete the error to the deferred future, but allow the error
               // to propogate back to the schedule also so that it can 
@@ -148,11 +149,14 @@ class Action<A, R> {
 
 /// An error encountered during a transaction.
 class TransactionError {
+  
   /// The caught object that caused the transaction to err.
   final cause;  
+  
   var _rollbackError;
   /// An error encountered during transaction rollback; may be `null` if none.
   get rollbackError => _rollbackError;
+  
   /// Constructs a new transaction error with the given cause.
   TransactionError(this.cause);
 }
@@ -386,11 +390,10 @@ class Schedule {
         if (!_pending.isEmpty) {
           _log(() => 'new actions pending - flushing again');
           return _flush();
-        }
-        else {
+        } else {
           _log(() => 'flush complete');
           _state = STATE_IDLE;
-        }        
+        }       
       })
       // The action will complete the error to its continuations, but we will 
       // also receive it here in order to transition to the error state.
@@ -457,7 +460,10 @@ class Schedule {
   }
   
   void _to(action, completer) {
-    final handleError = (e) { _error = e; completer.completeError(e); };
+    final handleError = (e) { 
+      _error = e; 
+      completer.completeError(e); 
+    };
     final int actionIndex = _actions.indexOf(action);
     if (actionIndex == _nextUndo) {
       completer.future.whenComplete(_flush);
@@ -469,16 +475,22 @@ class Schedule {
       // Undo towards the desired action.
       undo()
         .then((success) {
-          if (!success) completer.complete(false);
-          else _to(action, completer);
+          if (!success) {
+            completer.complete(false);
+          } else {
+            _to(action, completer);
+          }
         })
         .catchError(handleError);
     } else {
       // Redo towards the desired action.
       redo()
         .then((success) {
-          if (!success) completer.complete(false); 
-          else _to(action, completer);
+          if (!success) {
+            completer.complete(false); 
+          } else {
+            _to(action, completer);
+          }
         })
         .catchError(handleError);
     }

@@ -66,7 +66,8 @@ void testActionConstructor() {
   var action = new Action(7, (x) => x + 1, (x, y) => x = y);
   var actionAsync = new Action.async(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
-      (x, y)=>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
+      (x, y) => 
+          new Future.delayed(const Duration(milliseconds: 3), () => x = y));
   expect(action.canUndo, isTrue);
   expect(actionAsync.canUndo, isTrue);
 }
@@ -98,7 +99,8 @@ void testAction() {
 void testActionAsync() {
   var action = new Action.async(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
-      (x, y) =>new Future.delayed(const Duration(milliseconds: 3), () => x = y));
+      (x, y) => 
+          new Future.delayed(const Duration(milliseconds: 3), () => x = y));
   action().then(expectAsync1((result) => expect(result, equals(10))));
 }
 
