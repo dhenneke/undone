@@ -96,8 +96,9 @@ class Action&lt;A, R&gt; {
  }
  
  Future&lt;R&gt; _execute() {
-   if (_deferred == null) return _do(_arg);
-   else {
+   if (_deferred == null) {
+     return _do(_arg);
+   } else {
      // If the action was deferred, we complete the future we handed out prior.
      return _do(_arg)
        .then((result) {
@@ -105,7 +106,7 @@ class Action&lt;A, R&gt; {
          return new Future.value(result);
        })
        .catchError(
-           (e) { throw new StateError('Error wrongfully caught.'); }, 
+           (e) =&gt; throw new StateError('Error wrongfully caught.'), 
            test: (e) {
              // Complete the error to the deferred future, but allow the error
              // to propogate back to the schedule also so that it can 
@@ -215,7 +216,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-04 06:58:26.881</div>
+          <div>This page was generated at 2013-10-04 07:06:08.738</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

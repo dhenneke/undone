@@ -208,11 +208,10 @@ class Schedule {
        if (!_pending.isEmpty) {
          _log(() =&gt; 'new actions pending - flushing again');
          return _flush();
-       }
-       else {
+       } else {
          _log(() =&gt; 'flush complete');
          _state = STATE_IDLE;
-       }        
+       }       
      })
      // The action will complete the error to its continuations, but we will 
      // also receive it here in order to transition to the error state.
@@ -279,7 +278,10 @@ class Schedule {
  }
  
  void _to(action, completer) {
-   final handleError = (e) { _error = e; completer.completeError(e); };
+   final handleError = (e) { 
+     _error = e; 
+     completer.completeError(e); 
+   };
    final int actionIndex = _actions.indexOf(action);
    if (actionIndex == _nextUndo) {
      completer.future.whenComplete(_flush);
@@ -291,16 +293,22 @@ class Schedule {
      // Undo towards the desired action.
      undo()
        .then((success) {
-         if (!success) completer.complete(false);
-         else _to(action, completer);
+         if (!success) {
+           completer.complete(false);
+         } else {
+           _to(action, completer);
+         }
        })
        .catchError(handleError);
    } else {
      // Redo towards the desired action.
      redo()
        .then((success) {
-         if (!success) completer.complete(false); 
-         else _to(action, completer);
+         if (!success) {
+           completer.complete(false); 
+         } else {
+           _to(action, completer);
+         }
        })
        .catchError(handleError);
    }
@@ -723,7 +731,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-04 06:58:26.786</div>
+          <div>This page was generated at 2013-10-04 07:06:08.688</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
