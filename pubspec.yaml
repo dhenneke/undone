@@ -7,6 +7,6 @@ documentation: http://rmsmith.github.com/undone/undone.html
 dependencies:
   logging: '>=0.7.6'
 dev_dependencies:
-  bench: '>=0.2.14'
+  bench: '>=0.2.15'
   browser: '>=0.7.6'   
   unittest: '>=0.7.6'
