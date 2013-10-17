@@ -2,10 +2,6 @@
 
 ## 0.2.10-dev
 
-- Added a `logLevel` field to the `Schedule` with a default value of 
-`Level.OFF`.  This provides a way to configure a schedule's logging output at 
-runtime.
-
 ## 0.2.9
 
 - Updated to SDK 0.7.6_r28108.

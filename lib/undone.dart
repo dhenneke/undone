@@ -283,10 +283,7 @@ class Schedule {
   
   /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
-  
-  /// The log [Level] used by this schedule; defaults to [Level.OFF].
-  Level logLevel = Level.OFF;
-  
+    
   /// The current error, if [hasError] is `true`.  
   /// 
   /// Calling [isBusy] on this schedule will return `true` for as long as this 
@@ -419,9 +416,7 @@ class Schedule {
   }
       
   void _log(Level level, String message, [exception]) {
-    if (logLevel != null && logLevel != Level.OFF && logLevel <= level) {
-      _logger.log(level, '[$_state]: $message', exception);
-    }
+    _logger.log(level, '[$_state]: $message', exception);
   }
   
   void _logFine(String message) => _log(Level.FINE, message);
