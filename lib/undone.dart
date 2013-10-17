@@ -295,7 +295,8 @@ class Schedule {
   get error => _err;
   set _error(e) {
     _err = e;
-    _state = STATE_ERROR;
+    _state = STATE_ERROR;    
+    _logError(e);
   }
   
   // The current state of this schedule.
@@ -303,7 +304,7 @@ class Schedule {
   set _state(String nextState) {
     if (nextState != _currState && _currState != STATE_ERROR) {
       _currState = nextState;
-      _log('--- enter state ---');
+      _logFine('--- enter state ---');
       if (_states.hasListener) _states.add(_currState);
     }
   }
@@ -327,7 +328,7 @@ class Schedule {
       return new Future.error(error);
     }
     if (isBusy) {
-      _log('defer $action');
+      _logFine('defer $action');
       _pending.add(action);
       return action._defer();
     }
@@ -339,7 +340,7 @@ class Schedule {
   /// `true` if the operation succeeds or `false` if it does not succeed.
   bool clear() {
     if (!canClear) return false;
-    _log('clear');
+    _logFine('clear');
     _actions.clear();
     _pending.clear();
     _nextUndo = -1;
@@ -359,13 +360,13 @@ class Schedule {
       if (_nextUndo >= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
       _actions.add(action);        
       _nextUndo++;
-      _log('execute undoable $action [$_nextUndo]');
+      _logFine('execute undoable $action [$_nextUndo]');
     } else {
-      _log('execute non-undoable $action');
+      _logFine('execute non-undoable $action');
     }
     action._execute()
       .then((result) {
-        _log('$action complete w/ $result');
+        _logFine('$action complete w/ $result');
         action._result = result;
         // Flush any pending action calls that were deferred as we did this 
         // action.  Also flush if we see STATE_ERROR, to ensure that pending
@@ -399,16 +400,16 @@ class Schedule {
     // may be added to _pending while we are iterating.
     final _flushing = _pending.toList();
     _pending.clear();
-    _log('flushing ${_flushing.length} actions');
+    _logFine('flushing ${_flushing.length} actions');
     return Future
       .forEach(_flushing, (action) => _do(action)) 
       .then((_) {        
         // If we get new _pending actions during flush we want to flush again.
         if (!_pending.isEmpty) {
-          _log('new actions pending - flushing again');
+          _logFine('new actions pending - flushing again');
           return _flush();
         } else {
-          _log('flush complete');
+          _logFine('flush complete');
           _state = STATE_IDLE;
         }
       })
@@ -416,13 +417,15 @@ class Schedule {
       // also receive it here in order to transition to the error state.
       .catchError((e) => _error = e);
   }
-  
-  void _log(String message) {
-    // TODO(rms): log at different levels instead of only `fine`.
-    if (logLevel != null && logLevel != Level.OFF && logLevel <= Level.FINE) {
-      _logger.fine('[$_state]: $message');
+      
+  void _log(Level level, String message, [exception]) {
+    if (logLevel != null && logLevel != Level.OFF && logLevel <= level) {
+      _logger.log(level, '[$_state]: $message', exception);
     }
   }
+  
+  void _logFine(String message) => _log(Level.FINE, message);
+  void _logError(error) => _log(Level.SEVERE, '', error);
   
   /// Redo the next action to be redone in this schedule, if any.
   /// 
@@ -430,15 +433,15 @@ class Schedule {
   Future<bool> redo() { 
     var completer = new Completer<bool>();
     if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-      _log('can not redo');
+      _logFine('can not redo');
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_REDO;
       final action = _actions[++_nextUndo];
-      _log('execute $action [${_nextUndo-1}]');
+      _logFine('execute $action [${_nextUndo-1}]');
       action._execute()
         .then((result) {
-          _log('$action execute complete w/ $result');
+          _logFine('$action execute complete w/ $result');
           action._result = result;
           // Don't flush if we are in STATE_TO, it will flush when it is done.
           if (_state == STATE_REDO) completer.future.whenComplete(_flush);
@@ -516,15 +519,15 @@ class Schedule {
   Future<bool> undo() { 
     var completer = new Completer<bool>();
     if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-      _log('can not undo');
+      _logFine('can not undo');
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_UNDO;      
       final action = _actions[_nextUndo--];
-      _log('unexecute $action [${_nextUndo+1}]');
+      _logFine('unexecute $action [${_nextUndo+1}]');
       action._unexecute()
         .then((_) {
-          _log('$action unexecute complete');
+          _logFine('$action unexecute complete');
           // Don't flush if we are in STATE_TO, it will flush when it is done.
           if (_state == STATE_UNDO) completer.future.whenComplete(_flush);
           // Complete before we flush pending and transition to idle.
