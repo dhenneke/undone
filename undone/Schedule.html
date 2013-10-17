@@ -243,7 +243,7 @@ class Schedule {
  }
  
  void _logFine(String message) =&gt; _log(Level.FINE, message);
- void _logError(error) =&gt; _log(Level.SEVERE, '', error);
+ void _logError(error) =&gt; _log(Level.SEVERE, Error.safeToString(error), error);
  
  /// Redo the next action to be redone in this schedule, if any.
  /// 
@@ -777,7 +777,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-17 14:53:19.498</div>
+          <div>This page was generated at 2013-10-17 14:58:24.420</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
