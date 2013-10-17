@@ -88,6 +88,11 @@ class Schedule {
  /// This is equivalent to `!isBusy`.
  bool get isIdle =&gt; _state == STATE_IDLE;
  
+ /// Whether or not this schedule logs messages; `false` by default.
+ /// 
+ /// If set to `true` this library logs messages to a logger named 'undone'.
+ bool isLoggingEnabled = false;
+ 
  /// Whether or not this schedule can be [clear]ed at the present time.
  bool get canClear =&gt; isIdle || hasError;
  
@@ -118,7 +123,7 @@ class Schedule {
  set _state(String nextState) {
    if (nextState != _currState &amp;&amp; _currState != STATE_ERROR) {
      _currState = nextState;
-     _log(() =&gt; '--- enter state ---');
+     _log('--- enter state ---');
      if (_states.hasListener) _states.add(_currState);
    }
  }
@@ -126,7 +131,7 @@ class Schedule {
  final _states = new StreamController&lt;String&gt;.broadcast();
  /// An observable stream of this schedule's state transitions.
  Stream&lt;String&gt; get states =&gt; _states.stream;
-     
+       
  /// Schedule the given [action] to be called.  
  /// 
  /// If this schedule [isIdle], the action will be called immediately.  Else, 
@@ -142,7 +147,7 @@ class Schedule {
      return new Future.error(error);
    }
    if (isBusy) {
-     _log(() =&gt; 'defer $action');
+     _log('defer $action');
      _pending.add(action);
      return action._defer();
    }
@@ -154,7 +159,7 @@ class Schedule {
  /// `true` if the operation succeeds or `false` if it does not succeed.
  bool clear() {
    if (!canClear) return false;
-   _log(() =&gt; 'clear');
+   _log('clear');
    _actions.clear();
    _pending.clear();
    _nextUndo = -1;
@@ -174,13 +179,13 @@ class Schedule {
      if (_nextUndo &gt;= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
      _actions.add(action);        
      _nextUndo++;
-     _log(() =&gt; 'execute undoable $action [$_nextUndo]');
+     _log('execute undoable $action [$_nextUndo]');
    } else {
-     _log(() =&gt; 'execute non-undoable $action');
+     _log('execute non-undoable $action');
    }
    action._execute()
      .then((result) {
-       _log(() =&gt; '$action complete w/ $result');
+       _log('$action complete w/ $result');
        action._result = result;
        // Flush any pending action calls that were deferred as we did this 
        // action.  Also flush if we see STATE_ERROR, to ensure that pending
@@ -214,31 +219,28 @@ class Schedule {
    // may be added to _pending while we are iterating.
    final _flushing = _pending.toList();
    _pending.clear();
-   _log(() =&gt; 'flushing ${_flushing.length} actions');
+   _log('flushing ${_flushing.length} actions');
    return Future
      .forEach(_flushing, (action) =&gt; _do(action)) 
      .then((_) {        
        // If we get new _pending actions during flush we want to flush again.
        if (!_pending.isEmpty) {
-         _log(() =&gt; 'new actions pending - flushing again');
+         _log('new actions pending - flushing again');
          return _flush();
        } else {
-         _log(() =&gt; 'flush complete');
+         _log('flush complete');
          _state = STATE_IDLE;
-       }       
+       }
      })
      // The action will complete the error to its continuations, but we will 
      // also receive it here in order to transition to the error state.
      .catchError((e) =&gt; _error = e);
  }
  
- void _log(String message()) {
-   // Assert will be stripped in 'production' mode; the result is that all
-   // logging code should be removed as dead code by the tree shaking.
-   assert(() {
-     _logger.fine('[${_state}]: ${message()}');
-     return true;
-   });
+ void _log(String message) {
+   if (isLoggingEnabled) {
+     _logger.fine('[$_state]: $message');
+   }
  }
  
  /// Redo the next action to be redone in this schedule, if any.
@@ -247,15 +249,15 @@ class Schedule {
  Future&lt;bool&gt; redo() { 
    var completer = new Completer&lt;bool&gt;();
    if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-     _log(() =&gt; 'can not redo');
+     _log('can not redo');
      completer.complete(false);
    } else {
      if (_state == STATE_IDLE) _state = STATE_REDO;
      final action = _actions[++_nextUndo];
-     _log(() =&gt; 'execute ${action} [${_nextUndo-1}]');
+     _log('execute $action [${_nextUndo-1}]');
      action._execute()
        .then((result) {
-         _log(() =&gt; '${action} execute complete w/ $result');
+         _log('$action execute complete w/ $result');
          action._result = result;
          // Don't flush if we are in STATE_TO, it will flush when it is done.
          if (_state == STATE_REDO) completer.future.whenComplete(_flush);
@@ -333,15 +335,15 @@ class Schedule {
  Future&lt;bool&gt; undo() { 
    var completer = new Completer&lt;bool&gt;();
    if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-     _log(() =&gt; 'can not undo');
+     _log('can not undo');
      completer.complete(false);
    } else {
      if (_state == STATE_IDLE) _state = STATE_UNDO;      
      final action = _actions[_nextUndo--];
-     _log(() =&gt; 'unexecute ${action} [${_nextUndo+1}]');
+     _log('unexecute $action [${_nextUndo+1}]');
      action._unexecute()
        .then((_) {
-         _log(() =&gt; '${action} unexecute complete');
+         _log('$action unexecute complete');
          // Don't flush if we are in STATE_TO, it will flush when it is done.
          if (_state == STATE_UNDO) completer.future.whenComplete(_flush);
          // Complete before we flush pending and transition to idle.
@@ -563,6 +565,20 @@ bool get isIdle =&gt; _state == STATE_IDLE;
 </pre>
 </div>
 </div>
+<div class="field"><h4 id="isLoggingEnabled">
+<button class="show-code">Code</button>
+bool         <strong>isLoggingEnabled</strong> <a class="anchor-link"
+            href="#isLoggingEnabled"
+            title="Permalink to Schedule.isLoggingEnabled">#</a>
+        </h4>
+        <div class="doc">
+<p>Whether or not this schedule logs messages; <code>false</code> by default.</p>
+<p>If set to <code>true</code> this library logs messages to a logger named 'undone'.</p>
+<pre class="source">
+bool isLoggingEnabled = false
+</pre>
+</div>
+</div>
 <div class="field"><h4 id="states">
 <button class="show-code">Code</button>
 final Stream&lt;String&gt;         <strong>states</strong> <a class="anchor-link"
@@ -600,7 +616,7 @@ Future call(Action action) {
    return new Future.error(error);
  }
  if (isBusy) {
-   _log(() =&gt; 'defer $action');
+   _log('defer $action');
    _pending.add(action);
    return action._defer();
  }
@@ -620,7 +636,7 @@ bool <strong>clear</strong>() <a class="anchor-link" href="#clear"
 <pre class="source">
 bool clear() {
  if (!canClear) return false;
- _log(() =&gt; 'clear');
+ _log('clear');
  _actions.clear();
  _pending.clear();
  _nextUndo = -1;
@@ -646,15 +662,15 @@ Future&lt;bool&gt; <strong>redo</strong>() <a class="anchor-link" href="#redo"
 Future&lt;bool&gt; redo() { 
  var completer = new Completer&lt;bool&gt;();
  if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-   _log(() =&gt; 'can not redo');
+   _log('can not redo');
    completer.complete(false);
  } else {
    if (_state == STATE_IDLE) _state = STATE_REDO;
    final action = _actions[++_nextUndo];
-   _log(() =&gt; 'execute ${action} [${_nextUndo-1}]');
+   _log('execute $action [${_nextUndo-1}]');
    action._execute()
      .then((result) {
-       _log(() =&gt; '${action} execute complete w/ $result');
+       _log('$action execute complete w/ $result');
        action._result = result;
        // Don't flush if we are in STATE_TO, it will flush when it is done.
        if (_state == STATE_REDO) completer.future.whenComplete(_flush);
@@ -711,15 +727,15 @@ Completes <code>true</code> if an action was undone or else completes <code>fals
 Future&lt;bool&gt; undo() { 
  var completer = new Completer&lt;bool&gt;();
  if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-   _log(() =&gt; 'can not undo');
+   _log('can not undo');
    completer.complete(false);
  } else {
    if (_state == STATE_IDLE) _state = STATE_UNDO;      
    final action = _actions[_nextUndo--];
-   _log(() =&gt; 'unexecute ${action} [${_nextUndo+1}]');
+   _log('unexecute $action [${_nextUndo+1}]');
    action._unexecute()
      .then((_) {
-       _log(() =&gt; '${action} unexecute complete');
+       _log('$action unexecute complete');
        // Don't flush if we are in STATE_TO, it will flush when it is done.
        if (_state == STATE_UNDO) completer.future.whenComplete(_flush);
        // Complete before we flush pending and transition to idle.
@@ -760,7 +776,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-17 13:17:20.770</div>
+          <div>This page was generated at 2013-10-17 14:05:16.938</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
