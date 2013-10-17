@@ -21,7 +21,7 @@ void main() {
 // -----------------------------------------------------------------------------
 
 @Setup
-setup() => schedule.isLoggingEnabled = true;
+setup() => schedule.logLevel = Level.ALL;
 
 @Teardown
 teardown() => schedule.wait(Schedule.STATE_IDLE).then((_) => schedule.clear());
@@ -55,7 +55,7 @@ class HasFields {
 
 @Test('Test the initial state of a freshly constructed schedule.')
 void testScheduleInitialState() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   expect(schedule.isBusy, isFalse);
   expect(schedule.isIdle, isTrue);
   expect(schedule.canClear, isTrue);
@@ -110,7 +110,7 @@ void testActionAsync() {
 
 @Test('Test that an error thrown by an action is handled as expected.')
 void testActionThrows() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var action = new Action(14, (x) => throw 'snarf', (x, y) => true);  
   schedule(action)
     .catchError(expectAsync1((e) { 
@@ -134,7 +134,7 @@ void testActionNonUndoable() {
 
 @Test('Test that an attempt to schedule the same action twice throws error.')
 void testScheduleSameActionTwiceThrows() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   var action = new Action(map, increment, decrement);
   
@@ -150,7 +150,7 @@ void testScheduleSameActionTwiceThrows() {
 
 @Test('Test that an action call throws StateError if the Schedule hasError.')
 void testScheduleHasErrorActionThrows() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   var action1 = new Action(map, (x) => throw 'snarf', decrement);
   var action2 = new Action(map, increment, decrement);
@@ -171,7 +171,7 @@ void testScheduleHasErrorActionThrows() {
 
 @Test('Test the successful completion of an undo operation.')
 void testUndo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   var action = new Action(map, increment, decrement);
   schedule(action)
@@ -189,7 +189,7 @@ void testUndo() {
 
 @Test('Test that an error thrown by an action undo is handled as expected.')
 void testUndoThrows() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   var action = new Action(map, increment, (a, r) => throw 'uh-oh');
   schedule(action)
@@ -208,7 +208,7 @@ void testUndoThrows() {
 
 @Test('Test the successful completion of an redo operation.')
 void testRedo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   var action = new Action(map, increment, decrement);
   schedule(action)
@@ -232,7 +232,7 @@ void testRedo() {
 
 @Test('Test that an error thrown by an action redo is handled as expected.')
 void testRedoThrows() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   int doCount = 0;
   var action = new Action(map, 
@@ -274,7 +274,7 @@ void testRedoEmptyScheduleReturnsFalse() {
 
 @Test('Test the successful completion of a to operation.')
 void testTo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action(map, square, squareRoot);
@@ -311,7 +311,7 @@ void testTo() {
 
 @Test('Test the successful clear of a schedule.')
 void testClear() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action(map, square, squareRoot);
@@ -342,7 +342,7 @@ void testClear() {
 
 @Test('Test the expected order of two concurrent actions.')
 void testActionDuringAction() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action.async(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, square, squareRoot);
@@ -364,7 +364,7 @@ void testActionDuringAction() {
 
 @Test('Test that an error thrown by a pending action does not affect other.')
 void testActionThrowsDuringAction() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action.async(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, (a) => throw 'crowbar', squareRoot);
@@ -391,7 +391,7 @@ void testActionThrowsDuringAction() {
 
 @Test('Test the expected order of multiple concurrent actions.')
 void testMultipleActionsDuringAction() {  
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action.async(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, square, squareRoot);
@@ -425,7 +425,7 @@ void testMultipleActionsDuringAction() {
 
 @Test('Test that an attempt to defer the same action twice throws error.')
 void testDeferSameActionTwiceThrows() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action.async(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, square, squareRoot);
@@ -455,7 +455,7 @@ void testDeferSameActionTwiceThrows() {
 
 @Test('Test the expected order of an action called during undo.')
 void testActionDuringUndo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
@@ -493,7 +493,7 @@ void testActionDuringUndo() {
 
 @Test('Test that an error thrown by a pending action does not affect undo.')
 void testActionThrowsDuringUndo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
@@ -533,7 +533,7 @@ void testActionThrowsDuringUndo() {
 
 @Test('Test the expected order of an action called during redo.')
 void testActionDuringRedo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
@@ -575,7 +575,7 @@ void testActionDuringRedo() {
 
 @Test('Test that an error thrown by a pending action does not affect redo.')
 void testActionThrowsDuringRedo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
@@ -638,7 +638,7 @@ void testActionDuringTo() {
 
 @Test('Test that an error thrown by a pending action does not affect to.')
 void testActionThrowsDuringTo() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
@@ -667,7 +667,7 @@ void testActionThrowsDuringTo() {
 
 @Test('Test that an action called in the flush state is done before idle.')
 void testActionDuringFlush() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };  
   var action1 = new Action.async(map, squareAsync, squareRootAsync);
   var action2 = new Action(map, increment, decrement);  
@@ -709,7 +709,7 @@ void testActionDuringFlush() {
 
 @Test('Test that a transaction computes as expected.')
 void testTransaction() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   
   var transaction = 
@@ -736,7 +736,7 @@ void testTransactionAddNonUndoableActionThrows() {
 
 @Test('Test that a transaction rollback succeeds when an error is thrown.')
 void testTransactionRollback() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   
   var transaction = 
@@ -756,7 +756,7 @@ void testTransactionRollback() {
 
 @Test('Test the handling of an error thrown during transaction rollback.')
 void testTransactionRollbackError() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   
   var transaction = 
@@ -776,7 +776,7 @@ void testTransactionRollbackError() {
 
 @Test('Test the successful completion of a transaction undo operation.')
 void testTransactionUndo() {    
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   var map = { 'val' : 42 };
   
   var transaction = 
@@ -835,7 +835,7 @@ void testTransactThrows() {
 
 @Test('Test that no events are added to the states stream if no listeners.')
 void testNoStatesListener() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   // Do an action to cause state transitions to happen.
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
   schedule(action).then(expectAsync1((result) {
@@ -859,7 +859,7 @@ void testNoStatesListener() {
 
 @Test('Test that events are buffered by a paused states stream subscriber.')
 void testPauseStatesListener() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   
   // Attach a listener, we expect to see both the CALL and IDLE states.
   var subscribe = schedule.states.listen(expectAsync1((state) {}, count: 2));
@@ -878,7 +878,7 @@ void testPauseStatesListener() {
 
 @Test('Test that the states stream is a broadcast stream.')
 void testStatesIsBroadcast() {
-  var schedule = new Schedule()..isLoggingEnabled = true;
+  var schedule = new Schedule()..logLevel = Level.ALL;
   schedule.states.listen((state) { /* noop */ });
   schedule.states.listen((state) { /* noop */ });
 }

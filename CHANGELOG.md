@@ -2,10 +2,9 @@
 
 ## 0.2.10-dev
 
-- Added an `isLoggingEnabled` field to the `Schedule` with default value of 
-`false`.  This provides a means for external control of a schedule's logging 
-behavior; it does not provide a way to completely remove logging code but that 
-is a Dart issue (there is no means for external configuration at present).  
+- Added a `logLevel` field to the `Schedule` with a default value of 
+`Level.OFF`.  This provides a way to configure a schedule's logging output at 
+runtime.
 
 ## 0.2.9
 

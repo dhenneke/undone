@@ -62,12 +62,12 @@ Future<bool> redo() => schedule.redo();
 /// another to [Undo] the action.  The action object is itself a function that 
 /// can be [call]ed to schedule it to be done on the top-level [schedule] or
 /// to add it to a [Transaction] if called within the scope of [transact].
-/// Actions may also be constructed with a pair of [DoAsync] and [UndoAsync]
+/// Actions may also be created with a pair of [DoAsync] and [UndoAsync]
 /// functions using the [new Action.async] constructor.  All actions are done
 /// and undone asynchronously, regardless of the functions themselves.  Actions
 /// may be optionally typed by their argument and result objects, [A] and [R].
 /// The action type may be extended to define custom actions although this may
-/// often not be necessary; constructing an action with the functions to do and
+/// often not be necessary; creating an action with the functions to do and
 /// undo the desired operation is often the simplest and best approach.
 class Action<A, R> {
       
@@ -80,7 +80,7 @@ class Action<A, R> {
   /// Whether or not this action can be undone.
   final bool canUndo;
   
-  /// Constructs a new action with the given [arg]uments, [Do] function, and 
+  /// Creates a new action with the given [arg]uments, [Do] function, and 
   /// [Undo] function.  
   /// 
   /// The given synchronous functions are automatically wrapped in futures prior 
@@ -89,7 +89,7 @@ class Action<A, R> {
       : this._(arg, d == null ? d : (a) => new Future.sync(() => d(a)), 
                     u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
   
-  /// Constructs a new action with the given [arg]uments, [DoAsync] function, 
+  /// Creates a new action with the given [arg]uments, [DoAsync] function, 
   /// and [UndoAsync] function.
   Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
   
@@ -157,7 +157,7 @@ class TransactionError {
   /// An error encountered during transaction rollback; may be `null` if none.
   get rollbackError => _rollbackError;
   
-  /// Constructs a new transaction error with the given cause.
+  /// Creates a new transaction error with the given cause.
   TransactionError(this.cause);
 }
 
@@ -199,7 +199,7 @@ class Transaction extends Action {
   static Future _undo_(List<Action> actions, _) => 
       Future.forEach(actions.reversed, (action) => action._unexecute());
   
-  /// Constructs a new empty transaction.
+  /// Creates a new empty transaction.
   Transaction() : super._(new List<Action>(), _do_, _undo_);
   
   /// Adds the given [action] to this transaction.
@@ -269,12 +269,7 @@ class Schedule {
   /// 
   /// This is equivalent to `!isBusy`.
   bool get isIdle => _state == STATE_IDLE;
-  
-  /// Whether or not this schedule logs messages; `false` by default.
-  /// 
-  /// If `true` then this library logs messages to a logger named 'undone'.
-  bool isLoggingEnabled = false;
-  
+    
   /// Whether or not this schedule can be [clear]ed at the present time.
   bool get canClear => isIdle || hasError;
   
@@ -288,7 +283,10 @@ class Schedule {
   
   /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
-    
+  
+  /// The log [Level] used by this schedule; defaults to [Level.OFF].
+  Level logLevel = Level.OFF;
+  
   /// The current error, if [hasError] is `true`.  
   /// 
   /// Calling [isBusy] on this schedule will return `true` for as long as this 
@@ -313,7 +311,7 @@ class Schedule {
   final _states = new StreamController<String>.broadcast();
   /// An observable stream of this schedule's state transitions.
   Stream<String> get states => _states.stream;
-        
+    
   /// Schedule the given [action] to be called.  
   /// 
   /// If this schedule [isIdle], the action will be called immediately.  Else, 
@@ -420,7 +418,8 @@ class Schedule {
   }
   
   void _log(String message) {
-    if (isLoggingEnabled) {
+    // TODO(rms): log at different levels instead of only `fine`.
+    if (logLevel != null && logLevel != Level.OFF && logLevel <= Level.FINE) {
       _logger.fine('[$_state]: $message');
     }
   }
