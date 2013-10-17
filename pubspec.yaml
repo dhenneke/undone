@@ -5,8 +5,8 @@ author: Ross Smith <ross.dart.lang@gmail.com>
 homepage: https://github.com/rmsmith/undone
 documentation: http://rmsmith.github.com/undone/undone.html
 dependencies:
-  logging: '>=0.7.6'
+  logging: '>=0.8.1'
 dev_dependencies:
   bench: '>=0.2.15'
-  browser: '>=0.7.6'   
-  unittest: '>=0.7.6'
+  browser: '>=0.8.1'   
+  unittest: '>=0.8.1'
