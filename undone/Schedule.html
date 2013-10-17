@@ -101,10 +101,7 @@ class Schedule {
  
  /// Whether or not this schedule has an [error].
  bool get hasError =&gt; _state == STATE_ERROR;
- 
- /// The log [Level] used by this schedule; defaults to [Level.OFF].
- Level logLevel = Level.OFF;
- 
+   
  /// The current error, if [hasError] is `true`.  
  /// 
  /// Calling [isBusy] on this schedule will return `true` for as long as this 
@@ -237,9 +234,7 @@ class Schedule {
  }
      
  void _log(Level level, String message, [exception]) {
-   if (logLevel != null &amp;&amp; logLevel != Level.OFF &amp;&amp; logLevel &lt;= level) {
-     _logger.log(level, '[$_state]: $message', exception);
-   }
+   _logger.log(level, '[$_state]: $message', exception);
  }
  
  void _logFine(String message) =&gt; _log(Level.FINE, message);
@@ -567,19 +562,6 @@ bool get isIdle =&gt; _state == STATE_IDLE;
 </pre>
 </div>
 </div>
-<div class="field"><h4 id="logLevel">
-<button class="show-code">Code</button>
-Level         <strong>logLevel</strong> <a class="anchor-link"
-            href="#logLevel"
-            title="Permalink to Schedule.logLevel">#</a>
-        </h4>
-        <div class="doc">
-<p>The log <a class="crossref" href="../logging/Level.html">Level</a> used by this schedule; defaults to <code>Level.OFF</code>.</p>
-<pre class="source">
-Level logLevel = Level.OFF
-</pre>
-</div>
-</div>
 <div class="field"><h4 id="states">
 <button class="show-code">Code</button>
 final Stream&lt;String&gt;         <strong>states</strong> <a class="anchor-link"
@@ -777,7 +759,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-17 14:58:24.420</div>
+          <div>This page was generated at 2013-10-17 15:25:06.839</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
