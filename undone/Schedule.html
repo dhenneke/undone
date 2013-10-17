@@ -87,12 +87,7 @@ class Schedule {
  /// 
  /// This is equivalent to `!isBusy`.
  bool get isIdle =&gt; _state == STATE_IDLE;
- 
- /// Whether or not this schedule logs messages; `false` by default.
- /// 
- /// If `true` then this library logs messages to a logger named 'undone'.
- bool isLoggingEnabled = false;
- 
+   
  /// Whether or not this schedule can be [clear]ed at the present time.
  bool get canClear =&gt; isIdle || hasError;
  
@@ -106,7 +101,10 @@ class Schedule {
  
  /// Whether or not this schedule has an [error].
  bool get hasError =&gt; _state == STATE_ERROR;
-   
+ 
+ /// The log [Level] used by this schedule; defaults to [Level.OFF].
+ Level logLevel = Level.OFF;
+ 
  /// The current error, if [hasError] is `true`.  
  /// 
  /// Calling [isBusy] on this schedule will return `true` for as long as this 
@@ -131,7 +129,7 @@ class Schedule {
  final _states = new StreamController&lt;String&gt;.broadcast();
  /// An observable stream of this schedule's state transitions.
  Stream&lt;String&gt; get states =&gt; _states.stream;
-       
+   
  /// Schedule the given [action] to be called.  
  /// 
  /// If this schedule [isIdle], the action will be called immediately.  Else, 
@@ -238,7 +236,8 @@ class Schedule {
  }
  
  void _log(String message) {
-   if (isLoggingEnabled) {
+   // TODO(rms): log at different levels instead of only `fine`.
+   if (logLevel != null &amp;&amp; logLevel != Level.OFF &amp;&amp; logLevel &lt;= Level.FINE) {
      _logger.fine('[$_state]: $message');
    }
  }
@@ -565,17 +564,16 @@ bool get isIdle =&gt; _state == STATE_IDLE;
 </pre>
 </div>
 </div>
-<div class="field"><h4 id="isLoggingEnabled">
+<div class="field"><h4 id="logLevel">
 <button class="show-code">Code</button>
-bool         <strong>isLoggingEnabled</strong> <a class="anchor-link"
-            href="#isLoggingEnabled"
-            title="Permalink to Schedule.isLoggingEnabled">#</a>
+Level         <strong>logLevel</strong> <a class="anchor-link"
+            href="#logLevel"
+            title="Permalink to Schedule.logLevel">#</a>
         </h4>
         <div class="doc">
-<p>Whether or not this schedule logs messages; <code>false</code> by default.</p>
-<p>If <code>true</code> then this library logs messages to a logger named 'undone'.</p>
+<p>The log <a class="crossref" href="../logging/Level.html">Level</a> used by this schedule; defaults to <code>Level.OFF</code>.</p>
 <pre class="source">
-bool isLoggingEnabled = false
+Level logLevel = Level.OFF
 </pre>
 </div>
 </div>
@@ -776,7 +774,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-10-17 14:07:16.907</div>
+          <div>This page was generated at 2013-10-17 14:33:38.336</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
