@@ -425,7 +425,7 @@ class Schedule {
   }
   
   void _logFine(String message) => _log(Level.FINE, message);
-  void _logError(error) => _log(Level.SEVERE, '', error);
+  void _logError(error) => _log(Level.SEVERE, Error.safeToString(error), error);
   
   /// Redo the next action to be redone in this schedule, if any.
   /// 
