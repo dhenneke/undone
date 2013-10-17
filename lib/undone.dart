@@ -272,7 +272,7 @@ class Schedule {
   
   /// Whether or not this schedule logs messages; `false` by default.
   /// 
-  /// If set to `true` this library logs messages to a logger named 'undone'.
+  /// If `true` then this library logs messages to a logger named 'undone'.
   bool isLoggingEnabled = false;
   
   /// Whether or not this schedule can be [clear]ed at the present time.
