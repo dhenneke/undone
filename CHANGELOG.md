@@ -1,6 +1,8 @@
 # Undone Changes
 
-## 0.2.11-dev
+## 0.2.11
+
+- Updated to SDK 0.8.10_r29803.
 
 ## 0.2.10
 

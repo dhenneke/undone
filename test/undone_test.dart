@@ -840,7 +840,7 @@ void testNoStatesListener() {
     final noop = expectAsync0(() { });
     
     // Defer to let the schedule return to idle.
-    runAsync(() {
+    scheduleMicrotask(() {
       expect(schedule.isBusy, isFalse);
       
       // Now attach a listener.
@@ -849,7 +849,7 @@ void testNoStatesListener() {
       });
       
       // Delay test completion to make sure no events are flushed to listener.
-      runAsync(noop);
+      scheduleMicrotask(noop);
     });
   }));
 }
