@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.2.12-dev
+## 0.2.12
 
 - Added handling of `StackTrace` objects for errors encountered in a schedule:
 	- All logged errors now include the stack trace, if any.
