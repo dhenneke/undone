@@ -61,9 +61,10 @@ class Action&lt;A, R&gt; {
  /// 
  /// The given synchronous functions are automatically wrapped in futures prior 
  /// to being called on a schedule.
- Action(A arg, Do d, [Undo u]) 
-     : this._(arg, d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
-                   u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
+ Action(A arg, Do d, [Undo u]) : this._(
+     arg, 
+     d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
+     u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
  
  /// Creates a new action with the given [arg]uments, [DoAsync] function, 
  /// and [UndoAsync] function.
@@ -141,9 +142,10 @@ new <strong>Action</strong>(<a href="../undone/Action.html">A</a> arg, <a href="
 <p>The given synchronous functions are automatically wrapped in futures prior 
 to being called on a schedule.</p>
 <pre class="source">
-Action(A arg, Do d, [Undo u]) 
-   : this._(arg, d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
-                 u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
+Action(A arg, Do d, [Undo u]) : this._(
+   arg, 
+   d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
+   u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
 </pre>
 </div>
 </div>
@@ -217,7 +219,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-06 09:50:01.001</div>
+          <div>This page was generated at 2013-11-06 10:21:52.513</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

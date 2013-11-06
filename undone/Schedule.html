@@ -131,14 +131,15 @@ class Schedule {
  }
  
  // The current state of this schedule.
- String get _state =&gt; _currState;
- set _state(String nextState) {
-   if (nextState != _currState &amp;&amp; _currState != STATE_ERROR) {
-     _currState = nextState;
-     _logFine('--- enter state ---');
-     if (_states.hasListener) _states.add(_currState);
+ String 
+   get _state =&gt; _currState;
+   set _state(String nextState) {
+     if (nextState != _currState &amp;&amp; _currState != STATE_ERROR) {
+       _currState = nextState;
+       _logFine('--- enter state ---');
+       if (_states.hasListener) _states.add(_currState);
+     }
    }
- }
    
  final _states = new StreamController&lt;String&gt;.broadcast();
  /// An observable stream of this schedule's state transitions.
@@ -806,7 +807,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-06 09:50:00.949</div>
+          <div>This page was generated at 2013-11-06 10:21:52.455</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
