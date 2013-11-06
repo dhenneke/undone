@@ -131,8 +131,7 @@ class Action<A, R> {
         })
         .catchError(
             (e) => throw new StateError('Error wrongfully caught.'), 
-            // TODO(rms): open a dartbug about not being able to receive the
-            // stackTrace in a `test` function.
+            // TODO(rms): https://code.google.com/p/dart/issues/detail?id=14855
             test: (e) {
               // Complete the error to the deferred future, but allow the error
               // to propogate back to the schedule also so that it can 
