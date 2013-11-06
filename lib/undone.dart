@@ -36,10 +36,10 @@ Future transact(void build()) {
   _transaction = txn;
   try {
     build();
-  } catch(e) {
+  } catch(e, stackTrace) {
     // Clear the deferred future for each action that was added in the build.
     _transaction._arg.forEach((action) => action._deferred = null);
-    return new Future.error(e);
+    return new Future.error(e, stackTrace);
   } finally {
     _transaction = null;
   }
@@ -131,6 +131,8 @@ class Action<A, R> {
         })
         .catchError(
             (e) => throw new StateError('Error wrongfully caught.'), 
+            // TODO(rms): open a dartbug about not being able to receive the
+            // stackTrace in a `test` function.
             test: (e) {
               // Complete the error to the deferred future, but allow the error
               // to propogate back to the schedule also so that it can 
@@ -151,14 +153,22 @@ class Action<A, R> {
 class TransactionError {
   
   /// The caught object that caused the transaction to err.
-  final cause;  
+  final cause;
+  
+  /// The stack trace associated with the [cause], if any.
+  final causeStackTrace;
   
   var _rollbackError;
+  var _rollbackStackTrace;
+  
   /// An error encountered during transaction rollback; may be `null` if none.
   get rollbackError => _rollbackError;
   
+  /// The stack trace associated with the [rollbackError], if any.
+  get rollbackStackTrace => _rollbackStackTrace;
+  
   /// Creates a new transaction error with the given cause.
-  TransactionError(this.cause);
+  TransactionError(this.cause, [this.causeStackTrace]);
 }
 
 /// A sequence of actions that are done and undone together as if one action.
@@ -180,16 +190,17 @@ class Transaction extends Action {
       current = action;
       return action._execute();
     }).then((_) => completer.complete())
-      .catchError((e) {
-        final err = new TransactionError(e);
-        final reverse = actions.reversed.skipWhile((e) => e == current);
+      .catchError((e, stackTrace) {
+        final err = new TransactionError(e, stackTrace);
+        final reverse = actions.reversed.skipWhile((a) => a == current);
         // Try to undo from the point of failure back to the start.
         Future.forEach(reverse, (action) => action._unexecute())
           // We complete with error even if rollback succeeds.
           .then((_) => completer.completeError(err))
-          .catchError((e) { 
+          .catchError((e, stackTrace) { 
             // Double trouble, give both errors to the caller.
             err._rollbackError = e;
+            err._rollbackStackTrace = stackTrace;
             completer.completeError(err);
           });
       });
@@ -255,6 +266,7 @@ class Schedule {
   int _nextUndo = -1;
   String _currState = STATE_IDLE;
   var _err;
+  var _stackTrace;
   
   /// Whether or not this schedule is busy performing another action.
   /// 
@@ -290,10 +302,16 @@ class Schedule {
   /// schedule [hasError].  You may [clear] this schedule after dealing with the
   /// error condition in order to use it again.
   get error => _err;
-  set _error(e) {
+  
+  /// The current [error]'s stack trace, if [hasError] is `true` and a stack
+  /// trace is available.
+  get stackTrace => _stackTrace;
+  
+  void _error(e, [stackTrace]) {
     _err = e;
+    _stackTrace = stackTrace;
     _state = STATE_ERROR;    
-    _logError(e);
+    _logError(e, stackTrace);
   }
   
   // The current state of this schedule.
@@ -317,11 +335,11 @@ class Schedule {
   /// be called once this schedule reaches an idle state.
   Future call(Action action) {
     if (hasError) {
-      _error = new StateError('Cannot call if Schedule.hasError.');
+      _error(new StateError('Cannot call if Schedule.hasError.'));
       return new Future.error(error); 
     }
     if (_actions.contains(action) || _pending.contains(action)) {
-      _error = new StateError('Cannot call $action >1 time on same schedule.');
+      _error(new StateError('Cannot call $action >1 time on same schedule.'));
       return new Future.error(error);
     }
     if (isBusy) {
@@ -347,6 +365,7 @@ class Schedule {
       if (_states.hasListener) _states.add(_currState);
     }
     _err = null;
+    _stackTrace = null;
     return true;
   }
   
@@ -379,9 +398,9 @@ class Schedule {
         //       able to undo or redo (busy == true) in continuations.
         completer.complete(result);        
       })
-      .catchError((e) {
-        _error = e;
-        completer.completeError(e);
+      .catchError((e, stackTrace) {
+        _error(e, stackTrace);
+        completer.completeError(e, stackTrace);
       });    
     return completer.future;    
   }
@@ -412,15 +431,16 @@ class Schedule {
       })
       // The action will complete the error to its continuations, but we will 
       // also receive it here in order to transition to the error state.
-      .catchError((e) => _error = e);
+      .catchError((e, stackTrace) => _error(e, stackTrace));
   }
       
-  void _log(Level level, String message, [exception]) {
-    _logger.log(level, '[$_state]: $message', exception);
+  void _log(Level level, String message, [error, stackTrace]) {
+    _logger.log(level, '[$_state]: $message', error, stackTrace);
   }
   
   void _logFine(String message) => _log(Level.FINE, message);
-  void _logError(error) => _log(Level.SEVERE, Error.safeToString(error), error);
+  void _logError(error, [stackTrace]) => 
+      _log(Level.SEVERE, Error.safeToString(error), error, stackTrace);
   
   /// Redo the next action to be redone in this schedule, if any.
   /// 
@@ -445,9 +465,9 @@ class Schedule {
           // result of redo and _not_ the state of further pending actions. 
           completer.complete(true);          
         })
-        .catchError((e) {
-          _error = e;
-          completer.completeError(e);
+        .catchError((e, stackTrace) {
+          _error(e, stackTrace);
+          completer.completeError(e, stackTrace);
         });
     }
     return completer.future;
@@ -473,9 +493,9 @@ class Schedule {
   }
   
   void _to(action, completer) {
-    final handleError = (e) { 
-      _error = e; 
-      completer.completeError(e); 
+    final handleError = (e, stackTrace) { 
+      _error(e, stackTrace);
+      completer.completeError(e, stackTrace); 
     };
     final int actionIndex = _actions.indexOf(action);
     if (actionIndex == _nextUndo) {
@@ -530,9 +550,9 @@ class Schedule {
           // result of undo and _not_ the state of further pending actions. 
           completer.complete(true);          
         })
-        .catchError((e) {
-          _error = e;
-          completer.completeError(e);
+        .catchError((e, stackTrace) {
+          _error(e, stackTrace);
+          completer.completeError(e, stackTrace);
         });
     }
     return completer.future;

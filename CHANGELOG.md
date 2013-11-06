@@ -2,6 +2,12 @@
 
 ## 0.2.12-dev
 
+- Added handling of `StackTrace` objects for errors encountered in a schedule:
+	- All logged errors now include the stack trace, if any.
+	- All action error continuations now receive the stack trace, if any.
+	- When a schedule is in STATE_ERROR the `stackTrace` getter may be used to
+	access the stack trace associated with the `error`, if any.	
+
 ## 0.2.11
 
 - Updated to SDK 0.8.10_r29803.

@@ -60,6 +60,7 @@ void testScheduleInitialState() {
   expect(schedule.canUndo, isFalse);  
   expect(schedule.hasError, isFalse);  
   expect(schedule.error, isNull);
+  expect(schedule.stackTrace, isNull);
 }
 
 @Test('Test that action constructors succeed when given valid arguments.')
@@ -114,6 +115,7 @@ void testActionThrows() {
       expect(e, equals('snarf'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
+      expect(schedule.stackTrace, isNotNull);
    }));
 }
 
@@ -142,6 +144,7 @@ void testScheduleSameActionTwiceThrows() {
       expect(e, const isInstanceOf<StateError>());
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
+      expect(schedule.stackTrace, isNull);
     }));
 }
 
@@ -158,6 +161,7 @@ void testScheduleHasErrorActionThrows() {
       expect(e, equals('snarf'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
+      expect(schedule.stackTrace, isNotNull);
     })
     // The second action should cause a StateError to be thrown.
     .then((_) => schedule(action2))
@@ -200,6 +204,7 @@ void testUndoThrows() {
       expect(e, equals('uh-oh'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
+      expect(schedule.stackTrace, isNotNull);
    }));
 }
 
@@ -254,6 +259,7 @@ void testRedoThrows() {
       expect(e, equals('overdone'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
+      expect(schedule.stackTrace, isNotNull);
    }));
 }
 
@@ -330,6 +336,7 @@ void testClear() {
       expect(schedule.canRedo, isFalse);
       expect(schedule.hasError, isFalse);
       expect(schedule.error, isNull);
+      expect(schedule.stackTrace, isNull);
     }));
 }
 
@@ -383,6 +390,7 @@ void testActionThrowsDuringAction() {
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
+      expect(schedule.stackTrace, isNotNull);
     }));
 }
 
@@ -447,6 +455,7 @@ void testDeferSameActionTwiceThrows() {
       expect(e, const isInstanceOf<StateError>());
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
+      expect(schedule.stackTrace, isNull);
     }));
 }
 
@@ -525,6 +534,7 @@ void testActionThrowsDuringUndo() {
   .then(expectAsync1((_) {
     expect(schedule.hasError, isTrue);
     expect(schedule.error, equals('crowbar'));
+    expect(schedule.stackTrace, isNotNull);
   }));
 }
 
@@ -605,6 +615,7 @@ void testActionThrowsDuringRedo() {
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
+      expect(schedule.stackTrace, isNotNull);
     }));
 }
 
@@ -659,6 +670,7 @@ void testActionThrowsDuringTo() {
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
+      expect(schedule.stackTrace, isNotNull);
     }));
 }
 
