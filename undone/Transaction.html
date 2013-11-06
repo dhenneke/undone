@@ -79,9 +79,13 @@ class Transaction extends Action {
  /// Only undoable actions may be added to a transaction.  An error will be 
  /// thrown if [action.canUndo] is `false`.
  void add(Action action) {
-   if (action == null) throw new ArgumentError('Action cannot be null');
-   if (!action.canUndo) throw new ArgumentError(
-       'Only undoable actions may be added to a transaction');
+   if (action == null) {
+     throw new ArgumentError('Action cannot be null');
+   }
+   if (!action.canUndo) {
+     throw new ArgumentError(
+         'Only undoable actions may be added to a transaction'); 
+   }
    _arg.add(action);
  }
 }
@@ -133,9 +137,13 @@ void <strong>add</strong>(<a href="../undone/Action.html">Action</a> action) <a 
 thrown if <code>action.canUndo</code> is <code>false</code>.</p>
 <pre class="source">
 void add(Action action) {
- if (action == null) throw new ArgumentError('Action cannot be null');
- if (!action.canUndo) throw new ArgumentError(
-     'Only undoable actions may be added to a transaction');
+ if (action == null) {
+   throw new ArgumentError('Action cannot be null');
+ }
+ if (!action.canUndo) {
+   throw new ArgumentError(
+       'Only undoable actions may be added to a transaction'); 
+ }
  _arg.add(action);
 }
 </pre>
@@ -179,7 +187,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-06 09:28:21.281</div>
+          <div>This page was generated at 2013-11-06 09:43:09.495</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

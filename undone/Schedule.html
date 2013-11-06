@@ -67,6 +67,15 @@ class Schedule {
  /// A schedule has an error.
  static const String STATE_ERROR = 'ERROR';
  
+ static const List&lt;String&gt; _STATES = 
+     const [ STATE_IDLE, 
+             STATE_CALL, 
+             STATE_FLUSH, 
+             STATE_REDO, 
+             STATE_UNDO, 
+             STATE_TO, 
+             STATE_ERROR ];
+ 
  final _actions = new List&lt;Action&gt;();
  // Actions that are called while this schedule is busy are pending to be done.
  final _pending = new List&lt;Action&gt;();
@@ -366,11 +375,18 @@ class Schedule {
  }
  
  /// Wait for this schedule to reach the given [state].
+ /// 
  /// Completes on the next transition to the given state, or immediately if the 
- /// state is the current state of this schedule.
+ /// state is the current state of this schedule.  Completes an [ArgumentError]
+ /// if the given [state] is not valid.
  Future&lt;String&gt; wait(String state) {
-   // TODO(rms): validate that state is one of the possible values; oh enum!
-   if (_state == state) return new Future.value(_state);
+   if (!_STATES.contains(state)) {
+     return new Future.error(
+         new ArgumentError('$state is not a valid state.'));
+   }
+   if (_state == state) {
+     return new Future.value(_state);  
+   }
    return states.firstWhere((s) =&gt; s == state);
  }
 }
@@ -766,13 +782,20 @@ Future&lt;String&gt; <strong>wait</strong>(String state) <a class="anchor-link" 
               title="Permalink to Schedule.wait">#</a></h4>
 <div class="doc">
 <p>Wait for this schedule to reach the given 
-<span class="param">state</span>.
-Completes on the next transition to the given state, or immediately if the 
-state is the current state of this schedule.</p>
+<span class="param">state</span>.</p>
+<p>Completes on the next transition to the given state, or immediately if the 
+state is the current state of this schedule.  Completes an <a class="crossref" href="../dart_core/ArgumentError.html">ArgumentError</a>
+if the given 
+<span class="param">state</span> is not valid.</p>
 <pre class="source">
 Future&lt;String&gt; wait(String state) {
- // TODO(rms): validate that state is one of the possible values; oh enum!
- if (_state == state) return new Future.value(_state);
+ if (!_STATES.contains(state)) {
+   return new Future.error(
+       new ArgumentError('$state is not a valid state.'));
+ }
+ if (_state == state) {
+   return new Future.value(_state);  
+ }
  return states.firstWhere((s) =&gt; s == state);
 }
 </pre>
@@ -783,7 +806,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-06 09:28:21.264</div>
+          <div>This page was generated at 2013-11-06 09:43:09.482</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
