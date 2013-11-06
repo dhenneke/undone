@@ -217,9 +217,13 @@ class Transaction extends Action {
   /// Only undoable actions may be added to a transaction.  An error will be 
   /// thrown if [action.canUndo] is `false`.
   void add(Action action) {
-    if (action == null) throw new ArgumentError('Action cannot be null');
-    if (!action.canUndo) throw new ArgumentError(
-        'Only undoable actions may be added to a transaction');
+    if (action == null) {
+      throw new ArgumentError('Action cannot be null');
+    }
+    if (!action.canUndo) {
+      throw new ArgumentError(
+          'Only undoable actions may be added to a transaction'); 
+    }
     _arg.add(action);
   }
 }
@@ -258,6 +262,15 @@ class Schedule {
   
   /// A schedule has an error.
   static const String STATE_ERROR = 'ERROR';
+  
+  static const List<String> _STATES = 
+      const [ STATE_IDLE, 
+              STATE_CALL, 
+              STATE_FLUSH, 
+              STATE_REDO, 
+              STATE_UNDO, 
+              STATE_TO, 
+              STATE_ERROR ];
   
   final _actions = new List<Action>();
   // Actions that are called while this schedule is busy are pending to be done.
@@ -558,11 +571,18 @@ class Schedule {
   }
   
   /// Wait for this schedule to reach the given [state].
+  /// 
   /// Completes on the next transition to the given state, or immediately if the 
-  /// state is the current state of this schedule.
+  /// state is the current state of this schedule.  Completes an [ArgumentError]
+  /// if the given [state] is not valid.
   Future<String> wait(String state) {
-    // TODO(rms): validate that state is one of the possible values; oh enum!
-    if (_state == state) return new Future.value(_state);
+    if (!_STATES.contains(state)) {
+      return new Future.error(
+          new ArgumentError('$state is not a valid state.'));
+    }
+    if (_state == state) {
+      return new Future.value(_state);  
+    }
     return states.firstWhere((s) => s == state);
   }
 }

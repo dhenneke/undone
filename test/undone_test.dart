@@ -891,3 +891,7 @@ void testStatesIsBroadcast() {
   schedule.states.listen((state) { /* noop */ });
   schedule.states.listen((state) { /* noop */ });
 }
+
+@Test('Test that calling wait w/ an invalid state errs.')
+@ExpectError(isArgumentError)
+testWaitBadState() => schedule.wait('bad');
