@@ -73,6 +73,7 @@ class Schedule {
  int _nextUndo = -1;
  String _currState = STATE_IDLE;
  var _err;
+ var _stackTrace;
  
  /// Whether or not this schedule is busy performing another action.
  /// 
@@ -108,10 +109,16 @@ class Schedule {
  /// schedule [hasError].  You may [clear] this schedule after dealing with the
  /// error condition in order to use it again.
  get error =&gt; _err;
- set _error(e) {
+ 
+ /// The current [error]'s stack trace, if [hasError] is `true` and a stack
+ /// trace is available.
+ get stackTrace =&gt; _stackTrace;
+ 
+ void _error(e, [stackTrace]) {
    _err = e;
+   _stackTrace = stackTrace;
    _state = STATE_ERROR;    
-   _logError(e);
+   _logError(e, stackTrace);
  }
  
  // The current state of this schedule.
@@ -135,11 +142,11 @@ class Schedule {
  /// be called once this schedule reaches an idle state.
  Future call(Action action) {
    if (hasError) {
-     _error = new StateError('Cannot call if Schedule.hasError.');
+     _error(new StateError('Cannot call if Schedule.hasError.'));
      return new Future.error(error); 
    }
    if (_actions.contains(action) || _pending.contains(action)) {
-     _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
+     _error(new StateError('Cannot call $action &gt;1 time on same schedule.'));
      return new Future.error(error);
    }
    if (isBusy) {
@@ -165,6 +172,7 @@ class Schedule {
      if (_states.hasListener) _states.add(_currState);
    }
    _err = null;
+   _stackTrace = null;
    return true;
  }
  
@@ -197,9 +205,9 @@ class Schedule {
        //       able to undo or redo (busy == true) in continuations.
        completer.complete(result);        
      })
-     .catchError((e) {
-       _error = e;
-       completer.completeError(e);
+     .catchError((e, stackTrace) {
+       _error(e, stackTrace);
+       completer.completeError(e, stackTrace);
      });    
    return completer.future;    
  }
@@ -230,15 +238,16 @@ class Schedule {
      })
      // The action will complete the error to its continuations, but we will 
      // also receive it here in order to transition to the error state.
-     .catchError((e) =&gt; _error = e);
+     .catchError((e, stackTrace) =&gt; _error(e, stackTrace));
  }
      
- void _log(Level level, String message, [exception]) {
-   _logger.log(level, '[$_state]: $message', exception);
+ void _log(Level level, String message, [error, stackTrace]) {
+   _logger.log(level, '[$_state]: $message', error, stackTrace);
  }
  
  void _logFine(String message) =&gt; _log(Level.FINE, message);
- void _logError(error) =&gt; _log(Level.SEVERE, Error.safeToString(error), error);
+ void _logError(error, [stackTrace]) =&gt; 
+     _log(Level.SEVERE, Error.safeToString(error), error, stackTrace);
  
  /// Redo the next action to be redone in this schedule, if any.
  /// 
@@ -263,9 +272,9 @@ class Schedule {
          // result of redo and _not_ the state of further pending actions. 
          completer.complete(true);          
        })
-       .catchError((e) {
-         _error = e;
-         completer.completeError(e);
+       .catchError((e, stackTrace) {
+         _error(e, stackTrace);
+         completer.completeError(e, stackTrace);
        });
    }
    return completer.future;
@@ -291,9 +300,9 @@ class Schedule {
  }
  
  void _to(action, completer) {
-   final handleError = (e) { 
-     _error = e; 
-     completer.completeError(e); 
+   final handleError = (e, stackTrace) { 
+     _error(e, stackTrace);
+     completer.completeError(e, stackTrace); 
    };
    final int actionIndex = _actions.indexOf(action);
    if (actionIndex == _nextUndo) {
@@ -348,9 +357,9 @@ class Schedule {
          // result of undo and _not_ the state of further pending actions. 
          completer.complete(true);          
        })
-       .catchError((e) {
-         _error = e;
-         completer.completeError(e);
+       .catchError((e, stackTrace) {
+         _error(e, stackTrace);
+         completer.completeError(e, stackTrace);
        });
    }
    return completer.future;
@@ -562,6 +571,20 @@ bool get isIdle =&gt; _state == STATE_IDLE;
 </pre>
 </div>
 </div>
+<div class="field"><h4 id="stackTrace">
+<button class="show-code">Code</button>
+final         <strong>stackTrace</strong> <a class="anchor-link"
+            href="#stackTrace"
+            title="Permalink to Schedule.stackTrace">#</a>
+        </h4>
+        <div class="doc">
+<p>The current <a class="crossref" href="../undone/Schedule.html#error">error</a>'s stack trace, if <a class="crossref" href="../undone/Schedule.html#hasError">hasError</a> is <code>true</code> and a stack
+trace is available.</p>
+<pre class="source">
+get stackTrace =&gt; _stackTrace;
+</pre>
+</div>
+</div>
 <div class="field"><h4 id="states">
 <button class="show-code">Code</button>
 final Stream&lt;String&gt;         <strong>states</strong> <a class="anchor-link"
@@ -591,11 +614,11 @@ be called once this schedule reaches an idle state.</p>
 <pre class="source">
 Future call(Action action) {
  if (hasError) {
-   _error = new StateError('Cannot call if Schedule.hasError.');
+   _error(new StateError('Cannot call if Schedule.hasError.'));
    return new Future.error(error); 
  }
  if (_actions.contains(action) || _pending.contains(action)) {
-   _error = new StateError('Cannot call $action &gt;1 time on same schedule.');
+   _error(new StateError('Cannot call $action &gt;1 time on same schedule.'));
    return new Future.error(error);
  }
  if (isBusy) {
@@ -629,6 +652,7 @@ bool clear() {
    if (_states.hasListener) _states.add(_currState);
  }
  _err = null;
+ _stackTrace = null;
  return true;
 }
 </pre>
@@ -662,9 +686,9 @@ Future&lt;bool&gt; redo() {
        // result of redo and _not_ the state of further pending actions. 
        completer.complete(true);          
      })
-     .catchError((e) {
-       _error = e;
-       completer.completeError(e);
+     .catchError((e, stackTrace) {
+       _error(e, stackTrace);
+       completer.completeError(e, stackTrace);
      });
  }
  return completer.future;
@@ -726,9 +750,9 @@ Future&lt;bool&gt; undo() {
        // result of undo and _not_ the state of further pending actions. 
        completer.complete(true);          
      })
-     .catchError((e) {
-       _error = e;
-       completer.completeError(e);
+     .catchError((e, stackTrace) {
+       _error(e, stackTrace);
+       completer.completeError(e, stackTrace);
      });
  }
  return completer.future;
@@ -759,7 +783,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-05 09:04:43.843</div>
+          <div>This page was generated at 2013-11-06 09:18:42.106</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

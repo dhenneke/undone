@@ -87,10 +87,10 @@ Future transact(void build()) {
  _transaction = txn;
  try {
    build();
- } catch(e) {
+ } catch(e, stackTrace) {
    // Clear the deferred future for each action that was added in the build.
    _transaction._arg.forEach((action) =&gt; action._deferred = null);
-   return new Future.error(e);
+   return new Future.error(e, stackTrace);
  } finally {
    _transaction = null;
  }
@@ -161,7 +161,7 @@ Future transact(void build()) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-05 09:04:43.796</div>
+          <div>This page was generated at 2013-11-06 09:18:42.057</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>

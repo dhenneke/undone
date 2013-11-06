@@ -107,6 +107,8 @@ class Action&lt;A, R&gt; {
        })
        .catchError(
            (e) =&gt; throw new StateError('Error wrongfully caught.'), 
+           // TODO(rms): open a dartbug about not being able to receive the
+           // stackTrace in a `test` function.
            test: (e) {
              // Complete the error to the deferred future, but allow the error
              // to propogate back to the schedule also so that it can 
@@ -216,7 +218,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-05 09:04:43.896</div>
+          <div>This page was generated at 2013-11-06 09:18:42.161</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

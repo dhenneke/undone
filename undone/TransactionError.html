@@ -37,14 +37,22 @@
 class TransactionError {
  
  /// The caught object that caused the transaction to err.
- final cause;  
+ final cause;
+ 
+ /// The stack trace associated with the [cause], if any.
+ final causeStackTrace;
  
  var _rollbackError;
+ var _rollbackStackTrace;
+ 
  /// An error encountered during transaction rollback; may be `null` if none.
  get rollbackError =&gt; _rollbackError;
  
+ /// The stack trace associated with the [rollbackError], if any.
+ get rollbackStackTrace =&gt; _rollbackStackTrace;
+ 
  /// Creates a new transaction error with the given cause.
- TransactionError(this.cause);
+ TransactionError(this.cause, [this.causeStackTrace]);
 }
 </pre>
 </div>
@@ -52,12 +60,12 @@ class TransactionError {
 <h3>Constructors</h3>
 <div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>TransactionError</strong>(cause) <a class="anchor-link" href="#"
+new <strong>TransactionError</strong>(cause, [causeStackTrace]) <a class="anchor-link" href="#"
               title="Permalink to TransactionError.TransactionError">#</a></h4>
 <div class="doc">
 <p>Creates a new transaction error with the given cause.</p>
 <pre class="source">
-TransactionError(this.cause);
+TransactionError(this.cause, [this.causeStackTrace]);
 </pre>
 </div>
 </div>
@@ -77,6 +85,19 @@ final cause
 </pre>
 </div>
 </div>
+<div class="field"><h4 id="causeStackTrace">
+<button class="show-code">Code</button>
+final         <strong>causeStackTrace</strong> <a class="anchor-link"
+            href="#causeStackTrace"
+            title="Permalink to TransactionError.causeStackTrace">#</a>
+        </h4>
+        <div class="doc">
+<p>The stack trace associated with the <a class="crossref" href="../undone/TransactionError.html#cause">cause</a>, if any.</p>
+<pre class="source">
+final causeStackTrace
+</pre>
+</div>
+</div>
 <div class="field"><h4 id="rollbackError">
 <button class="show-code">Code</button>
 final         <strong>rollbackError</strong> <a class="anchor-link"
@@ -90,12 +111,25 @@ get rollbackError =&gt; _rollbackError;
 </pre>
 </div>
 </div>
+<div class="field"><h4 id="rollbackStackTrace">
+<button class="show-code">Code</button>
+final         <strong>rollbackStackTrace</strong> <a class="anchor-link"
+            href="#rollbackStackTrace"
+            title="Permalink to TransactionError.rollbackStackTrace">#</a>
+        </h4>
+        <div class="doc">
+<p>The stack trace associated with the <a class="crossref" href="../undone/TransactionError.html#rollbackError">rollbackError</a>, if any.</p>
+<pre class="source">
+get rollbackStackTrace =&gt; _rollbackStackTrace;
+</pre>
+</div>
+</div>
 </div>
         </div>
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-05 09:04:43.875</div>
+          <div>This page was generated at 2013-11-06 09:18:42.142</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

@@ -51,16 +51,17 @@ class Transaction extends Action {
      current = action;
      return action._execute();
    }).then((_) =&gt; completer.complete())
-     .catchError((e) {
-       final err = new TransactionError(e);
-       final reverse = actions.reversed.skipWhile((e) =&gt; e == current);
+     .catchError((e, stackTrace) {
+       final err = new TransactionError(e, stackTrace);
+       final reverse = actions.reversed.skipWhile((a) =&gt; a == current);
        // Try to undo from the point of failure back to the start.
        Future.forEach(reverse, (action) =&gt; action._unexecute())
          // We complete with error even if rollback succeeds.
          .then((_) =&gt; completer.completeError(err))
-         .catchError((e) { 
+         .catchError((e, stackTrace) { 
            // Double trouble, give both errors to the caller.
            err._rollbackError = e;
+           err._rollbackStackTrace = stackTrace;
            completer.completeError(err);
          });
      });
@@ -178,7 +179,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-05 09:04:43.857</div>
+          <div>This page was generated at 2013-11-06 09:18:42.121</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
