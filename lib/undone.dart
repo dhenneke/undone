@@ -85,9 +85,10 @@ class Action<A, R> {
   /// 
   /// The given synchronous functions are automatically wrapped in futures prior 
   /// to being called on a schedule.
-  Action(A arg, Do d, [Undo u]) 
-      : this._(arg, d == null ? d : (a) => new Future.sync(() => d(a)), 
-                    u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
+  Action(A arg, Do d, [Undo u]) : this._(
+      arg, 
+      d == null ? d : (a) => new Future.sync(() => d(a)), 
+      u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
   
   /// Creates a new action with the given [arg]uments, [DoAsync] function, 
   /// and [UndoAsync] function.
@@ -327,14 +328,15 @@ class Schedule {
   }
   
   // The current state of this schedule.
-  String get _state => _currState;
-  set _state(String nextState) {
-    if (nextState != _currState && _currState != STATE_ERROR) {
-      _currState = nextState;
-      _logFine('--- enter state ---');
-      if (_states.hasListener) _states.add(_currState);
+  String 
+    get _state => _currState;
+    set _state(String nextState) {
+      if (nextState != _currState && _currState != STATE_ERROR) {
+        _currState = nextState;
+        _logFine('--- enter state ---');
+        if (_states.hasListener) _states.add(_currState);
+      }
     }
-  }
     
   final _states = new StreamController<String>.broadcast();
   /// An observable stream of this schedule's state transitions.
