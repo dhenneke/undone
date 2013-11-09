@@ -30,7 +30,6 @@ Undo restore = (a, _) => a['val'] = a['oldValue'];
 Do square = (a) => a['val'] = a['val'] * a['val'];  
 Undo squareRoot = (a, _) => a['val'] = math.sqrt(a['val']);
 
-// TODO(rms): we could make these delays random (keep them small though).
 DoAsync incrementAsync = (a) => 
     new Future.delayed(const Duration(milliseconds: 4), () => increment(a));
 UndoAsync decrementAsync = (a, _) => 
@@ -721,11 +720,10 @@ void testTransaction() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
   
-  var transaction = 
-      new Transaction()
-          ..add(new Action(map, increment, decrement))
-          ..add(new Action(map, square, squareRoot))
-          ..add(new Action(map, increment, restore));
+  var transaction = new Transaction()
+  ..add(new Action(map, increment, decrement))
+  ..add(new Action(map, square, squareRoot))
+  ..add(new Action(map, increment, restore));
   
   schedule(transaction)
     .then(expectAsync1((_) => expect(map['val'], equals(1850))));
@@ -748,11 +746,10 @@ void testTransactionRollback() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
   
-  var transaction = 
-      new Transaction()
-          ..add(new Action(map, increment, decrement))
-          ..add(new Action(map, square, squareRoot))
-          ..add(new Action(map, (a) => throw 'bomb', restore));
+  var transaction = new Transaction()
+  ..add(new Action(map, increment, decrement))
+  ..add(new Action(map, square, squareRoot))
+  ..add(new Action(map, (a) => throw 'bomb', restore));
   
   schedule(transaction)
     .catchError(expectAsync1((e) {
@@ -768,11 +765,10 @@ void testTransactionRollbackError() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
   
-  var transaction = 
-      new Transaction()
-          ..add(new Action(map, increment, (a, r) => throw 'nuke'))
-          ..add(new Action(map, square, squareRoot))
-          ..add(new Action(map, (a) => throw 'bomb', restore));
+  var transaction = new Transaction()
+  ..add(new Action(map, increment, (a, r) => throw 'nuke'))
+  ..add(new Action(map, square, squareRoot))
+  ..add(new Action(map, (a) => throw 'bomb', restore));
   
   schedule(transaction)
     .catchError(expectAsync1((e) {
@@ -788,11 +784,10 @@ void testTransactionUndo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
   
-  var transaction = 
-      new Transaction()
-          ..add(new Action(map, increment, decrement))
-          ..add(new Action(map, square, squareRoot))
-          ..add(new Action(map, increment, restore));
+  var transaction = new Transaction()
+  ..add(new Action(map, increment, decrement))
+  ..add(new Action(map, square, squareRoot))
+  ..add(new Action(map, increment, restore));
   
   schedule(transaction)
     .then((_) => expect(map['val'], equals(1850)))
@@ -892,6 +887,6 @@ void testStatesIsBroadcast() {
   schedule.states.listen((state) { /* noop */ });
 }
 
-@Test('Test that calling wait w/ an invalid state errs.')
+@Test('Test that calling wait w/ an invalid state results in an error.')
 @ExpectError(isArgumentError)
 testWaitBadState() => schedule.wait('bad');
