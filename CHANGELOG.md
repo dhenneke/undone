@@ -2,6 +2,10 @@
 
 ## 0.2.13-dev
 
+- Updated for the Dart 1.0 release.
+- Added an optional `timeout` to `Action` objects and if it is non-null then 
+guard all calls to do or undo the action with a timer.
+
 ## 0.2.12
 
 - Added handling of `StackTrace` objects for errors encountered in a schedule:

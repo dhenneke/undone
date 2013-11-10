@@ -339,6 +339,42 @@ void testClear() {
     }));
 }
 
+@Test()
+@ExpectError(isStateError)
+testActionTimeoutNeverComplete() {
+  var schedule = new Schedule();
+  var action = new Action.async(42, (_) => new Completer().future, null, 
+      const Duration(milliseconds: 100));
+  return schedule(action);
+}
+
+@Test()
+@ExpectError(isStateError)
+testActionTimeoutThenComplete() {
+  var schedule = new Schedule();
+  var action = new Action.async(42, 
+      (_) => new Future.delayed(const Duration(milliseconds: 200)),
+      null, const Duration(milliseconds: 100));
+  return schedule(action);
+}
+
+@Test()
+@ExpectError(isStateError)
+testUndoTimeout() {
+  var schedule = new Schedule();
+  var map = { 'val' : 42 };
+  var action = 
+      new Action.async(map, incrementAsync, (_,__) => new Completer().future,
+          const Duration(milliseconds: 100));
+  return schedule(action)
+    .then((result) {
+      expect(result, equals(43));
+      expect(map['val'], equals(43));
+    })
+    .then((_) => schedule.wait(Schedule.STATE_IDLE))
+    .then((_) => schedule.undo());
+}
+
 // -----------------------------------------------------------------------------
 // Concurrent
 // -----------------------------------------------------------------------------

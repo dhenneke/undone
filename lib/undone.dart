@@ -80,24 +80,50 @@ class Action<A, R> {
   /// Whether or not this action can be undone.
   final bool canUndo;
   
+  /// The maximum allowed duration for this action's [Do] or [Undo] function.
+  /// 
+  /// A `null` value represents no timeout, and is the default for actions
+  /// created with the [new Action] constructor.  For actions created with
+  /// the [new Action.async] constructor the default value is 30 seconds unless
+  /// otherwise specified.
+  /// 
+  /// When a timeout occurs, this action will complete with an error.
+  final Duration timeout;
+  
   /// Creates a new action with the given [arg]uments, [Do] function, and 
   /// [Undo] function.  
   /// 
   /// The given synchronous functions are automatically wrapped in futures prior 
   /// to being called on a schedule.
-  Action(A arg, Do d, [Undo u]) : this._(
+  Action(
+      A arg, 
+      Do d, 
+      [Undo u]) 
+  : this._(
       arg, 
       d == null ? d : (a) => new Future.sync(() => d(a)), 
       u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
   
   /// Creates a new action with the given [arg]uments, [DoAsync] function, 
-  /// and [UndoAsync] function.
-  Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
+  /// [UndoAsync] function, and timeout [Duration].
+  Action.async(
+      A arg, 
+      DoAsync d, 
+     [UndoAsync u, 
+      Duration timeout = const Duration(seconds: 30)]) 
+  : this._(arg, d, u, timeout);
   
-  Action._(this._arg, this._do, UndoAsync undo) 
-      : canUndo = (undo != null)
-      , _undo = undo {
-    if (_do == null) throw new ArgumentError('Do function must be !null.');    
+  Action._(
+      this._arg, 
+      this._do, 
+      UndoAsync undo, 
+     [Duration timeout]) 
+  : canUndo = (undo != null)
+  , timeout = timeout
+  , _undo = undo {
+    if (_do == null) {
+      throw new ArgumentError('Do function must be !null.');    
+    }
   }
   
   /// Schedules this action to be called on the top-level [schedule].  
@@ -119,13 +145,13 @@ class Action<A, R> {
     _deferred = new Completer<R>();
     return _deferred.future;
   }
-  
+    
   Future<R> _execute() {
     if (_deferred == null) {
-      return _do(_arg);
+      return _guard(_do(_arg));
     } else {
       // If the action was deferred, we complete the future we handed out prior.
-      return _do(_arg)
+      return _guard(_do(_arg))
         .then((result) {
           _deferred.complete(result);
           return new Future.value(result);
@@ -144,13 +170,39 @@ class Action<A, R> {
     }
   }
   
-  Future _unexecute() => _undo(_arg, _result);  
+  Future _guard(Future f) {
+    if (timeout == null) {
+      return f; 
+    }
+    final completer = new Completer();
+    final timer = new Timer(timeout, () {
+      completer.completeError(new StateError(
+          '$this timed out after ${timeout.inSeconds} seconds.'));
+    });
+    f
+    .then((result) {
+      if (!completer.isCompleted) {
+        completer.complete(result);
+      }
+    })
+    .catchError((e) {
+      if (!completer.isCompleted) {
+        completer.complete(e);
+      }
+    })
+    .whenComplete(() {
+      timer.cancel();
+    });
+    return completer.future;
+  }
+  
+  Future _unexecute() => _guard(_undo(_arg, _result));  
   
   String toString() => 'action($hashCode)';
 }
 
 /// An error encountered during a transaction.
-class TransactionError {
+class TransactionError extends Error {
   
   /// The caught object that caused the transaction to err.
   final cause;
