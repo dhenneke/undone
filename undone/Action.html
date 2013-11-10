@@ -56,24 +56,50 @@ class Action&lt;A, R&gt; {
  /// Whether or not this action can be undone.
  final bool canUndo;
  
+ /// The maximum allowed duration for this action's [Do] or [Undo] function.
+ /// 
+ /// A `null` value represents no timeout, and is the default for actions
+ /// created with the [new Action] constructor.  For actions created with
+ /// the [new Action.async] constructor the default value is 30 seconds unless
+ /// otherwise specified.
+ /// 
+ /// When a timeout occurs, this action will complete with an error.
+ final Duration timeout;
+ 
  /// Creates a new action with the given [arg]uments, [Do] function, and 
  /// [Undo] function.  
  /// 
  /// The given synchronous functions are automatically wrapped in futures prior 
  /// to being called on a schedule.
- Action(A arg, Do d, [Undo u]) : this._(
+ Action(
+     A arg, 
+     Do d, 
+     [Undo u]) 
+ : this._(
      arg, 
      d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
      u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
  
  /// Creates a new action with the given [arg]uments, [DoAsync] function, 
- /// and [UndoAsync] function.
- Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
+ /// [UndoAsync] function, and timeout [Duration].
+ Action.async(
+     A arg, 
+     DoAsync d, 
+    [UndoAsync u, 
+     Duration timeout = const Duration(seconds: 30)]) 
+ : this._(arg, d, u, timeout);
  
- Action._(this._arg, this._do, UndoAsync undo) 
-     : canUndo = (undo != null)
-     , _undo = undo {
-   if (_do == null) throw new ArgumentError('Do function must be !null.');    
+ Action._(
+     this._arg, 
+     this._do, 
+     UndoAsync undo, 
+    [Duration timeout]) 
+ : canUndo = (undo != null)
+ , timeout = timeout
+ , _undo = undo {
+   if (_do == null) {
+     throw new ArgumentError('Do function must be !null.');    
+   }
  }
  
  /// Schedules this action to be called on the top-level [schedule].  
@@ -95,13 +121,13 @@ class Action&lt;A, R&gt; {
    _deferred = new Completer&lt;R&gt;();
    return _deferred.future;
  }
- 
+   
  Future&lt;R&gt; _execute() {
    if (_deferred == null) {
-     return _do(_arg);
+     return _guard(_do(_arg));
    } else {
      // If the action was deferred, we complete the future we handed out prior.
-     return _do(_arg)
+     return _guard(_do(_arg))
        .then((result) {
          _deferred.complete(result);
          return new Future.value(result);
@@ -120,7 +146,33 @@ class Action&lt;A, R&gt; {
    }
  }
  
- Future _unexecute() =&gt; _undo(_arg, _result);  
+ Future _guard(Future f) {
+   if (timeout == null) {
+     return f; 
+   }
+   final completer = new Completer();
+   final timer = new Timer(timeout, () {
+     completer.completeError(new StateError(
+         '$this timed out after ${timeout.inSeconds} seconds.'));
+   });
+   f
+   .then((result) {
+     if (!completer.isCompleted) {
+       completer.complete(result);
+     }
+   })
+   .catchError((e) {
+     if (!completer.isCompleted) {
+       completer.complete(e);
+     }
+   })
+   .whenComplete(() {
+     timer.cancel();
+   });
+   return completer.future;
+ }
+ 
+ Future _unexecute() =&gt; _guard(_undo(_arg, _result));  
  
  String toString() =&gt; 'action($hashCode)';
 }
@@ -142,7 +194,11 @@ new <strong>Action</strong>(<a href="../undone/Action.html">A</a> arg, <a href="
 <p>The given synchronous functions are automatically wrapped in futures prior 
 to being called on a schedule.</p>
 <pre class="source">
-Action(A arg, Do d, [Undo u]) : this._(
+Action(
+   A arg, 
+   Do d, 
+   [Undo u]) 
+: this._(
    arg, 
    d == null ? d : (a) =&gt; new Future.sync(() =&gt; d(a)), 
    u == null ? u : (a, r) =&gt; new Future.sync(() =&gt; u(a, r)));
@@ -151,14 +207,19 @@ Action(A arg, Do d, [Undo u]) : this._(
 </div>
 <div class="method"><h4 id="async">
 <button class="show-code">Code</button>
-new <strong>Action.async</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/DoAsync.html">DoAsync</a> d, [<a href="../undone/UndoAsync.html">UndoAsync</a> u]) <a class="anchor-link" href="#async"
+new <strong>Action.async</strong>(<a href="../undone/Action.html">A</a> arg, <a href="../undone/DoAsync.html">DoAsync</a> d, [<a href="../undone/UndoAsync.html">UndoAsync</a> u, Duration timeout = const Duration(seconds:30)]) <a class="anchor-link" href="#async"
               title="Permalink to Action&lt;A, R&gt;.Action.async">#</a></h4>
 <div class="doc">
 <p>Creates a new action with the given 
 <span class="param">arg</span>uments, <a class="crossref" href="../undone/DoAsync.html">DoAsync</a> function, 
-and <a class="crossref" href="../undone/UndoAsync.html">UndoAsync</a> function.</p>
+<a class="crossref" href="../undone/UndoAsync.html">UndoAsync</a> function, and timeout <a class="crossref" href="../dart_core/Duration.html">Duration</a>.</p>
 <pre class="source">
-Action.async(A arg, DoAsync d, [UndoAsync u]) : this._(arg, d, u);
+Action.async(
+   A arg, 
+   DoAsync d, 
+  [UndoAsync u, 
+   Duration timeout = const Duration(seconds: 30)]) 
+: this._(arg, d, u, timeout);
 </pre>
 </div>
 </div>
@@ -175,6 +236,24 @@ final bool         <strong>canUndo</strong> <a class="anchor-link"
 <p>Whether or not this action can be undone.</p>
 <pre class="source">
 final bool canUndo
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="timeout">
+<button class="show-code">Code</button>
+final Duration         <strong>timeout</strong> <a class="anchor-link"
+            href="#timeout"
+            title="Permalink to Action&lt;A, R&gt;.timeout">#</a>
+        </h4>
+        <div class="doc">
+<p>The maximum allowed duration for this action's <a class="crossref" href="../undone/Do.html">Do</a> or <a class="crossref" href="../undone/Undo.html">Undo</a> function.</p>
+<p>A <code>null</code> value represents no timeout, and is the default for actions
+created with the <code>new Action</code> constructor.  For actions created with
+the <a class="crossref" href="../undone/Action.html#async">new Action.async</a> constructor the default value is 30 seconds unless
+otherwise specified.</p>
+<p>When a timeout occurs, this action will complete with an error.</p>
+<pre class="source">
+final Duration timeout
 </pre>
 </div>
 </div>
@@ -219,7 +298,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-09 16:37:51.351</div>
+          <div>This page was generated at 2013-11-10 17:42:11.807</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

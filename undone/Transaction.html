@@ -123,6 +123,24 @@ final bool canUndo
 </pre>
 </div>
 </div>
+<div class="field inherited"><h4 id="timeout">
+<button class="show-code">Code</button>
+final Duration         <strong>timeout</strong> <a class="anchor-link"
+            href="#timeout"
+            title="Permalink to Transaction.timeout">#</a>
+        </h4>
+        <div class="inherited-from">inherited from <a href="../undone/Action.html">Action</a> </div><div class="doc">
+<p>The maximum allowed duration for this action's <a class="crossref" href="../undone/Do.html">Do</a> or <a class="crossref" href="../undone/Undo.html">Undo</a> function.</p>
+<p>A <code>null</code> value represents no timeout, and is the default for actions
+created with the <code>new Action</code> constructor.  For actions created with
+the <a class="crossref" href="../undone/Action.html#async">new Action.async</a> constructor the default value is 30 seconds unless
+otherwise specified.</p>
+<p>When a timeout occurs, this action will complete with an error.</p>
+<pre class="source">
+final Duration timeout
+</pre>
+</div>
+</div>
 </div>
 <div>
 <h3>Methods</h3>
@@ -187,7 +205,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-09 16:37:51.314</div>
+          <div>This page was generated at 2013-11-10 17:42:11.762</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

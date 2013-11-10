@@ -34,7 +34,7 @@
 <div class="doc">
 <p>An error encountered during a transaction.</p>
 <pre class="source">
-class TransactionError {
+class TransactionError extends Error {
  
  /// The caught object that caused the transaction to err.
  final cause;
@@ -56,6 +56,9 @@ class TransactionError {
 }
 </pre>
 </div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-exception"></span><a href="../dart_core/Error.html">Error</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-exception"></span><strong>TransactionError</strong></span></p>
 <div>
 <h3>Constructors</h3>
 <div class="method"><h4 id="">
@@ -124,12 +127,24 @@ get rollbackStackTrace =&gt; _rollbackStackTrace;
 </pre>
 </div>
 </div>
+<div class="field inherited"><h4 id="stackTrace">
+<button class="show-code">Code</button>
+final StackTrace         <strong>stackTrace</strong> <a class="anchor-link"
+            href="#stackTrace"
+            title="Permalink to TransactionError.stackTrace">#</a>
+        </h4>
+        <div class="inherited-from">inherited from Error </div><div class="doc">
+<pre class="source">
+external StackTrace get stackTrace;
+</pre>
+</div>
+</div>
 </div>
         </div>
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-09 16:37:51.334</div>
+          <div>This page was generated at 2013-11-10 17:42:11.784</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
