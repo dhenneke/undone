@@ -2,6 +2,9 @@
 
 ## 0.2.14-dev
 
+- Fixed a bug in guarded action error completion that was introduced in the 
+previous 0.2.13 release.
+
 ## 0.2.13
 
 - Updated for the Dart 1.0 release.

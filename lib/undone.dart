@@ -185,9 +185,9 @@ class Action<A, R> {
         completer.complete(result);
       }
     })
-    .catchError((e) {
+    .catchError((e, stackTrace) {
       if (!completer.isCompleted) {
-        completer.complete(e);
+        completer.completeError(e, stackTrace);
       }
     })
     .whenComplete(() {
