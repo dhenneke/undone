@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.2.14-dev
+## 0.2.14
 
 - Fixed a bug in guarded action error completion that was introduced in the 
 previous 0.2.13 release.
