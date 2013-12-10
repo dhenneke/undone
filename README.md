@@ -2,7 +2,7 @@
 
 A library for undo and redo.
 
-[![Build Status](https://drone.io/github.com/rmsmith/undone/status.png)][badge]
+[![Build Status](https://drone.io/github.com/ralive/undone/status.png)][badge]
 
 ## Documentation
 
@@ -69,16 +69,11 @@ document.onKeyUp.listen((e) {
 The code above can be found [here][readme].  For more fun, try to [nudge][] a 
 box around a canvas - its undoable!
 
-## Read the Article
-
-Learn more about the design decisions by reading this [article][].
-
 _Undone uses the MIT license as described in the [LICENSE][license] file, and 
 follows [semantic versioning][]._
 
 [api]: http://rmsmith.github.com/undone/undone.html
-[article]: http://futureperfect.info/2013/03/22/undone-not-a-song-about-sweaters.html
-[badge]: https://drone.io/github.com/rmsmith/undone/latest
+[badge]: https://drone.io/github.com/ralive/undone/latest
 [license]: https://github.com/rmsmith/undone/blob/master/LICENSE
 [nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
 [readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
