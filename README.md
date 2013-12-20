@@ -2,7 +2,7 @@
 
 A library for undo and redo.
 
-[![Build Status](https://drone.io/github.com/ralive/undone/status.png)][badge]
+[![Build Status](https://drone.io/github.com/rmsmith/undone/status.png)][badge]
 
 ## Documentation
 
@@ -72,9 +72,9 @@ box around a canvas - its undoable!
 _Undone uses the MIT license as described in the [LICENSE][license] file, and 
 follows [semantic versioning][]._
 
-[api]: http://ralive.github.com/undone/undone.html
-[badge]: https://drone.io/github.com/ralive/undone/latest
-[license]: https://github.com/ralive/undone/blob/master/LICENSE
-[nudge]: https://github.com/ralive/undone/blob/master/example/nudge.html
-[readme]: https://github.com/ralive/undone/blob/master/example/readme.dart
+[api]: http://rmsmith.github.com/undone/undone.html
+[badge]: https://drone.io/github.com/rmsmith/undone/latest
+[license]: https://github.com/rmsmith/undone/blob/master/LICENSE
+[nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
+[readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
 [semantic versioning]: http://semver.org/
