@@ -2,11 +2,7 @@
 
 A library for undo and redo.
 
-[![Build Status](https://drone.io/github.com/rmsmith/undone/status.png)][badge]
-
-## Documentation
-
-Please consult the [API documentation][api].
+[![Build Status][status]][badge] | [API documentation][api].
 
 ## Usage
 
@@ -78,3 +74,4 @@ follows [semantic versioning][]._
 [nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
 [readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
 [semantic versioning]: http://semver.org/
+[status]: https://drone.io/github.com/rmsmith/undone/status.png
