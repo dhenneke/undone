@@ -70,8 +70,8 @@ main() {
     }
   });
   
-  final ButtonElement undoButton = query('#undo');
-  final ButtonElement redoButton = query('#redo');
+  final ButtonElement undoButton = querySelector('#undo');
+  final ButtonElement redoButton = querySelector('#redo');
   undoButton.onClick.listen((e) => undo());
   redoButton.onClick.listen((e) => redo());
   
@@ -85,14 +85,14 @@ main() {
   });
   
   // Construct a box initially centered (approximately) on the canvas.
-  var canvas = document.query("#content") as CanvasElement;
+  var canvas = document.querySelector("#content") as CanvasElement;
   box = new Box(canvas.width / 2, canvas.height / 2);  
   // Render the initial state.
   render();
 }
 
 render() {
-  var canvas = document.query("#content") as CanvasElement;
+  var canvas = document.querySelector("#content") as CanvasElement;
   var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   // Clear the canvas.
   ctx.setFillColorRgb(200, 200, 100);
