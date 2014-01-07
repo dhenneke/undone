@@ -206,17 +206,15 @@ class TransactionError extends Error {
   /// The stack trace associated with the [cause], if any.
   final causeStackTrace;
   
-  var _rollbackError;
-  var _rollbackStackTrace;
-  
   /// An error encountered during transaction rollback; may be `null` if none.
-  get rollbackError => _rollbackError;
+  final rollbackError;
   
   /// The stack trace associated with the [rollbackError], if any.
-  get rollbackStackTrace => _rollbackStackTrace;
+  final rollbackStackTrace;
   
   /// Creates a new transaction error with the given cause.
-  TransactionError(this.cause, [this.causeStackTrace]);
+  TransactionError(this.cause, 
+      [this.causeStackTrace, this.rollbackError, this.rollbackStackTrace]);
 }
 
 /// A sequence of actions that are done and undone together as if one action.
@@ -238,18 +236,19 @@ class Transaction extends Action {
       current = action;
       return action._execute();
     }).then((_) => completer.complete())
-      .catchError((e, stackTrace) {
-        final err = new TransactionError(e, stackTrace);
+      .catchError((cause, causeStackTrace) {
         final reverse = actions.reversed.skipWhile((a) => a == current);
         // Try to undo from the point of failure back to the start.
         Future.forEach(reverse, (action) => action._unexecute())
           // We complete with error even if rollback succeeds.
-          .then((_) => completer.completeError(err, stackTrace))
-          .catchError((e, rollbackStackTrace) { 
+          .then((_) => completer.completeError(
+              new TransactionError(cause, causeStackTrace), causeStackTrace))
+          .catchError((rollbackError, rollbackStackTrace) { 
             // Double trouble, give both errors to the caller.
-            err._rollbackError = e;
-            err._rollbackStackTrace = rollbackStackTrace;
-            completer.completeError(err, stackTrace);
+            completer.completeError(
+                new TransactionError(
+                    cause, causeStackTrace, rollbackError, rollbackStackTrace), 
+                causeStackTrace);
           });
       });
     return completer.future;
