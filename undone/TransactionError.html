@@ -42,17 +42,15 @@ class TransactionError extends Error {
  /// The stack trace associated with the [cause], if any.
  final causeStackTrace;
  
- var _rollbackError;
- var _rollbackStackTrace;
- 
  /// An error encountered during transaction rollback; may be `null` if none.
- get rollbackError =&gt; _rollbackError;
+ final rollbackError;
  
  /// The stack trace associated with the [rollbackError], if any.
- get rollbackStackTrace =&gt; _rollbackStackTrace;
+ final rollbackStackTrace;
  
  /// Creates a new transaction error with the given cause.
- TransactionError(this.cause, [this.causeStackTrace]);
+ TransactionError(this.cause, 
+     [this.causeStackTrace, this.rollbackError, this.rollbackStackTrace]);
 }
 </pre>
 </div>
@@ -63,12 +61,13 @@ class TransactionError extends Error {
 <h3>Constructors</h3>
 <div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>TransactionError</strong>(cause, [causeStackTrace]) <a class="anchor-link" href="#"
+new <strong>TransactionError</strong>(cause, [causeStackTrace, rollbackError, rollbackStackTrace]) <a class="anchor-link" href="#"
               title="Permalink to TransactionError.TransactionError">#</a></h4>
 <div class="doc">
 <p>Creates a new transaction error with the given cause.</p>
 <pre class="source">
-TransactionError(this.cause, [this.causeStackTrace]);
+TransactionError(this.cause, 
+   [this.causeStackTrace, this.rollbackError, this.rollbackStackTrace]);
 </pre>
 </div>
 </div>
@@ -110,7 +109,7 @@ final         <strong>rollbackError</strong> <a class="anchor-link"
         <div class="doc">
 <p>An error encountered during transaction rollback; may be <code>null</code> if none.</p>
 <pre class="source">
-get rollbackError =&gt; _rollbackError;
+final rollbackError
 </pre>
 </div>
 </div>
@@ -123,7 +122,7 @@ final         <strong>rollbackStackTrace</strong> <a class="anchor-link"
         <div class="doc">
 <p>The stack trace associated with the <a class="crossref" href="../undone/TransactionError.html#rollbackError">rollbackError</a>, if any.</p>
 <pre class="source">
-get rollbackStackTrace =&gt; _rollbackStackTrace;
+final rollbackStackTrace
 </pre>
 </div>
 </div>
@@ -144,7 +143,7 @@ external StackTrace get stackTrace;
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2014-01-07 07:33:37.161</div>
+          <div>This page was generated at 2014-01-07 07:44:36.147</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
