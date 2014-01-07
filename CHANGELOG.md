@@ -2,6 +2,11 @@
 
 ## 0.2.15-dev
 
+- Changed the way validation errors at the start of `Schedule.call` are treated
+such that they no longer affect the state of the schedule;  They are completed
+as error to the caller with a stack trace, but they no longer modify the state 
+of the schedule.
+
 ## 0.2.14
 
 - Fixed a bug in guarded action error completion that was introduced in the 
