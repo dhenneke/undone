@@ -110,11 +110,12 @@ void testActionThrows() {
   var schedule = new Schedule();
   var action = new Action(14, (x) => throw 'snarf', (x, y) => true);  
   schedule(action)
-    .catchError(expectAsync1((e) { 
+    .catchError(expectAsync2((e, stackTrace) { 
       expect(e, equals('snarf'));
+      expect(stackTrace, isNotNull);
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
-      expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, equals(stackTrace));
    }));
 }
 
@@ -139,10 +140,11 @@ void testScheduleSameActionTwiceThrows() {
   schedule(action)
     .then(expectAsync1((result) => expect(result, equals(43))))
     .then((_) => schedule(action))
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<StateError>());
-      expect(schedule.hasError, isTrue);
-      expect(schedule.error, equals(e));
+    .catchError(expectAsync2((e, stackTrace) {
+      expect(e, isArgumentError);
+      expect(stackTrace, isNotNull);
+      expect(schedule.hasError, isFalse);
+      expect(schedule.error, isNull);
       expect(schedule.stackTrace, isNull);
     }));
 }
@@ -156,16 +158,20 @@ void testScheduleHasErrorActionThrows() {
   
   // The first action should throw and put the schedule in an error state.
   schedule(action1)
-    .catchError((e) {  
+    .catchError((e, stackTrace) {  
       expect(e, equals('snarf'));
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
       expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, equals(stackTrace));
     })
     // The second action should cause a StateError to be thrown.
     .then((_) => schedule(action2))
-    .catchError(expectAsync1((e) {   
-      expect(e, const isInstanceOf<StateError>());
+    .catchError(expectAsync2((e, stackTrace) {   
+      expect(e, isStateError);
+      expect(stackTrace, isNotNull);
+      expect(schedule.error, isNot(equals(e)));
+      expect(schedule.stackTrace, isNot(equals(stackTrace)));
     }));
 }
 
@@ -199,11 +205,12 @@ void testUndoThrows() {
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
-    .catchError(expectAsync1((e) { 
+    .catchError(expectAsync2((e, stackTrace) { 
       expect(e, equals('uh-oh'));
+      expect(stackTrace, isNotNull);
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
-      expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, stackTrace);
    }));
 }
 
@@ -254,11 +261,12 @@ void testRedoThrows() {
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.redo())
-    .catchError(expectAsync1((e) { 
+    .catchError(expectAsync2((e, stackTrace) { 
       expect(e, equals('overdone'));
+      expect(stackTrace, isNotNull);
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
-      expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, stackTrace);
    }));
 }
 
@@ -415,17 +423,20 @@ void testActionThrowsDuringAction() {
       expect(map['val'], equals(43));
     }));
   
+  var _stackTrace;
   // Schedule a synchronous action that we expect to be called after the first
   // completes, so we expect the thrown error to have no affect on the first.
   schedule(action2)
-    .catchError(expectAsync1((e) {    
-      expect(e, equals('crowbar'));    
+    .catchError(expectAsync2((e, stackTrace) {    
+      expect(e, equals('crowbar'));   
+      expect(stackTrace, isNotNull);
+      _stackTrace = stackTrace;
     }))
     .then((_) => schedule.wait(Schedule.STATE_ERROR))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
-      expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, equals(_stackTrace));
     }));
 }
 
@@ -486,10 +497,11 @@ void testDeferSameActionTwiceThrows() {
     }));
   
   schedule(action2)
-    .catchError(expectAsync1((e) {
-      expect(e, const isInstanceOf<StateError>());
-      expect(schedule.hasError, isTrue);
-      expect(schedule.error, equals(e));
+    .catchError(expectAsync2((e, stackTrace) {
+      expect(e, isArgumentError);
+      expect(stackTrace, isNotNull);
+      expect(schedule.hasError, isFalse);
+      expect(schedule.error, isNull);
       expect(schedule.stackTrace, isNull);
     }));
 }
@@ -539,6 +551,7 @@ void testActionThrowsDuringUndo() {
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, (a) => throw 'crowbar', restore);
+  var _stackTrace;
   
   schedule(action1)
   .then((result) {
@@ -562,14 +575,16 @@ void testActionThrowsDuringUndo() {
         expect(success, isTrue));
     return schedule(action3);
   })
-  .catchError(expectAsync1((e) {   
-    expect(e, equals('crowbar'));    
+  .catchError(expectAsync2((e, stackTrace) {   
+    expect(e, equals('crowbar'));
+    expect(schedule.stackTrace, isNotNull);
+    _stackTrace = stackTrace;
   }))
   .then((_) => schedule.wait(Schedule.STATE_ERROR))
   .then(expectAsync1((_) {
     expect(schedule.hasError, isTrue);
     expect(schedule.error, equals('crowbar'));
-    expect(schedule.stackTrace, isNotNull);
+    expect(schedule.stackTrace, equals(_stackTrace));
   }));
 }
 
@@ -622,6 +637,7 @@ void testActionThrowsDuringRedo() {
   var action1 = new Action(map, increment, decrement);
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, (a) => throw 'crowbar', restore);
+  var _stackTrace;
   
   schedule(action1);
   schedule(action2)
@@ -643,14 +659,16 @@ void testActionThrowsDuringRedo() {
           expect(success, isTrue));      
       return schedule(action3);
     })
-    .catchError(expectAsync1((e) {   
-      expect(e, equals('crowbar'));    
+    .catchError(expectAsync2((e, stackTrace) {   
+      expect(e, equals('crowbar'));
+      expect(stackTrace, isNotNull);
+      _stackTrace = stackTrace;
     }))
     .then((_) => schedule.wait(Schedule.STATE_ERROR))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
-      expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, equals(_stackTrace));
     }));
 }
 
@@ -687,6 +705,7 @@ void testActionThrowsDuringTo() {
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, incrementAsync, restoreAsync);
   var action4 = new Action(map, (a) => throw 'crowbar', squareRoot);
+  var _stackTrace;
   
   schedule(action1);
   schedule(action2);
@@ -698,14 +717,16 @@ void testActionThrowsDuringTo() {
           expect(success, isTrue)); 
       return schedule(action4);
     })
-    .catchError(expectAsync1((e) {  
-      expect(e, equals('crowbar'));    
+    .catchError(expectAsync2((e, stackTrace) {  
+      expect(e, equals('crowbar'));
+      expect(stackTrace, isNotNull);
+      _stackTrace = stackTrace;
     }))
     .then((_) => schedule.wait(Schedule.STATE_ERROR))
     .then(expectAsync1((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
-      expect(schedule.stackTrace, isNotNull);
+      expect(schedule.stackTrace, equals(_stackTrace));
     }));
 }
 
@@ -859,8 +880,9 @@ void testTransactThrows() {
     action2().then((_) => throw 'should not happen!');
     throw 'trouble';
   })
-  .catchError(expectAsync1((e) {
+  .catchError(expectAsync2((e, stackTrace) {
     expect(e, equals('trouble'));
+    expect(stackTrace, isNotNull);
   }));  
   // Verify that we can successfully do a transaction now.
   transact(() {

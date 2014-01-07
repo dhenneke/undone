@@ -155,16 +155,13 @@ class Action<A, R> {
           _deferred.complete(result);
           return new Future.value(result);
         })
-        .catchError(
-            (e) => throw new StateError('Error wrongfully caught.'), 
-            // TODO(rms): https://code.google.com/p/dart/issues/detail?id=14855
-            test: (e) {
-              // Complete the error to the deferred future, but allow the error
-              // to propogate back to the schedule also so that it can 
-              // transition to its error state.
-              _deferred.completeError(e);
-              return false;
-            })
+        .catchError((e, stackTrace) {
+          // Complete the error to the deferred future, but allow the error
+          // to propogate back to the schedule also so that it can 
+          // transition to its error state.
+          _deferred.completeError(e, stackTrace);
+          throw e;
+        })
         .whenComplete(() => _deferred = null);
     }
   }
@@ -400,12 +397,12 @@ class Schedule {
   /// be called once this schedule reaches an idle state.
   Future call(Action action) {
     if (hasError) {
-      _error(new StateError('Cannot call if Schedule.hasError.'));
-      return new Future.error(error); 
+      return new Future(() => throw new StateError(
+          'Cannot call if Schedule.hasError.'));
     }
     if (_actions.contains(action) || _pending.contains(action)) {
-      _error(new StateError('Cannot call $action >1 time on same schedule.'));
-      return new Future.error(error);
+      return new Future(() => throw new ArgumentError(
+          'Cannot call $action >1 time on same schedule.'));
     }
     if (isBusy) {
       _logFine('defer $action');
