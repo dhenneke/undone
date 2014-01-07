@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.2.15-dev
+## 0.2.15
 
 - Changed the way validation errors at the start of `Schedule.call` are treated
 such that they no longer affect the state of the schedule;  They are completed
