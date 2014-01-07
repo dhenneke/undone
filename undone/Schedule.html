@@ -152,12 +152,12 @@ class Schedule {
  /// be called once this schedule reaches an idle state.
  Future call(Action action) {
    if (hasError) {
-     _error(new StateError('Cannot call if Schedule.hasError.'));
-     return new Future.error(error); 
+     return new Future(() =&gt; throw new StateError(
+         'Cannot call if Schedule.hasError.'));
    }
    if (_actions.contains(action) || _pending.contains(action)) {
-     _error(new StateError('Cannot call $action &gt;1 time on same schedule.'));
-     return new Future.error(error);
+     return new Future(() =&gt; throw new ArgumentError(
+         'Cannot call $action &gt;1 time on same schedule.'));
    }
    if (isBusy) {
      _logFine('defer $action');
@@ -631,12 +631,12 @@ be called once this schedule reaches an idle state.</p>
 <pre class="source">
 Future call(Action action) {
  if (hasError) {
-   _error(new StateError('Cannot call if Schedule.hasError.'));
-   return new Future.error(error); 
+   return new Future(() =&gt; throw new StateError(
+       'Cannot call if Schedule.hasError.'));
  }
  if (_actions.contains(action) || _pending.contains(action)) {
-   _error(new StateError('Cannot call $action &gt;1 time on same schedule.'));
-   return new Future.error(error);
+   return new Future(() =&gt; throw new ArgumentError(
+       'Cannot call $action &gt;1 time on same schedule.'));
  }
  if (isBusy) {
    _logFine('defer $action');
@@ -807,7 +807,7 @@ Future&lt;String&gt; wait(String state) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-12-31 12:08:32.484</div>
+          <div>This page was generated at 2014-01-07 06:50:34.609</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

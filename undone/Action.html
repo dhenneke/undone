@@ -132,16 +132,13 @@ class Action&lt;A, R&gt; {
          _deferred.complete(result);
          return new Future.value(result);
        })
-       .catchError(
-           (e) =&gt; throw new StateError('Error wrongfully caught.'), 
-           // TODO(rms): https://code.google.com/p/dart/issues/detail?id=14855
-           test: (e) {
-             // Complete the error to the deferred future, but allow the error
-             // to propogate back to the schedule also so that it can 
-             // transition to its error state.
-             _deferred.completeError(e);
-             return false;
-           })
+       .catchError((e, stackTrace) {
+         // Complete the error to the deferred future, but allow the error
+         // to propogate back to the schedule also so that it can 
+         // transition to its error state.
+         _deferred.completeError(e, stackTrace);
+         throw e;
+       })
        .whenComplete(() =&gt; _deferred = null);
    }
  }
@@ -298,7 +295,7 @@ String toString() =&gt; 'action($hashCode)';
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-12-31 12:08:32.542</div>
+          <div>This page was generated at 2014-01-07 06:50:34.660</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
