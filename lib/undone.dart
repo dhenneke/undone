@@ -244,12 +244,12 @@ class Transaction extends Action {
         // Try to undo from the point of failure back to the start.
         Future.forEach(reverse, (action) => action._unexecute())
           // We complete with error even if rollback succeeds.
-          .then((_) => completer.completeError(err))
-          .catchError((e, stackTrace) { 
+          .then((_) => completer.completeError(err, stackTrace))
+          .catchError((e, rollbackStackTrace) { 
             // Double trouble, give both errors to the caller.
             err._rollbackError = e;
-            err._rollbackStackTrace = stackTrace;
-            completer.completeError(err);
+            err._rollbackStackTrace = rollbackStackTrace;
+            completer.completeError(err, stackTrace);
           });
       });
     return completer.future;

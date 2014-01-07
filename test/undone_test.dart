@@ -809,10 +809,13 @@ void testTransactionRollback() {
   ..add(new Action(map, (a) => throw 'bomb', restore));
   
   schedule(transaction)
-    .catchError(expectAsync1((e) {
+    .catchError(expectAsync2((e, stackTrace) {
       expect(e, const isInstanceOf<TransactionError>());
-      expect(e.cause, equals("bomb"));
+      expect(stackTrace, isNotNull);
+      expect(e.cause, equals("bomb"));  
+      expect(e.causeStackTrace, stackTrace);
       expect(e.rollbackError, isNull);
+      expect(e.rollbackStackTrace, isNull);
       expect(map['val'], equals(42));
    }));
 }
@@ -828,10 +831,14 @@ void testTransactionRollbackError() {
   ..add(new Action(map, (a) => throw 'bomb', restore));
   
   schedule(transaction)
-    .catchError(expectAsync1((e) {
+    .catchError(expectAsync2((e, stackTrace) {
       expect(e, const isInstanceOf<TransactionError>());
+      expect(stackTrace, isNotNull);
       expect(e.cause, equals("bomb"));
+      expect(e.causeStackTrace, stackTrace);
       expect(e.rollbackError, equals("nuke"));
+      expect(e.rollbackStackTrace, isNotNull);
+      expect(e.rollbackStackTrace, isNot(stackTrace));
       expect(map['val'], equals(43));
    }));  
 }

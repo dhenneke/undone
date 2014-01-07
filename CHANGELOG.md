@@ -6,6 +6,8 @@
 such that they no longer affect the state of the schedule;  They are completed
 as error to the caller with a stack trace, but they no longer modify the state 
 of the schedule.
+- Added the stack trace to transaction error continuations; this is equal to the
+`TransactionError.causeStackTrace`.
 
 ## 0.2.14
 
