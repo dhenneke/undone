@@ -93,7 +93,7 @@ void testActionConstructorNullThrows() {
 @Test('Test that an action computes as expected.')
 void testAction() {
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
-  action().then(expectAsync1((result) => expect(result, equals(15))));
+  action().then(expectAsync((result) => expect(result, equals(15))));
 }
 
 @Test('Test that an async action computes as expected.')
@@ -102,7 +102,7 @@ void testActionAsync() {
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
       (x, y) => 
           new Future.delayed(const Duration(milliseconds: 3), () => x = y));
-  action().then(expectAsync1((result) => expect(result, equals(10))));
+  action().then(expectAsync((result) => expect(result, equals(10))));
 }
 
 @Test('Test that an error thrown by an action is handled as expected.')
@@ -110,7 +110,7 @@ void testActionThrows() {
   var schedule = new Schedule();
   var action = new Action(14, (x) => throw 'snarf', (x, y) => true);  
   schedule(action)
-    .catchError(expectAsync2((e, stackTrace) { 
+    .catchError(expectAsync((e, stackTrace) { 
       expect(e, equals('snarf'));
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isTrue);
@@ -123,7 +123,7 @@ void testActionThrows() {
 void testActionNonUndoable() {
   var action = new Action(14, (x) => x + 1);
   action()
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(15));
       expect(schedule.canUndo, isFalse);
       expect(schedule.canRedo, isFalse);
@@ -138,9 +138,9 @@ void testScheduleSameActionTwiceThrows() {
   var action = new Action(map, increment, decrement);
   
   schedule(action)
-    .then(expectAsync1((result) => expect(result, equals(43))))
+    .then(expectAsync((result) => expect(result, equals(43))))
     .then((_) => schedule(action))
-    .catchError(expectAsync2((e, stackTrace) {
+    .catchError(expectAsync((e, stackTrace) {
       expect(e, isArgumentError);
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isFalse);
@@ -167,7 +167,7 @@ void testScheduleHasErrorActionThrows() {
     })
     // The second action should cause a StateError to be thrown.
     .then((_) => schedule(action2))
-    .catchError(expectAsync2((e, stackTrace) {   
+    .catchError(expectAsync((e, stackTrace) {   
       expect(e, isStateError);
       expect(stackTrace, isNotNull);
       expect(schedule.error, isNot(equals(e)));
@@ -187,7 +187,7 @@ void testUndo() {
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
-    .then(expectAsync1((success) {
+    .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
     }));
@@ -205,7 +205,7 @@ void testUndoThrows() {
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
-    .catchError(expectAsync2((e, stackTrace) { 
+    .catchError(expectAsync((e, stackTrace) { 
       expect(e, equals('uh-oh'));
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isTrue);
@@ -232,7 +232,7 @@ void testRedo() {
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.redo())
-    .then(expectAsync1((success) {
+    .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
     }));
@@ -261,7 +261,7 @@ void testRedoThrows() {
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.redo())
-    .catchError(expectAsync2((e, stackTrace) { 
+    .catchError(expectAsync((e, stackTrace) { 
       expect(e, equals('overdone'));
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isTrue);
@@ -273,13 +273,13 @@ void testRedoThrows() {
 @Test('Test that an undo operation returns false if canUndo is false.')
 void testUndoEmptyScheduleReturnsFalse() {
   new Schedule()
-    .undo().then(expectAsync1((success) => expect(success, isFalse)));
+    .undo().then(expectAsync((success) => expect(success, isFalse)));
 }
 
 @Test('Test that a redo operation returns false if canRedo is false.')
 void testRedoEmptyScheduleReturnsFalse() {
   new Schedule()
-    .redo().then(expectAsync1((success) => expect(success, isFalse)));
+    .redo().then(expectAsync((success) => expect(success, isFalse)));
 }
 
 @Test('Test the successful completion of a to operation.')
@@ -313,7 +313,7 @@ void testTo() {
     })    
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.to(action3))
-    .then(expectAsync1((success) {
+    .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(1850));
     }));
@@ -335,7 +335,7 @@ void testClear() {
       expect(map['val'], equals(1850));
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
-    .then(expectAsync1((_) {
+    .then(expectAsync((_) {
       expect(schedule.canClear, isTrue);
       expect(schedule.clear(), isTrue);
       expect(schedule.canClear, isTrue);
@@ -396,14 +396,14 @@ void testActionDuringAction() {
   
   // Schedule an async action that takes more than 1 tick.
   schedule(action1)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     }));
   
   // Schedule a synchronous action that we expect to be done after the first.
   schedule(action2)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     }));
@@ -418,7 +418,7 @@ void testActionThrowsDuringAction() {
   
   // Schedule an async action that takes more than 1 tick.
   schedule(action1)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     }));
@@ -427,13 +427,13 @@ void testActionThrowsDuringAction() {
   // Schedule a synchronous action that we expect to be called after the first
   // completes, so we expect the thrown error to have no affect on the first.
   schedule(action2)
-    .catchError(expectAsync2((e, stackTrace) {    
+    .catchError(expectAsync((e, stackTrace) {    
       expect(e, equals('crowbar'));   
       expect(stackTrace, isNotNull);
       _stackTrace = stackTrace;
     }))
     .then((_) => schedule.wait(Schedule.STATE_ERROR))
-    .then(expectAsync1((_) {
+    .then(expectAsync((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
       expect(schedule.stackTrace, equals(_stackTrace));
@@ -450,25 +450,25 @@ void testMultipleActionsDuringAction() {
   var action4 = new Action(map, increment, restore);
   
   schedule(action1)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     }));
   
   schedule(action2)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     }));
   
   schedule(action3)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(3418801));
       expect(map['val'], equals(3418801));
     })); 
   
   schedule(action4)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(3418802));
       expect(map['val'], equals(3418802));
     }));  
@@ -483,7 +483,7 @@ void testDeferSameActionTwiceThrows() {
   
   // Schedule an async action that takes more than 1 tick.
   schedule(action1)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(43));
       expect(map['val'], equals(43));
     }));
@@ -491,13 +491,13 @@ void testDeferSameActionTwiceThrows() {
   // Schedule another action 2 times, expecting error on the second schedule.
   
   schedule(action2)
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     }));
   
   schedule(action2)
-    .catchError(expectAsync2((e, stackTrace) {
+    .catchError(expectAsync((e, stackTrace) {
       expect(e, isArgumentError);
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isFalse);
@@ -514,7 +514,7 @@ void testActionDuringUndo() {
   var action2 = new Action.async(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, increment, restore);
   
-  var verifyUndo = expectAsync1((success) {
+  var verifyUndo = expectAsync((success) {
     expect(success, isTrue);
     expect(map['val'], equals(43));
   });
@@ -538,7 +538,7 @@ void testActionDuringUndo() {
       schedule.undo().then(verifyUndo);
       return schedule(action3);
     })
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(44));
       expect(map['val'], equals(44));
     }));
@@ -575,13 +575,13 @@ void testActionThrowsDuringUndo() {
         expect(success, isTrue));
     return schedule(action3);
   })
-  .catchError(expectAsync2((e, stackTrace) {   
+  .catchError(expectAsync((e, stackTrace) {   
     expect(e, equals('crowbar'));
     expect(schedule.stackTrace, isNotNull);
     _stackTrace = stackTrace;
   }))
   .then((_) => schedule.wait(Schedule.STATE_ERROR))
-  .then(expectAsync1((_) {
+  .then(expectAsync((_) {
     expect(schedule.hasError, isTrue);
     expect(schedule.error, equals('crowbar'));
     expect(schedule.stackTrace, equals(_stackTrace));
@@ -624,7 +624,7 @@ void testActionDuringRedo() {
       });
       return schedule(action3);
     })
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(1850));
       expect(map['val'], equals(1850));
     }));
@@ -659,13 +659,13 @@ void testActionThrowsDuringRedo() {
           expect(success, isTrue));      
       return schedule(action3);
     })
-    .catchError(expectAsync2((e, stackTrace) {   
+    .catchError(expectAsync((e, stackTrace) {   
       expect(e, equals('crowbar'));
       expect(stackTrace, isNotNull);
       _stackTrace = stackTrace;
     }))
     .then((_) => schedule.wait(Schedule.STATE_ERROR))
-    .then(expectAsync1((_) {
+    .then(expectAsync((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
       expect(schedule.stackTrace, equals(_stackTrace));
@@ -691,7 +691,7 @@ void testActionDuringTo() {
       });
       return action4();
     })
-    .then(expectAsync1((result) {
+    .then(expectAsync((result) {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     }));
@@ -717,13 +717,13 @@ void testActionThrowsDuringTo() {
           expect(success, isTrue)); 
       return schedule(action4);
     })
-    .catchError(expectAsync2((e, stackTrace) {  
+    .catchError(expectAsync((e, stackTrace) {  
       expect(e, equals('crowbar'));
       expect(stackTrace, isNotNull);
       _stackTrace = stackTrace;
     }))
     .then((_) => schedule.wait(Schedule.STATE_ERROR))
-    .then(expectAsync1((_) {
+    .then(expectAsync((_) {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals('crowbar'));
       expect(schedule.stackTrace, equals(_stackTrace));
@@ -748,7 +748,7 @@ void testActionDuringFlush() {
   bool wentToIdle = false;
   bool wentToFlush = false;
   
-  var finish = expectAsync1((result) {
+  var finish = expectAsync((result) {
     // Make sure the state machine does not glitch to IDLE before FLUSH
     expect(wentToIdle, isFalse);    
     expect(result, equals(3118756));
@@ -783,7 +783,7 @@ void testTransaction() {
   ..add(new Action(map, increment, restore));
   
   schedule(transaction)
-    .then(expectAsync1((_) => expect(map['val'], equals(1850))));
+    .then(expectAsync((_) => expect(map['val'], equals(1850))));
 }
 
 @Test('Test that adding a null action to a transaction throws an error.')
@@ -809,7 +809,7 @@ void testTransactionRollback() {
   ..add(new Action(map, (a) => throw 'bomb', restore));
   
   schedule(transaction)
-    .catchError(expectAsync2((e, stackTrace) {
+    .catchError(expectAsync((e, stackTrace) {
       expect(e, const isInstanceOf<TransactionError>());
       expect(stackTrace, isNotNull);
       expect(e.cause, equals("bomb"));  
@@ -831,7 +831,7 @@ void testTransactionRollbackError() {
   ..add(new Action(map, (a) => throw 'bomb', restore));
   
   schedule(transaction)
-    .catchError(expectAsync2((e, stackTrace) {
+    .catchError(expectAsync((e, stackTrace) {
       expect(e, const isInstanceOf<TransactionError>());
       expect(stackTrace, isNotNull);
       expect(e.cause, equals("bomb"));
@@ -857,7 +857,7 @@ void testTransactionUndo() {
     .then((_) => expect(map['val'], equals(1850)))
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
-    .then(expectAsync1((success) {
+    .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
     }));
@@ -871,10 +871,10 @@ void testTransact() {
   var action3 = new Action(map, increment, restore);      
   transact(() {
     // Verify that continuations chained on each action get the proper result.
-    action1().then(expectAsync1((result) => expect(result, equals(43))));
-    action2().then(expectAsync1((result) => expect(result, equals(1849))));
-    action3().then(expectAsync1((result) => expect(result, equals(1850))));
-  }).then(expectAsync1((_) => expect(map['val'], equals(1850))));    
+    action1().then(expectAsync((result) => expect(result, equals(43))));
+    action2().then(expectAsync((result) => expect(result, equals(1849))));
+    action3().then(expectAsync((result) => expect(result, equals(1850))));
+  }).then(expectAsync((_) => expect(map['val'], equals(1850))));    
 }
 
 @Test('Test that an error thrown in the body of transact is handled.')
@@ -887,15 +887,15 @@ void testTransactThrows() {
     action2().then((_) => throw 'should not happen!');
     throw 'trouble';
   })
-  .catchError(expectAsync2((e, stackTrace) {
+  .catchError(expectAsync((e, stackTrace) {
     expect(e, equals('trouble'));
     expect(stackTrace, isNotNull);
   }));  
   // Verify that we can successfully do a transaction now.
   transact(() {
-    action1().then(expectAsync1((result) => expect(result, equals(43))));
-    action2().then(expectAsync1((result) => expect(result, equals(1849))));
-  }).then(expectAsync1((_) => expect(map['val'], equals(1849))));
+    action1().then(expectAsync((result) => expect(result, equals(43))));
+    action2().then(expectAsync((result) => expect(result, equals(1849))));
+  }).then(expectAsync((_) => expect(map['val'], equals(1849))));
 }
 
 // -----------------------------------------------------------------------------
@@ -907,9 +907,9 @@ void testNoStatesListener() {
   var schedule = new Schedule();
   // Do an action to cause state transitions to happen.
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
-  schedule(action).then(expectAsync1((result) {
+  schedule(action).then(expectAsync((result) {
     expect(result, equals(15));    
-    final noop = expectAsync0(() { });
+    final noop = expectAsync(() {});
     
     // Defer to let the schedule return to idle.
     scheduleMicrotask(() {
@@ -931,7 +931,7 @@ void testPauseStatesListener() {
   var schedule = new Schedule();
   
   // Attach a listener, we expect to see both the CALL and IDLE states.
-  var subscribe = schedule.states.listen(expectAsync1((state) {}, count: 2));
+  var subscribe = expectTwoEvents(schedule.states);
   
   // Pause the subscription.
   subscribe.pause();
@@ -939,7 +939,7 @@ void testPauseStatesListener() {
   // Do an action to cause state transitions to happen.
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
   schedule(action)
-    .then(expectAsync1((result) => expect(result, equals(15))))
+    .then(expectAsync((result) => expect(result, equals(15))))
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     // Resume the subscription.
     .then((_) => subscribe.resume());
