@@ -18,12 +18,8 @@ typedef Future UndoAsync<A, R>(A arg, R result);
 
 Logger _logger = new Logger('undone');
 
-Schedule _schedule;
 /// The isolate's top-level [Schedule].
-Schedule get schedule {
-  if (_schedule == null) _schedule = new Schedule();
-  return _schedule;
-}
+final Schedule schedule = new Schedule();
 
 Transaction _transaction;
 /// Build and compute a [Transaction] using the top-level [schedule].
