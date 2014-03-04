@@ -1,6 +1,5 @@
 library nudge;
 
-import 'dart:async';
 import 'dart:html';
 import 'package:undone/undone.dart';
 
