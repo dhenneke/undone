@@ -5,16 +5,10 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 
 /// A function to do an operation on an [arg] and return a result.
-typedef R Do<A, R>(A arg);
-
-/// A function to do an async operation on an [arg] and complete a result.
-typedef Future<R> DoAsync<A, R>(A arg);
+typedef dynamic Do<A, R>(A arg);
 
 /// A function to undo an operation on an [arg] given the prior [result].
-typedef void Undo<A, R>(A arg, R result);
-
-/// A function to undo an async operation on an [arg] given the prior [result].
-typedef Future UndoAsync<A, R>(A arg, R result);
+typedef dynamic Undo<A, R>(A arg, R result);
 
 Logger _logger = new Logger('undone');
 
@@ -57,10 +51,11 @@ Future<bool> redo() => schedule.redo();
 /// another to [Undo] the action.  The action object is itself a function that 
 /// can be [call]ed to schedule it to be done on the top-level [schedule] or
 /// to add it to a [Transaction] if called within the scope of [transact].
-/// Actions may also be created with a pair of [DoAsync] and [UndoAsync]
-/// functions using the [new Action.async] constructor.  All actions are done
-/// and undone asynchronously, regardless of the functions themselves.  Actions
-/// may be optionally typed by their argument and result objects, [A] and [R].
+/// 
+/// All actions are done and undone asynchronously, regardless of the functions 
+/// themselves.  Actions may be optionally typed by their argument and result 
+/// objects, [A] and [R].
+/// 
 /// The action type may be extended to define custom actions although this may
 /// often not be necessary; creating an action with the functions to do and
 /// undo the desired operation is often the simplest and best approach.
@@ -68,8 +63,8 @@ class Action<A, R> {
       
   final A _arg;
   R _result; // The result of the most recent call().
-  final DoAsync _do;
-  final UndoAsync _undo;
+  final Do _do;
+  final Undo _undo;
   Completer _deferred;
   
   /// Whether or not this action can be undone.
@@ -77,46 +72,23 @@ class Action<A, R> {
   
   /// The maximum allowed duration for this action's [Do] or [Undo] function.
   /// 
-  /// A `null` value represents no timeout, and is the default for actions
-  /// created with the [new Action] constructor.  For actions created with
-  /// the [new Action.async] constructor the default value is 30 seconds unless
-  /// otherwise specified.
+  /// The default value is 30 seconds unless otherwise specified in the 
+  /// [new Action] constructor.
   /// 
   /// When a timeout occurs, this action will complete with an error.
   final Duration timeout;
   
   /// Creates a new action with the given [arg]uments, [Do] function, and 
-  /// [Undo] function.  
+  /// [Undo] function.
   /// 
-  /// The given synchronous functions are automatically wrapped in futures prior 
-  /// to being called on a schedule.
-  Action(
-      A arg, 
-      Do d, 
-      [Undo u]) 
-  : this._(
-      arg, 
-      d == null ? d : (a) => new Future.sync(() => d(a)), 
-      u == null ? u : (a, r) => new Future.sync(() => u(a, r)));
-  
-  /// Creates a new action with the given [arg]uments, [DoAsync] function, 
-  /// [UndoAsync] function, and timeout [Duration].
-  Action.async(
-      A arg, 
-      DoAsync d, 
-     [UndoAsync u, 
-      Duration timeout = const Duration(seconds: 30)]) 
-  : this._(arg, d, u, timeout);
-  
-  Action._(
-      this._arg, 
-      this._do, 
-      UndoAsync undo, 
-     [Duration timeout]) 
-  : canUndo = (undo != null)
-  , timeout = timeout
-  , _undo = undo {
-    if (_do == null) {
+  /// The [Undo] function may be `null` to specify a non-undoable action.  The
+  /// optional [timeout] defaults to 30 seconds and may be `null` to specify no
+  /// timeout.
+  Action(this._arg, Do d, Undo u, {this.timeout: const Duration(seconds: 30)})
+  : _do = ((a) => new Future.sync(() => d(a)))
+  , _undo = (u == null ? u : (a, r) => new Future.sync(() => u(a, r))) 
+  , canUndo = (u != null) {
+    if (d == null) {
       throw new ArgumentError('Do function must be !null.');    
     }
   }
@@ -254,7 +226,7 @@ class Transaction extends Action {
       Future.forEach(actions.reversed, (action) => action._unexecute());
   
   /// Creates a new empty transaction.
-  Transaction() : super._(new List<Action>(), _do_, _undo_);
+  Transaction() : super(new List<Action>(), _do_, _undo_);
   
   /// Adds the given [action] to this transaction.
   /// 

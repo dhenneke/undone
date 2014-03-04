@@ -30,15 +30,15 @@ Undo restore = (a, _) => a['val'] = a['oldValue'];
 Do square = (a) => a['val'] = a['val'] * a['val'];  
 Undo squareRoot = (a, _) => a['val'] = math.sqrt(a['val']);
 
-DoAsync incrementAsync = (a) => 
+Do incrementAsync = (a) => 
     new Future.delayed(const Duration(milliseconds: 4), () => increment(a));
-UndoAsync decrementAsync = (a, _) => 
+Undo decrementAsync = (a, _) => 
     new Future.delayed(const Duration(milliseconds: 5), () => decrement(a, _));
-UndoAsync restoreAsync = (a, _) => 
+Undo restoreAsync = (a, _) => 
     new Future.delayed(const Duration(milliseconds: 2), () => restore(a, _));
-DoAsync squareAsync = (a) => 
+Do squareAsync = (a) => 
     new Future.delayed(const Duration(milliseconds: 3), () => square(a));
-UndoAsync squareRootAsync = (a, _) => 
+Undo squareRootAsync = (a, _) => 
     new Future.delayed(const Duration(milliseconds: 5), () => squareRoot(a, _));
 
 class HasFields {
@@ -65,7 +65,7 @@ void testScheduleInitialState() {
 @Test('Test that action constructors succeed when given valid arguments.')
 void testActionConstructor() {
   var action = new Action(7, (x) => x + 1, (x, y) => x = y);
-  var actionAsync = new Action.async(11, 
+  var actionAsync = new Action(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
       (x, y) => 
           new Future.delayed(const Duration(milliseconds: 3), () => x = y));
@@ -76,7 +76,7 @@ void testActionConstructor() {
 @Test('Test the construction of a non-undoable action')
 void testActionConstructorNotUndoable() {
   var action = new Action(7, (x) => x + 1, null);
-  var actionAsync = new Action.async(11, (x) => new Future(() => x - 1), null);
+  var actionAsync = new Action(11, (x) => new Future(() => x - 1), null);
   expect(action.canUndo, isFalse);
   expect(actionAsync.canUndo, isFalse);
 }
@@ -85,7 +85,7 @@ void testActionConstructorNotUndoable() {
 void testActionConstructorNullThrows() {
   expect(() => new Action(7, null, (x, y) => x = y), 
       throwsA(const isInstanceOf<ArgumentError>()));
-  expect(() => new Action.async(11, null, 
+  expect(() => new Action(11, null, 
       (x, y) =>new Future(() => x = y)), 
       throwsA(const isInstanceOf<ArgumentError>()));
 }
@@ -98,7 +98,7 @@ void testAction() {
 
 @Test('Test that an async action computes as expected.')
 void testActionAsync() {
-  var action = new Action.async(11, 
+  var action = new Action(11, 
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
       (x, y) => 
           new Future.delayed(const Duration(milliseconds: 3), () => x = y));
@@ -121,7 +121,7 @@ void testActionThrows() {
 
 @Test('Test that a non-undoable action computes as expected.')
 void testActionNonUndoable() {
-  var action = new Action(14, (x) => x + 1);
+  var action = new Action(14, (x) => x + 1, null);
   action()
     .then(expectAsync((result) {
       expect(result, equals(15));
@@ -351,8 +351,8 @@ void testClear() {
 @ExpectError(isStateError)
 testActionTimeoutNeverComplete() {
   var schedule = new Schedule();
-  var action = new Action.async(42, (_) => new Completer().future, null, 
-      const Duration(milliseconds: 100));
+  var action = new Action(42, (_) => new Completer().future, null, 
+      timeout: const Duration(milliseconds: 100));
   return schedule(action);
 }
 
@@ -360,9 +360,9 @@ testActionTimeoutNeverComplete() {
 @ExpectError(isStateError)
 testActionTimeoutThenComplete() {
   var schedule = new Schedule();
-  var action = new Action.async(42, 
+  var action = new Action(42, 
       (_) => new Future.delayed(const Duration(milliseconds: 200)),
-      null, const Duration(milliseconds: 100));
+      null, timeout: const Duration(milliseconds: 100));
   return schedule(action);
 }
 
@@ -371,9 +371,8 @@ testActionTimeoutThenComplete() {
 testUndoTimeout() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
-  var action = 
-      new Action.async(map, incrementAsync, (_,__) => new Completer().future,
-          const Duration(milliseconds: 100));
+  var action = new Action(map, incrementAsync, (_,__) => new Completer().future,
+      timeout: const Duration(milliseconds: 100));
   return schedule(action)
     .then((result) {
       expect(result, equals(43));
@@ -391,7 +390,7 @@ testUndoTimeout() {
 void testActionDuringAction() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
-  var action1 = new Action.async(map, incrementAsync, decrementAsync);
+  var action1 = new Action(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, square, squareRoot);
   
   // Schedule an async action that takes more than 1 tick.
@@ -413,7 +412,7 @@ void testActionDuringAction() {
 void testActionThrowsDuringAction() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
-  var action1 = new Action.async(map, incrementAsync, decrementAsync);
+  var action1 = new Action(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, (a) => throw 'crowbar', squareRoot);
   
   // Schedule an async action that takes more than 1 tick.
@@ -444,9 +443,9 @@ void testActionThrowsDuringAction() {
 void testMultipleActionsDuringAction() {  
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
-  var action1 = new Action.async(map, incrementAsync, decrementAsync);
+  var action1 = new Action(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, square, squareRoot);
-  var action3 = new Action.async(map, squareAsync, squareRootAsync);
+  var action3 = new Action(map, squareAsync, squareRootAsync);
   var action4 = new Action(map, increment, restore);
   
   schedule(action1)
@@ -478,7 +477,7 @@ void testMultipleActionsDuringAction() {
 void testDeferSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
-  var action1 = new Action.async(map, incrementAsync, decrementAsync);
+  var action1 = new Action(map, incrementAsync, decrementAsync);
   var action2 = new Action(map, square, squareRoot);
   
   // Schedule an async action that takes more than 1 tick.
@@ -511,7 +510,7 @@ void testActionDuringUndo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
-  var action2 = new Action.async(map, squareAsync, squareRootAsync);
+  var action2 = new Action(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, increment, restore);
   
   var verifyUndo = expectAsync((success) {
@@ -549,7 +548,7 @@ void testActionThrowsDuringUndo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
-  var action2 = new Action.async(map, squareAsync, squareRootAsync);
+  var action2 = new Action(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, (a) => throw 'crowbar', restore);
   var _stackTrace;
   
@@ -593,7 +592,7 @@ void testActionDuringRedo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
-  var action2 = new Action.async(map, squareAsync, squareRootAsync);
+  var action2 = new Action(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, increment, restore);
   
   schedule(action1)
@@ -635,7 +634,7 @@ void testActionThrowsDuringRedo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
-  var action2 = new Action.async(map, squareAsync, squareRootAsync);
+  var action2 = new Action(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, (a) => throw 'crowbar', restore);
   var _stackTrace;
   
@@ -676,7 +675,7 @@ void testActionThrowsDuringRedo() {
 void testActionDuringTo() {
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
-  var action2 = new Action.async(map, squareAsync, squareRootAsync);
+  var action2 = new Action(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, incrementAsync, restoreAsync);
   var action4 = new Action(map, square, squareRoot);
   
@@ -702,7 +701,7 @@ void testActionThrowsDuringTo() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
   var action1 = new Action(map, increment, decrement);
-  var action2 = new Action.async(map, squareAsync, squareRootAsync);
+  var action2 = new Action(map, squareAsync, squareRootAsync);
   var action3 = new Action(map, incrementAsync, restoreAsync);
   var action4 = new Action(map, (a) => throw 'crowbar', squareRoot);
   var _stackTrace;
@@ -734,7 +733,7 @@ void testActionThrowsDuringTo() {
 void testActionDuringFlush() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
-  var action1 = new Action.async(map, squareAsync, squareRootAsync);
+  var action1 = new Action(map, squareAsync, squareRootAsync);
   var action2 = new Action(map, increment, decrement);  
   var action3 = new Action(map, incrementAsync, restoreAsync);
   var action4 = new Action(map, square, squareRoot);
