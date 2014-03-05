@@ -1,6 +1,5 @@
 pubspec.lock
-packages/
 example/
 test/
 build/
-docs/
+dartdoc-viewer/
