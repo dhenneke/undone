@@ -68,7 +68,7 @@ box around a canvas - its undoable!
 _Undone uses the MIT license as described in the [LICENSE][license] file, and 
 follows [semantic versioning][]._
 
-[api]: http://rmsmith.github.com/undone/undone.html
+[api]: http://rmsmith.github.com/undone/index.html#undone
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
 [license]: https://github.com/rmsmith/undone/blob/master/LICENSE
 [nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html

@@ -1,9 +1,9 @@
 name: undone
-version: 0.2.16-dev
+version: 0.3.0-dev
 description: A library for undo and redo.
 author: Ross Smith <dev@futureperfect.info>
 homepage: https://github.com/rmsmith/undone
-documentation: http://futureperfect.info/undone/undone.html
+documentation: http://futureperfect.info/undone/index.html#undone
 environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:

@@ -1,7 +1,12 @@
 # Undone Changes
 
-## 0.2.16-dev
+## 0.3.0-dev
 
+- Changed the return type of the `Do` and `Undo` typedefs to be `dynamic` and
+removed the `DoAsync` and `UndoAsync` typedefs.
+- Removed the `new Action.async` constructor; the `new Action` constructor now
+wraps all `Do` and `Undo` function calls using `new Future.sync` to support
+both synchronous and asynchronous `Do` and `Undo` functions.
 - Updated API documentation generation to use the new `docgen` tool.
 
 ## 0.2.15
