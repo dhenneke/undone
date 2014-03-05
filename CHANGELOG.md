@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.3.0-dev
+## 0.3.0
 
 - Added an optional `context` to `Action` that allows user-defined data to be
 attached to an action as an alternative to defining a new type of action.
