@@ -14,7 +14,7 @@ typedef dynamic Do<A, R>(A arg);
 /// The return type of this function should be either `void` or `Future`.
 typedef dynamic Undo<A, R>(A arg, R result);
 
-Logger _logger = new Logger('undone');
+final Logger _logger = new Logger('undone');
 
 /// The isolate's top-level [Schedule].
 final Schedule schedule = new Schedule();
@@ -478,6 +478,7 @@ class Schedule {
   }
   
   void _logFine(String message) => _log(Level.FINE, message);
+  
   void _logError(error, [stackTrace]) => 
       _log(Level.SEVERE, Error.safeToString(error), error, stackTrace);
   
