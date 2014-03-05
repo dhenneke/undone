@@ -576,6 +576,7 @@ undone/undone.Schedule.wait method
 undone/undone.Transaction class
 undone/undone.Action class
 undone/undone.Action.canUndo property
+undone/undone.Action.context property
 undone/undone.Action.timeout property
 undone/undone.Action.Action- constructor
 undone/undone.Action.call method
