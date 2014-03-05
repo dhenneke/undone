@@ -5,9 +5,13 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 
 /// A function to do an operation on an [arg] and return a result.
+/// 
+/// The return type of this function should be either `R` or `Future<R>`.
 typedef dynamic Do<A, R>(A arg);
 
 /// A function to undo an operation on an [arg] given the prior [result].
+/// 
+/// The return type of this function should be either `void` or `Future`.
 typedef dynamic Undo<A, R>(A arg, R result);
 
 Logger _logger = new Logger('undone');
