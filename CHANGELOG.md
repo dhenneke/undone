@@ -2,6 +2,8 @@
 
 ## 0.2.16-dev
 
+- Updated API documentation generation to use the new `docgen` tool.
+
 ## 0.2.15
 
 - Changed the way validation errors at the start of `Schedule.call` are treated
