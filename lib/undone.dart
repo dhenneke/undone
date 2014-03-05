@@ -151,8 +151,7 @@ class Action<A, R> {
     }
     final completer = new Completer();
     final timer = new Timer(timeout, () {
-      completer.completeError(new StateError(
-          '$this timed out after ${timeout.inSeconds} seconds.'));
+      completer.completeError(new TimeoutException('$this', timeout));
     });
     f
     .then((result) {

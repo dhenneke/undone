@@ -348,7 +348,7 @@ void testClear() {
 }
 
 @Test()
-@ExpectError(isStateError)
+@ExpectError(const isInstanceOf<TimeoutException>())
 testActionTimeoutNeverComplete() {
   var schedule = new Schedule();
   var action = new Action(42, (_) => new Completer().future, null, 
@@ -357,7 +357,7 @@ testActionTimeoutNeverComplete() {
 }
 
 @Test()
-@ExpectError(isStateError)
+@ExpectError(const isInstanceOf<TimeoutException>())
 testActionTimeoutThenComplete() {
   var schedule = new Schedule();
   var action = new Action(42, 
@@ -367,7 +367,7 @@ testActionTimeoutThenComplete() {
 }
 
 @Test()
-@ExpectError(isStateError)
+@ExpectError(const isInstanceOf<TimeoutException>())
 testUndoTimeout() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
