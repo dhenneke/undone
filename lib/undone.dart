@@ -74,6 +74,12 @@ class Action<A, R> {
   /// Whether or not this action can be undone.
   final bool canUndo;
   
+  /// An optional context for this action.
+  /// 
+  /// The context allows user-defined data such as a description or label to be
+  /// attached to an action as an alternative to defining a new type of action.
+  final context;
+  
   /// The maximum allowed duration for this action's [Do] or [Undo] function.
   /// 
   /// The default value is 30 seconds unless otherwise specified in the 
@@ -88,7 +94,8 @@ class Action<A, R> {
   /// The [Undo] function may be `null` to specify a non-undoable action.  The
   /// optional [timeout] defaults to 30 seconds and may be `null` to specify no
   /// timeout.
-  Action(this._arg, Do d, Undo u, {this.timeout: const Duration(seconds: 30)})
+  Action(this._arg, Do d, Undo u, 
+        {this.context, this.timeout: const Duration(seconds: 30)})
   : _do = ((a) => new Future.sync(() => d(a)))
   , _undo = (u == null ? u : (a, r) => new Future.sync(() => u(a, r))) 
   , canUndo = (u != null) {
@@ -166,7 +173,7 @@ class Action<A, R> {
   
   Future _unexecute() => _guard(_undo(_arg, _result));  
   
-  String toString() => 'action($hashCode)';
+  String toString() => 'action(${context == null ? hashCode : context})';
 }
 
 /// An error encountered during a transaction.

@@ -2,6 +2,8 @@
 
 ## 0.3.0-dev
 
+- Added an optional `context` to `Action` that allows user-defined data to be
+attached to an action as an alternative to defining a new type of action.
 - Changed the return type of the `Do` and `Undo` typedefs to be `dynamic` and
 removed the `DoAsync` and `UndoAsync` typedefs.
 - Removed the `new Action.async` constructor; the `new Action` constructor now

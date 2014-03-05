@@ -382,6 +382,24 @@ testUndoTimeout() {
     .then((_) => schedule.undo());
 }
 
+@Test()
+testActionStringContext() {
+  var action = new Action(14, (x) => x + 1, (x, y) => x - 1, context: 'snarf');
+  expect(action.context, equals('snarf'));
+  expect(action.toString(), equals('action(snarf)'));
+  // Verify that the `context` has no impact on the execution.
+  action().then(expectAsync((result) => expect(result, equals(15))));
+}
+
+@Test()
+testActionIntContext() {
+  var action = new Action(14, (x) => x + 1, (x, y) => x - 1, context: 42);
+  expect(action.context, equals(42));
+  expect(action.toString(), equals('action(42)'));
+  // Verify that the `context` has no impact on the execution.
+  action().then(expectAsync((result) => expect(result, equals(15))));
+}
+
 // -----------------------------------------------------------------------------
 // Concurrent
 // -----------------------------------------------------------------------------
