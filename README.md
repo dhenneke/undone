@@ -66,6 +66,6 @@ follows [semantic versioning][]._
 [api]: http://rmsmith.github.com/undone/index.html#undone
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
 [license]: https://github.com/rmsmith/undone/blob/master/LICENSE
-[nudge]: https://github.com/rmsmith/undone/nudge.html
+[nudge]: http://rmsmith.github.com/undone/nudge.html
 [semantic versioning]: http://semver.org/
 [status]: https://drone.io/github.com/rmsmith/undone/status.png
