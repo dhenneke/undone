@@ -2,7 +2,7 @@
 
 A library for undo and redo.
 
-[![Build Status][status]][badge] | [API documentation][api]
+[![Build Status][status]][badge] | [API documentation][api] | [Try it!][nudge]
 
 ## Usage
 
@@ -60,18 +60,12 @@ document.onKeyUp.listen((e) {
 });
 ```
 
-## Run the Examples
-
-The code above can be found [here][readme].  For more fun, try to [nudge][] a 
-box around a canvas - its undoable!
-
 _Undone uses the MIT license as described in the [LICENSE][license] file, and 
 follows [semantic versioning][]._
 
 [api]: http://rmsmith.github.com/undone/index.html#undone
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
 [license]: https://github.com/rmsmith/undone/blob/master/LICENSE
-[nudge]: https://github.com/rmsmith/undone/blob/master/example/nudge.html
-[readme]: https://github.com/rmsmith/undone/blob/master/example/readme.dart
+[nudge]: https://github.com/rmsmith/undone/nudge.html
 [semantic versioning]: http://semver.org/
 [status]: https://drone.io/github.com/rmsmith/undone/status.png
