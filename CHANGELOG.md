@@ -1,6 +1,8 @@
 # Undone Changes
 
-## 0.3.1-dev
+## 0.3.1
+
+- Deployed the `nudge` example to `gh-pages` and link to it from the `README`.
 
 ## 0.3.0
 
