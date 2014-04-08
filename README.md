@@ -18,11 +18,11 @@ Undo _decrement = (a, r) => --a['value'];
 var increment = new Action(map, _increment, _decrement);
 ```
 
-### Create an Action from a Custom Class
+### Create an Action from a Class
 
 ```dart
-// Use custom actions when you want your own class.
-class Square extends Action {  
+// Define an Action subclass when you want your own type.
+class Square extends Action {
   static _square(a) => a['value'] = a['value'] * a['value'];  
   static _squareRoot(a, r) => a['value'] = math.sqrt(a['value']);  
   Square(map): super(map, _square, _squareRoot);  
