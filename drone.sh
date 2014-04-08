@@ -3,9 +3,6 @@
 # Get package dependencies
 pub get
 
-# Run the readme example
-dart --checked example/readme.dart
-
 # Run the tests
 dart --checked test/undone_test.dart
 

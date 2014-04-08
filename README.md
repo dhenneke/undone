@@ -43,8 +43,8 @@ increment().then((result) => print('$result')); // prints '43'
 ```dart  
 // Call actions in a transaction - they'll be done and undone together!
 transact(() {
-    increment();
-    square();
+  increment();
+  square();
 }).then((_) => print('${map["value"]}')); // prints '1936'
 ```
 
@@ -54,8 +54,11 @@ transact(() {
 // Bind undo / redo to keyboard events.
 document.onKeyUp.listen((e) {    
   if (e.ctrlKey) {
-    if (e.keyCode == KeyCode.Z)           undo();
-    else if (e.keyCode == KeyCode.Y)      redo();
+    if (e.keyCode == KeyCode.Z) {
+      undo();
+    } else if (e.keyCode == KeyCode.Y) {
+      redo();
+    }
   }
 });
 ```

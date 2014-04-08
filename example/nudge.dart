@@ -34,10 +34,18 @@ class Nudge extends Action {
     final oldPosition = [box.x, box.y];
     // Move the box by the given distance in the given direction.
     switch(direction) {
-      case UP:    box.y -= distance; break;
-      case DOWN:  box.y += distance; break;
-      case LEFT:  box.x -= distance; break;
-      case RIGHT: box.x += distance; break;
+      case UP:    
+        box.y -= distance; 
+        break;
+      case DOWN:  
+        box.y += distance; 
+        break;
+      case LEFT:  
+        box.x -= distance; 
+        break;
+      case RIGHT: 
+        box.x += distance; 
+        break;
     }
     // Return the old position as the result, it will be passed to undo.
     return oldPosition;
@@ -59,13 +67,21 @@ Box box;
 main() {
   document.onKeyUp.listen((e) {    
     if (e.ctrlKey) {
-      if (e.keyCode == KeyCode.Z)           undo();
-      else if (e.keyCode == KeyCode.Y)      redo();
+      if (e.keyCode == KeyCode.Z) {
+        undo();
+      } else if (e.keyCode == KeyCode.Y) {
+        redo();
+      }
     } else {
-      if (e.keyCode == KeyCode.UP)          new Nudge(box, 10, Nudge.UP)();
-      else if (e.keyCode == KeyCode.DOWN)   new Nudge(box, 10, Nudge.DOWN)(); 
-      else if (e.keyCode == KeyCode.LEFT)   new Nudge(box, 10, Nudge.LEFT)();
-      else if (e.keyCode == KeyCode.RIGHT)  new Nudge(box, 10, Nudge.RIGHT)();
+      if (e.keyCode == KeyCode.UP) {
+        new Nudge(box, 10, Nudge.UP)();
+      } else if (e.keyCode == KeyCode.DOWN) {
+        new Nudge(box, 10, Nudge.DOWN)(); 
+      } else if (e.keyCode == KeyCode.LEFT) {
+        new Nudge(box, 10, Nudge.LEFT)();
+      } else if (e.keyCode == KeyCode.RIGHT) {
+        new Nudge(box, 10, Nudge.RIGHT)();
+      }
     }
   });
   
