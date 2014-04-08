@@ -363,7 +363,7 @@
     <div class="navbar-form pull-right dropdown {{dropdownOpen}}" id="search">
       <input type="search" name="q" id="q" autocomplete="off" class="form-control dropdown-toggle" placeholder="Search API" value="{{searchQuery}}" data-toggle="dropdown">
 
-        <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenu" on-click="{{onSubmitCallback}}">
+        <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenu" on-click="{{selectDropDownItem}}">
           <template if="{{results.isEmpty}}">
             <li class="search-result disabled">
               <a tabindex="-1" href="#">No Results.</a>
