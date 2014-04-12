@@ -3528,7 +3528,7 @@ call$1:function(a){var z,y
 if(J.de(a,"IDLE")){z=$.JX()
 y=z.ek==="IDLE"&&z.Q1>=0
 J.n7(this.a,!y)
-z=z.ek==="IDLE"&&z.Q1<z.kP.length-1
+z=z.ek==="IDLE"&&z.Q1<z.jG.length-1
 J.n7(this.b,!z)
 T.bh()}}}},1],["undone","package:undone/undone.dart",,V,{
 "^":"",
@@ -3595,7 +3595,7 @@ P4:{
 "^":"Tp:10;e",
 call$0:function(){this.e.ed()}},
 RG:{
-"^":"a:21;kP,c8,Q1,ek,dz,dh,HV",
+"^":"a:21;jG,c8,Q1,ek,dz,dh,HV",
 gva:function(){return this.ek==="IDLE"&&this.Q1>=0},
 gkc:function(a){return this.dz},
 gI4:function(){return this.dh},
@@ -3615,7 +3615,7 @@ if(z.Gv>=4)H.vh(z.q7())
 z.Iv(y)}}},
 call$1:function(a){var z
 if(this.ek==="ERROR")return P.e4(new V.UT(),null)
-if(C.Nm.tg(this.kP,a)||C.Nm.tg(this.c8,a))return P.e4(new V.K7(a),null)
+if(C.Nm.tg(this.jG,a)||C.Nm.tg(this.c8,a))return P.e4(new V.K7(a),null)
 if(this.ek!=="IDLE"){z="defer "+H.d(a)
 $.aT().Y6(C.R5,"["+this.ek+"]: "+z,null,null)
 this.c8.push(a)
@@ -3624,13 +3624,13 @@ return this.uR(a)},
 uR:function(a){var z,y,x,w,v
 z=H.VM(new P.Zf(P.Dt(null)),[null])
 if(a.gva()){y=this.Q1
-if(y>=0){x=this.kP
+if(y>=0){x=this.jG
 w=x.length
 v=w-1
 if(y>w)H.vh(P.TE(y,0,w))
 if(v<y||v>w)H.vh(P.TE(v,y,w))
 H.tb(x,v,x,y,w-v)
-C.Nm.sB(x,w-(v-y))}this.kP.push(a)
+C.Nm.sB(x,w-(v-y))}this.jG.push(a)
 this.Q1=this.Q1+1
 y="execute undoable "+H.d(a)+" ["+this.Q1+"]"
 $.aT().Y6(C.R5,"["+this.ek+"]: "+y,null,null)}else{y="execute non-undoable "+H.d(a)
@@ -3648,7 +3648,7 @@ return P.lQ(y,new V.SE(this)).ml(new V.C5(this)).OA(new V.nX(this))},"call$0","g
 Jc:function(){var z,y,x,w
 z=J.kn
 y=H.VM(new P.Zf(P.Dt(z)),[z])
-z=this.kP
+z=this.jG
 if(this.Q1<z.length-1){x=this.ek
 x=!(x==="TO"||x==="IDLE")}else x=!0
 if(x){$.aT().Y6(C.R5,"["+this.ek+"]: can not redo",null,null)
@@ -3671,7 +3671,7 @@ if(z){$.aT().Y6(C.R5,"["+this.ek+"]: can not undo",null,null)
 z=y.MM
 if(z.Gv!==0)H.vh(P.w("Future already completed"))
 z.OH(!1)}else{if(this.ek==="IDLE")this.sno("UNDO")
-z=this.kP
+z=this.jG
 x=this.Q1
 this.Q1=x-1
 if(x<0||x>=z.length)return H.e(z,x)
@@ -6832,7 +6832,7 @@ if(!"name" in P4)P4.name="P4"
 $desc=$collectedClasses.P4
 if($desc instanceof Array)$desc=$desc[1]
 P4.prototype=$desc
-function RG(kP,c8,Q1,ek,dz,dh,HV){this.kP=kP
+function RG(jG,c8,Q1,ek,dz,dh,HV){this.jG=jG
 this.c8=c8
 this.Q1=Q1
 this.ek=ek
