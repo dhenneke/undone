@@ -260,12 +260,16 @@ class Transaction extends Action {
 /// of such calls is preserved in a history to allow for [undo] and [redo].  An 
 /// action may be scheduled at any time; if the schedule [isIdle] then it will 
 /// be called immediately, otherwise it will be queued to be called as soon 
-/// as possible.  Methods to change the history such as [undo] and [redo] can 
-/// _not_ be invoked when the schedule [isBusy].  This ensures that all queued 
-/// actions are called and the schedule reaches an idle state before the history 
-/// may be modified.  Each schedule is a state machine, and its [states] are 
-/// observable as a stream; this provides a convenient means to connect a user 
-/// interface to the history control methods.
+/// as possible.  
+/// 
+/// Methods to change the history such as [undo] and [redo] can _not_ be invoked 
+/// when the schedule [isBusy].  This ensures that all enqueued actions are 
+/// called and the schedule reaches an idle state before the history may be 
+/// modified.  
+/// 
+/// Each schedule is a state machine, and its [states] are observable as a 
+/// stream; this provides a convenient means to connect a user interface to the 
+/// history control methods.
 class Schedule {
   
   /// A schedule is idle (not busy).
