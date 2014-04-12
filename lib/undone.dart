@@ -302,7 +302,7 @@ class Schedule {
               STATE_TO, 
               STATE_ERROR ];
   
-  final _actions = new List<Action>();
+  final _history = new List<Action>();
   // Actions that are called while this schedule is busy are pending to be done.
   final _pending = new List<Action>();
   int _nextUndo = -1;
@@ -327,7 +327,7 @@ class Schedule {
   /// Whether or not this schedule can be [clear]ed at the present time.
   bool get canClear => isIdle || hasError;
   
-  bool get _canRedo => _nextUndo < _actions.length - 1;
+  bool get _canRedo => _nextUndo < _history.length - 1;
   /// Whether or not the [redo] method may be called at the present time.
   bool get canRedo => isIdle && _canRedo;
   
@@ -381,7 +381,7 @@ class Schedule {
       return new Future(() => throw new StateError(
           'Cannot call if Schedule.hasError.'));
     }
-    if (_actions.contains(action) || _pending.contains(action)) {
+    if (_history.contains(action) || _pending.contains(action)) {
       return new Future(() => throw new ArgumentError(
           'Cannot call $action >1 time on same schedule.'));
     }
@@ -399,7 +399,7 @@ class Schedule {
   bool clear() {
     if (!canClear) return false;
     _logFine('clear');
-    _actions.clear();
+    _history.clear();
     _pending.clear();
     _nextUndo = -1;
     // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
@@ -416,8 +416,8 @@ class Schedule {
     var completer = new Completer();
     if (action.canUndo) {
       // Truncate the end of list (redo actions) when adding a new action.
-      if (_nextUndo >= 0) _actions.removeRange(_nextUndo, _actions.length - 1);
-      _actions.add(action);        
+      if (_nextUndo >= 0) _history.removeRange(_nextUndo, _history.length - 1);
+      _history.add(action);        
       _nextUndo++;
       _logFine('execute undoable $action [$_nextUndo]');
     } else {
@@ -496,7 +496,7 @@ class Schedule {
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_REDO;
-      final action = _actions[++_nextUndo];
+      final action = _history[++_nextUndo];
       _logFine('execute $action [${_nextUndo-1}]');
       action._execute()
         .then((result) {
@@ -526,7 +526,7 @@ class Schedule {
   /// the given action, or if the schedule [isBusy].
   Future<bool> to(action) { 
     var completer = new Completer();    
-    if (!_actions.contains(action) || 
+    if (!_history.contains(action) || 
         !(_state == STATE_TO || _state == STATE_IDLE)) {
       completer.complete(false);
     } else {      
@@ -541,7 +541,7 @@ class Schedule {
       _error(e, stackTrace);
       completer.completeError(e, stackTrace); 
     };
-    final int actionIndex = _actions.indexOf(action);
+    final int actionIndex = _history.indexOf(action);
     if (actionIndex == _nextUndo) {
       completer.future.whenComplete(_flush);
       // Complete before we flush pending and transition to idle.
@@ -582,7 +582,7 @@ class Schedule {
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_UNDO;      
-      final action = _actions[_nextUndo--];
+      final action = _history[_nextUndo--];
       _logFine('unexecute $action [${_nextUndo+1}]');
       action._unexecute()
         .then((_) {
