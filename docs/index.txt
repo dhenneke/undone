@@ -575,6 +575,7 @@ undone/undone.Schedule.STATE_IDLE property
 undone/undone.Schedule.STATE_REDO property
 undone/undone.Schedule.STATE_TO property
 undone/undone.Schedule.STATE_UNDO property
+undone/undone.Schedule.Schedule- constructor
 undone/undone.Schedule.call method
 undone/undone.Schedule.canClear getter
 undone/undone.Schedule.canRedo getter
@@ -582,8 +583,11 @@ undone/undone.Schedule.canUndo getter
 undone/undone.Schedule.clear method
 undone/undone.Schedule.error getter
 undone/undone.Schedule.hasError getter
+undone/undone.Schedule.history getter
 undone/undone.Schedule.isBusy getter
 undone/undone.Schedule.isIdle getter
+undone/undone.Schedule.nextRedo getter
+undone/undone.Schedule.nextUndo getter
 undone/undone.Schedule.redo method
 undone/undone.Schedule.stackTrace getter
 undone/undone.Schedule.states getter
