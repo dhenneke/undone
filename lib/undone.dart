@@ -2,6 +2,7 @@
 library undone;
 
 import 'dart:async';
+import 'dart:collection';
 import 'package:logging/logging.dart';
 
 /// A function to do an operation on an [arg] and return a result.
@@ -302,14 +303,28 @@ class Schedule {
               STATE_TO, 
               STATE_ERROR ];
   
-  final _history = new List<Action>();
   // Actions that are called while this schedule is busy are pending to be done.
   final _pending = new List<Action>();
-  int _nextUndo = -1;
-  String _currState = STATE_IDLE;
-  var _err;
-  var _stackTrace;
   
+  final List<Action> _history;
+  UnmodifiableListView<Action> _historyView;
+  /// A read-only view of this schedule's history of actions.  
+  UnmodifiableListView<Action> get history {
+    if (_historyView == null) {
+      _historyView = new UnmodifiableListView<Action>(_history);
+    }
+    return _historyView;
+  }
+  
+  /// The current index of the next action for redo in this schedule's [history]
+  /// or `-1` if none.
+  int get nextRedo => _canRedo ? _nextUndo + 1 : -1;
+  
+  int _nextUndo;
+  /// The current index of the next action for undo in this schedule's [history]
+  /// or `-1` if none.
+  int get nextUndo => _nextUndo;
+      
   /// Whether or not this schedule is busy performing another action.
   /// 
   /// This is always `true` when called from any continuations that are
@@ -337,7 +352,8 @@ class Schedule {
   
   /// Whether or not this schedule has an [error].
   bool get hasError => _state == STATE_ERROR;
-    
+  
+  var _err;
   /// The current error, if [hasError] is `true`.  
   /// 
   /// Calling [isBusy] on this schedule will return `true` for as long as this 
@@ -345,6 +361,7 @@ class Schedule {
   /// error condition in order to use it again.
   get error => _err;
   
+  var _stackTrace;
   /// The current [error]'s stack trace, if [hasError] is `true` and a stack
   /// trace is available.
   get stackTrace => _stackTrace;
@@ -356,6 +373,7 @@ class Schedule {
     _logError(e, stackTrace);
   }
   
+  String _currState = STATE_IDLE;
   // The current state of this schedule.
   String 
     get _state => _currState;
@@ -370,7 +388,20 @@ class Schedule {
   final _states = new StreamController<String>.broadcast();
   /// An observable stream of this schedule's state transitions.
   Stream<String> get states => _states.stream;
-    
+  
+  /// Creates a new schedule.
+  /// 
+  /// An optional [history] list may be given for this schedule to use.  The
+  /// given list must support modification.  If not given a new list is created.
+  ///
+  /// When a [history] list is given a [nextUndo] index may also be given to
+  /// specify the initial index for undo and redo.  If not given the [nextUndo]
+  /// index will be set to one less than the length of the history list.
+  Schedule([List<Action> history, int nextUndo])
+  : _history = history == null ? new List<Action>() : history {
+    _nextUndo = nextUndo == null ? _history.length - 1 : nextUndo;
+  }
+  
   /// Schedule the given [action] to be called.  
   /// 
   /// If this schedule [isIdle], the action will be called immediately.  Else, 

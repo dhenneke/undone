@@ -60,6 +60,29 @@ void testScheduleInitialState() {
   expect(schedule.hasError, isFalse);  
   expect(schedule.error, isNull);
   expect(schedule.stackTrace, isNull);
+  expect(schedule.history, isEmpty);
+  expect(schedule.nextRedo, equals(-1));
+  expect(schedule.nextUndo, equals(-1));
+}
+
+@Test('Test the construction of a schedule with existing history')
+void testScheduleConstructorWithHistory() {
+  var action = new Action(7, (x) => x + 1, (x, y) => x = y);
+  var history = [action];
+  var schedule = new Schedule(history);  
+  expect(schedule.isBusy, isFalse);
+  expect(schedule.isIdle, isTrue);
+  expect(schedule.canClear, isTrue);
+  expect(schedule.canRedo, isFalse);  
+  expect(schedule.canUndo, isTrue);  
+  expect(schedule.hasError, isFalse);  
+  expect(schedule.error, isNull);
+  expect(schedule.stackTrace, isNull);
+  expect(schedule.history, isNot(same(history)));
+  expect(schedule.history.length, equals(1));
+  expect(schedule.history[0], equals(action));
+  expect(schedule.nextRedo, equals(-1));
+  expect(schedule.nextUndo, equals(0));
 }
 
 @Test('Test that action constructors succeed when given valid arguments.')
@@ -93,7 +116,13 @@ void testActionConstructorNullThrows() {
 @Test('Test that an action computes as expected.')
 void testAction() {
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
-  action().then(expectAsync((result) => expect(result, equals(15))));
+  action().then(expectAsync((result) {
+    expect(result, equals(15));
+    expect(schedule.history.length, equals(1));
+    expect(schedule.history[0], equals(action));
+    expect(schedule.nextUndo, equals(0));
+    expect(schedule.nextRedo, equals(-1));
+  }));
 }
 
 @Test('Test that an async action computes as expected.')
@@ -102,7 +131,13 @@ void testActionAsync() {
       (x) => new Future.delayed(const Duration(milliseconds: 5), () => x - 1), 
       (x, y) => 
           new Future.delayed(const Duration(milliseconds: 3), () => x = y));
-  action().then(expectAsync((result) => expect(result, equals(10))));
+  action().then(expectAsync((result) {
+    expect(result, equals(10));
+    expect(schedule.history.length, equals(1));
+    expect(schedule.history[0], equals(action));
+    expect(schedule.nextUndo, equals(0));
+    expect(schedule.nextRedo, equals(-1));
+  }));
 }
 
 @Test('Test that an error thrown by an action is handled as expected.')
@@ -116,6 +151,7 @@ void testActionThrows() {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, equals(e));
       expect(schedule.stackTrace, equals(stackTrace));
+      expect(schedule.history.length, equals(1));
    }));
 }
 
@@ -128,6 +164,9 @@ void testActionNonUndoable() {
       expect(schedule.canUndo, isFalse);
       expect(schedule.canRedo, isFalse);
       expect(schedule.hasError, isFalse);
+      expect(schedule.history, isEmpty);
+      expect(schedule.nextUndo, equals(-1));
+      expect(schedule.nextRedo, equals(-1));
     }));
 }
 
@@ -135,8 +174,7 @@ void testActionNonUndoable() {
 void testScheduleSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
-  var action = new Action(map, increment, decrement);
-  
+  var action = new Action(map, increment, decrement);  
   schedule(action)
     .then(expectAsync((result) => expect(result, equals(43))))
     .then((_) => schedule(action))
@@ -146,6 +184,7 @@ void testScheduleSameActionTwiceThrows() {
       expect(schedule.hasError, isFalse);
       expect(schedule.error, isNull);
       expect(schedule.stackTrace, isNull);
+      expect(schedule.history.length, equals(1));
     }));
 }
 
@@ -175,6 +214,22 @@ void testScheduleHasErrorActionThrows() {
     }));
 }
 
+@Test('Test that an action call is added to the user-provided history list.')
+void testScheduleUserProvidedHistory() {
+  var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
+  var history = [];
+  var schedule = new Schedule(history);
+  schedule(action).then(expectAsync((result) {
+    expect(result, equals(15));
+    expect(history.length, equals(1));
+    expect(history[0], equals(action)); 
+    expect(schedule.history.length, equals(1));
+    expect(schedule.history[0], equals(action));    
+    expect(schedule.nextUndo, equals(0));
+    expect(schedule.nextRedo, equals(-1));
+  }));
+}
+
 @Test('Test the successful completion of an undo operation.')
 void testUndo() {
   var schedule = new Schedule();
@@ -184,12 +239,20 @@ void testUndo() {
     .then((result) {
       expect(result, equals(43));
       expect(map['val'], equals(43));
+      expect(schedule.history.length, equals(1));
+      expect(schedule.history[0], equals(action));
+      expect(schedule.nextRedo, equals(-1));
+      expect(schedule.nextUndo, equals(0));
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
+      expect(schedule.history.length, equals(1));
+      expect(schedule.history[0], equals(action));
+      expect(schedule.nextRedo, equals(0));
+      expect(schedule.nextUndo, equals(-1));
     }));
 }
 
@@ -211,6 +274,10 @@ void testUndoThrows() {
       expect(schedule.hasError, isTrue);
       expect(schedule.error, e);
       expect(schedule.stackTrace, stackTrace);
+      expect(schedule.history.length, equals(1));
+      expect(schedule.history[0], equals(action));
+      expect(schedule.nextRedo, equals(0));
+      expect(schedule.nextUndo, equals(-1));
    }));
 }
 
@@ -223,18 +290,30 @@ void testRedo() {
     .then((result) {
       expect(result, equals(43));
       expect(map['val'], equals(43));
+      expect(schedule.history.length, equals(1));
+      expect(schedule.history[0], equals(action));
+      expect(schedule.nextRedo, equals(-1));
+      expect(schedule.nextUndo, equals(0));
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.undo())
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(42));
+      expect(schedule.history.length, equals(1));
+      expect(schedule.history[0], equals(action));
+      expect(schedule.nextRedo, equals(0));
+      expect(schedule.nextUndo, equals(-1));
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.redo())
     .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
+      expect(schedule.history.length, equals(1));
+      expect(schedule.history[0], equals(action));
+      expect(schedule.nextRedo, equals(-1));
+      expect(schedule.nextUndo, equals(0));
     }));
 }
 
@@ -304,18 +383,28 @@ void testTo() {
     .then((result) {
       expect(result, equals(1850));
       expect(map['val'], equals(1850));
+      expect(schedule.history.length, equals(3));
+      expect(schedule.history[0], equals(action1));
+      expect(schedule.history[1], equals(action2));
+      expect(schedule.history[2], equals(action3));
+      expect(schedule.nextRedo, equals(-1));
+      expect(schedule.nextUndo, equals(2));
     })
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.to(action1))
     .then((success) {
       expect(success, isTrue);
       expect(map['val'], equals(43));
+      expect(schedule.nextRedo, equals(1));
+      expect(schedule.nextUndo, equals(0));
     })    
     .then((_) => schedule.wait(Schedule.STATE_IDLE))
     .then((_) => schedule.to(action3))
     .then(expectAsync((success) {
       expect(success, isTrue);
       expect(map['val'], equals(1850));
+      expect(schedule.nextRedo, equals(-1));
+      expect(schedule.nextUndo, equals(2));
     }));
 }
 
@@ -344,6 +433,9 @@ void testClear() {
       expect(schedule.hasError, isFalse);
       expect(schedule.error, isNull);
       expect(schedule.stackTrace, isNull);
+      expect(schedule.history, isEmpty);
+      expect(schedule.nextRedo, equals(-1));
+      expect(schedule.nextUndo, equals(-1));
     }));
 }
 
