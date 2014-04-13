@@ -2,6 +2,12 @@
 
 ## 0.3.2-dev
 
+- Added the `history`, `nextRedo` and `nextUndo` getters to `Schedule` and added
+optional parameters `history` and `nextUndo` to its constructor.  These 
+additions provide transparency into the internal history list of actions.  Use 
+cases for this functionality include data-binding of a history list to a user 
+inferface element and serialization of a history list between sessions.
+
 ## 0.3.1
 
 - Deployed the `nudge` example to `gh-pages` and link to it from the `README`.
