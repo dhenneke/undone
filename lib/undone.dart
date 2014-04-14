@@ -23,7 +23,7 @@ final Schedule schedule = new Schedule();
 Transaction _transaction;
 /// Build and compute a [Transaction] using the top-level [schedule].
 /// 
-/// Returns a Future for the transaction's completion.
+/// Returns a future for the transaction's completion.
 Future transact(void build()) {
   assert(_transaction == null);  
   var txn = new Transaction();
@@ -328,8 +328,8 @@ class Schedule {
   /// Whether or not this schedule is busy performing another action.
   /// 
   /// This is always `true` when called from any continuations that are
-  /// chained to Futures returned by methods on this schedule.
-  /// This is also `true` if this schedule has an [error].
+  /// chained to futures returned by methods on this schedule.  This is also 
+  /// `true` if this schedule has an [error].
   /// 
   /// This is equivalent to `!isIdle`.
   bool get isBusy => !isIdle;
