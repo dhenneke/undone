@@ -4,9 +4,10 @@
 
 - Added the `history`, `nextRedo` and `nextUndo` getters to `Schedule` and added
 optional parameters `history` and `nextUndo` to its constructor.  These 
-additions provide transparency into the internal history list of actions.  Use 
-cases for this functionality include data-binding of a history list to a user 
-inferface element and serialization of a history list between sessions.
+additions provide a view into and control over the internal history list of 
+actions.  Use cases for this functionality include data-binding of a history 
+list to a user interface element and serialization of a history list between 
+sessions.
 
 ## 0.3.1
 
