@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.3.2-dev
+## 0.3.2
 
 - Added the `history`, `nextRedo` and `nextUndo` getters to `Schedule` and added
 optional parameters `history` and `nextUndo` to its constructor.  These 
