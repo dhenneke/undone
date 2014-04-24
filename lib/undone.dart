@@ -15,6 +15,9 @@ typedef dynamic Do<A, R>(A arg);
 /// The return type of this function should be either `void` or `Future`.
 typedef dynamic Undo<A, R>(A arg, R result);
 
+// Enable with the command line option `-Dlog_undone=true`
+const bool _isLoggingEnabled = const bool.fromEnvironment("log_undone", 
+    defaultValue: false);
 final Logger _logger = new Logger('undone');
 
 /// The isolate's top-level [Schedule].
@@ -508,7 +511,9 @@ class Schedule {
   }
       
   void _log(Level level, String message, [error, stackTrace]) {
-    _logger.log(level, '[$_state]: $message', error, stackTrace);
+    if (_isLoggingEnabled) {
+      _logger.log(level, '[$_state]: $message', error, stackTrace);
+    }
   }
   
   void _logFine(String message) => _log(Level.FINE, message);

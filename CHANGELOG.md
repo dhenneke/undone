@@ -2,6 +2,9 @@
 
 ## 0.3.3-dev
 
+- Disabled logging by default; it may be enabled using the command line option
+`-Dlog_undone=true`.
+
 ## 0.3.2
 
 - Added the `history`, `nextRedo` and `nextUndo` getters to `Schedule` and added
