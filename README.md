@@ -2,7 +2,7 @@
 
 A library for undo and redo.
 
-[![Build Status][status]][badge] | [API documentation][api] | [Try it!][nudge]
+[![Build Status][status]][badge] | [API documentation][api] | [Example][nudge]
 
 ## Usage
 
