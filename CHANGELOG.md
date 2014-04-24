@@ -1,5 +1,7 @@
 # Undone Changes
 
+## 0.4.1-dev
+
 ## 0.4.0
 
 - Disabled logging by default; it may be enabled using the command line option
