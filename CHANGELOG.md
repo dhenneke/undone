@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.3.3-dev
+## 0.4.0
 
 - Disabled logging by default; it may be enabled using the command line option
 `-Dlog_undone=true`.
