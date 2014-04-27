@@ -104,13 +104,10 @@ void testActionConstructorNotUndoable() {
   expect(actionAsync.canUndo, isFalse);
 }
 
-@Test('Test that action constructors throw ArgumentError on null functions.')
+@Test('Test that the action constructor asserts on null do functions.')
 void testActionConstructorNullThrows() {
   expect(() => new Action(7, null, (x, y) => x = y), 
-      throwsA(const isInstanceOf<ArgumentError>()));
-  expect(() => new Action(11, null, 
-      (x, y) =>new Future(() => x = y)), 
-      throwsA(const isInstanceOf<ArgumentError>()));
+      throwsA(const isInstanceOf<AssertionError>()));
 }
 
 @Test('Test that an action computes as expected.')
@@ -170,7 +167,7 @@ void testActionNonUndoable() {
     }));
 }
 
-@Test('Test that an attempt to schedule the same action twice throws error.')
+@Test('Test that an attempt to schedule the same action twice asserts.')
 void testScheduleSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -179,7 +176,7 @@ void testScheduleSameActionTwiceThrows() {
     .then(expectAsync((result) => expect(result, equals(43))))
     .then((_) => schedule(action))
     .catchError(expectAsync((e, stackTrace) {
-      expect(e, isArgumentError);
+      expect(e, const isInstanceOf<AssertionError>());
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isFalse);
       expect(schedule.error, isNull);
@@ -188,7 +185,7 @@ void testScheduleSameActionTwiceThrows() {
     }));
 }
 
-@Test('Test that an action call throws StateError if the Schedule hasError.')
+@Test('Test that an action call asserts if the Schedule hasError.')
 void testScheduleHasErrorActionThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };
@@ -204,10 +201,10 @@ void testScheduleHasErrorActionThrows() {
       expect(schedule.stackTrace, isNotNull);
       expect(schedule.stackTrace, equals(stackTrace));
     })
-    // The second action should cause a StateError to be thrown.
+    // The second action should cause an assertion error to be thrown.
     .then((_) => schedule(action2))
     .catchError(expectAsync((e, stackTrace) {   
-      expect(e, isStateError);
+      expect(e, const isInstanceOf<AssertionError>());
       expect(stackTrace, isNotNull);
       expect(schedule.error, isNot(equals(e)));
       expect(schedule.stackTrace, isNot(equals(stackTrace)));
@@ -583,7 +580,8 @@ void testMultipleActionsDuringAction() {
     }));  
 }
 
-@Test('Test that an attempt to defer the same action twice throws error.')
+@Test('Test that an attempt to defer the same action twice asserts.')
+@ExpectError(const isInstanceOf<AssertionError>())
 void testDeferSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -597,22 +595,15 @@ void testDeferSameActionTwiceThrows() {
       expect(map['val'], equals(43));
     }));
   
-  // Schedule another action 2 times, expecting error on the second schedule.
-  
+  // Schedule another action 2 times, expecting error on the second schedule.  
   schedule(action2)
     .then(expectAsync((result) {
       expect(result, equals(1849));
       expect(map['val'], equals(1849));
     }));
   
-  schedule(action2)
-    .catchError(expectAsync((e, stackTrace) {
-      expect(e, isArgumentError);
-      expect(stackTrace, isNotNull);
-      expect(schedule.hasError, isFalse);
-      expect(schedule.error, isNull);
-      expect(schedule.stackTrace, isNull);
-    }));
+  // This call should fail the assertion.
+  schedule(action2);
 }
 
 @Test('Test the expected order of an action called during undo.')
@@ -895,14 +886,14 @@ void testTransaction() {
     .then(expectAsync((_) => expect(map['val'], equals(1850))));
 }
 
-@Test('Test that adding a null action to a transaction throws an error.')
-@ExpectError(isArgumentError)
+@Test('Test that adding a null action to a transaction asserts.')
+@ExpectError(const isInstanceOf<AssertionError>())
 void testTransactionAddNullActionThrows() {
   new Transaction()..add(null);  
 }
 
-@Test('Test that adding a !undoable action to a transaction throws an error.')
-@ExpectError(isArgumentError)
+@Test('Test that adding a !undoable action to a transaction asserts.')
+@ExpectError(const isInstanceOf<AssertionError>())
 void testTransactionAddNonUndoableActionThrows() {
   new Transaction()..add(new Action({ 'val' : 42 }, increment, null));
 }

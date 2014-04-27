@@ -103,9 +103,7 @@ class Action<A, R> {
   : _do = ((a) => new Future.sync(() => d(a)))
   , _undo = (u == null ? u : (a, r) => new Future.sync(() => u(a, r))) 
   , canUndo = (u != null) {
-    if (d == null) {
-      throw new ArgumentError('Do function must be !null.');    
-    }
+    assert(d != null);
   }
   
   /// Schedules this action to be called on the top-level [schedule].  
@@ -244,16 +242,10 @@ class Transaction extends Action {
   
   /// Adds the given [action] to this transaction.
   /// 
-  /// Only undoable actions may be added to a transaction.  An error will be 
-  /// thrown if [action.canUndo] is `false`.
+  /// Only undoable actions may be added to a transaction.
   void add(Action action) {
-    if (action == null) {
-      throw new ArgumentError('Action cannot be null');
-    }
-    if (!action.canUndo) {
-      throw new ArgumentError(
-          'Only undoable actions may be added to a transaction'); 
-    }
+    assert(action != null);
+    assert(action.canUndo);
     _arg.add(action);
   }
 }
@@ -410,14 +402,11 @@ class Schedule {
   /// the action will be deferred in order behind any other pending actions to 
   /// be called once this schedule reaches an idle state.
   Future call(Action action) {
-    if (hasError) {
-      return new Future(() => throw new StateError(
-          'Cannot call if Schedule.hasError.'));
-    }
-    if (_history.contains(action) || _pending.contains(action)) {
-      return new Future(() => throw new ArgumentError(
-          'Cannot call $action >1 time on same schedule.'));
-    }
+    // Cannot call if this schedule has an error.
+    assert(!hasError);
+    // Cannot call an action >1 time on the same schedule.
+    assert(!_history.contains(action));
+    assert(!_pending.contains(action));
     if (isBusy) {
       _logFine('defer $action');
       _pending.add(action);

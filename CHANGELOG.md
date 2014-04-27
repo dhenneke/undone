@@ -2,6 +2,9 @@
 
 ## 0.4.1-dev
 
+- Changed all argument validation to use the `assert` statement.  This was done
+to optimize code size and runtime performance in production mode.
+
 ## 0.4.0
 
 - Disabled logging by default; it may be enabled using the command line option
