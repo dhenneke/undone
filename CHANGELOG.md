@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.4.1-dev
+## 0.4.1
 
 - Changed all argument validation to use the `assert` statement.  This was done
 to optimize code size and runtime performance in production mode.
