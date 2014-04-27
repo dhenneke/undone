@@ -18,6 +18,7 @@ typedef dynamic Undo<A, R>(A arg, R result);
 // Enable with the command line option `-Dlog_undone=true`
 const bool _isLoggingEnabled = const bool.fromEnvironment("log_undone", 
     defaultValue: false);
+
 final Logger _logger = new Logger('undone');
 
 /// The isolate's top-level [Schedule].
