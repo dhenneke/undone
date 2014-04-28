@@ -568,6 +568,7 @@ undone/undone.Action.timeout property
 undone/undone.Action.toString method
 undone/undone.Do typedef
 undone/undone.Schedule class
+undone/undone.Schedule.STATES property
 undone/undone.Schedule.STATE_CALL property
 undone/undone.Schedule.STATE_ERROR property
 undone/undone.Schedule.STATE_FLUSH property
