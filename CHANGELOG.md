@@ -2,6 +2,8 @@
 
 ## 0.4.2-dev
 
+- Added the constant `STATES` list to the public interface of `Schedule`.
+
 ## 0.4.1
 
 - Changed all argument validation to use the `assert` statement.  This was done

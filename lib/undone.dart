@@ -289,14 +289,16 @@ class Schedule {
   /// A schedule has an error.
   static const String STATE_ERROR = 'ERROR';
   
-  static const List<String> _STATES = 
-      const [ STATE_IDLE, 
-              STATE_CALL, 
-              STATE_FLUSH, 
-              STATE_REDO, 
-              STATE_UNDO, 
-              STATE_TO, 
-              STATE_ERROR ];
+  /// A list of the possible states for a schedule.
+  static const List<String> STATES = const [ 
+    STATE_IDLE, 
+    STATE_CALL, 
+    STATE_FLUSH, 
+    STATE_REDO, 
+    STATE_UNDO, 
+    STATE_TO, 
+    STATE_ERROR
+  ];
   
   // Actions that are called while this schedule is busy are pending to be done.
   final _pending = new List<Action>();
@@ -630,13 +632,11 @@ class Schedule {
   /// Wait for this schedule to reach the given [state].
   /// 
   /// Completes on the next transition to the given state, or immediately if the 
-  /// state is the current state of this schedule.  Completes an [ArgumentError]
-  /// if the given [state] is not valid.
+  /// state is the current state of this schedule.
+  /// 
+  /// The given [state] must be one of the values in [STATES].
   Future<String> wait(String state) {
-    if (!_STATES.contains(state)) {
-      return new Future.error(
-          new ArgumentError('$state is not a valid state.'));
-    }
+    assert(STATES.contains(state));
     if (_state == state) {
       return new Future.value(_state);  
     }

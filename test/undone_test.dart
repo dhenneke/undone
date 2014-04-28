@@ -1052,6 +1052,6 @@ void testStatesIsBroadcast() {
   schedule.states.listen((state) { /* noop */ });
 }
 
-@Test('Test that calling wait w/ an invalid state results in an error.')
-@ExpectError(isArgumentError)
+@Test('Test that calling wait w/ an invalid state asserts.')
+@ExpectError(const isInstanceOf<AssertionError>())
 testWaitBadState() => schedule.wait('bad');
