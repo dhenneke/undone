@@ -30,7 +30,7 @@ Transaction _transaction;
 /// Returns a future for the transaction's completion.
 Future transact(void build()) {
   assert(_transaction == null);  
-  var txn = new Transaction();
+  final txn = new Transaction();
   _transaction = txn;
   try {
     build();
@@ -209,7 +209,7 @@ class TransactionError extends Error {
 class Transaction extends Action {
   
   static Future _do_(List<Action> actions) {
-    var completer = new Completer<List>();            
+    final completer = new Completer<List>();            
     var current;
     // Try to do all the actions in order.
     Future.forEach(actions, (action) {
@@ -438,7 +438,7 @@ class Schedule {
   }
   
   Future _do(action) {    
-    var completer = new Completer();
+    final completer = new Completer();
     if (action.canUndo) {
       // Truncate the end of list (redo actions) when adding a new action.
       if (_nextUndo >= 0) _history.removeRange(_nextUndo, _history.length - 1);
@@ -517,7 +517,7 @@ class Schedule {
   /// 
   /// Completes `true` if an action was redone or else completes `false`.
   Future<bool> redo() { 
-    var completer = new Completer<bool>();
+    final completer = new Completer<bool>();
     if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
       _logFine('can not redo');
       completer.complete(false);
@@ -552,7 +552,7 @@ class Schedule {
   /// operations performed complete `false`, if the schedule does not contain 
   /// the given action, or if the schedule [isBusy].
   Future<bool> to(action) { 
-    var completer = new Completer();    
+    final completer = new Completer();    
     if (!_history.contains(action) || 
         !(_state == STATE_TO || _state == STATE_IDLE)) {
       completer.complete(false);
@@ -603,7 +603,7 @@ class Schedule {
   /// Undo the next action to be undone in this schedule, if any.
   /// Completes `true` if an action was undone or else completes `false`.
   Future<bool> undo() { 
-    var completer = new Completer<bool>();
+    final completer = new Completer<bool>();
     if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
       _logFine('can not undo');
       completer.complete(false);
