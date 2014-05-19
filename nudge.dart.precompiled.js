@@ -873,7 +873,7 @@ eQ:function(a){var z=a.$identityHash
 if(z==null){z=Math.random()*0x3fffffff|0
 a.$identityHash=z}return z},
 lh:function(a){var z,y
-z=C.AS(J.x(a))
+z=C.w2(J.x(a))
 if(z==="Object"){y=String(a.constructor).match(/^\s*function\s*(\S*)\s*\(/)[1]
 if(typeof y==="string")z=/^\w+$/.test(y)?y:z}if(z.length>1&&C.xB.j(z,0)===36)z=C.xB.yn(z,1)
 return(z+H.ia(H.oX(a),0,null)).replace(/[^<,> ]+/g,function(b){return init.mangledGlobalNames[b]||b})},
@@ -1198,26 +1198,28 @@ else return J.uM(z,c,null,null)},
 XD:function(){if(!0===$.Bv)return
 $.Bv=!0
 H.Z1()},
-Z1:function(){var z,y,x,w,v,u,t
+Z1:function(){var z,y,x,w,v,u,t,s
 $.nw=Object.create(null)
 $.vv=Object.create(null)
 H.kO()
 z=init.interceptorsByTag
 y=Object.getOwnPropertyNames(z)
 if(typeof window!="undefined"){window
-for(x=0;x<y.length;++x){w=y[x]
-v=$.x7.$1(w)
-if(v!=null){u=H.ow(w,z[w],v)
-if(u!=null)Object.defineProperty(v,init.dispatchPropertyName,{value:u,enumerable:false,writable:true,configurable:true})}}}for(x=0;x<y.length;++x){w=y[x]
-if(/^[A-Za-z_]/.test(w)){t=z[w]
-z["!"+w]=t
-z["~"+w]=t
-z["-"+w]=t
-z["+"+w]=t
-z["*"+w]=t}}},
+x=function(){}
+for(w=0;w<y.length;++w){v=y[w]
+u=$.x7.$1(v)
+if(u!=null){t=H.ow(v,z[v],u)
+if(t!=null){Object.defineProperty(u,init.dispatchPropertyName,{value:t,enumerable:false,writable:true,configurable:true})
+x.prototype=u}}}}for(w=0;w<y.length;++w){v=y[w]
+if(/^[A-Za-z_]/.test(v)){s=z[v]
+z["!"+v]=s
+z["~"+v]=s
+z["-"+v]=s
+z["+"+v]=s
+z["*"+v]=s}}},
 kO:function(){var z,y,x,w,v,u,t
 z=C.MA()
-z=H.ud(C.Mc,H.ud(C.hQ,H.ud(C.XQ,H.ud(C.XQ,H.ud(C.M1,H.ud(C.lR,H.ud(C.ur(C.AS),z)))))))
+z=H.ud(C.Mc,H.ud(C.hQ,H.ud(C.XQ,H.ud(C.XQ,H.ud(C.M1,H.ud(C.lR,H.ud(C.ur(C.w2),z)))))))
 if(typeof dartNativeDispatchHooksTransformer!="undefined"){y=dartNativeDispatchHooksTransformer
 if(typeof y=="function")y=[y]
 if(y.constructor==Array)for(x=0;x<y.length;++x){w=y[x]
@@ -3634,22 +3636,22 @@ C.lR=function(hooks) {
   }
   hooks.getTag = getTagFirefox;
 }
-C.XQ=function(hooks) { return hooks; }
-
-C.AS=function getTagFallback(o) {
+C.w2=function getTagFallback(o) {
   var constructor = o.constructor;
   if (typeof constructor == "function") {
     var name = constructor.name;
-    if (typeof name == "string"
-        && name !== ""
-        && name !== "Object"
-        && name !== "Function.prototype") {
+    if (typeof name == "string" &&
+        name.length > 2 &&
+        name !== "Object" &&
+        name !== "Function.prototype") {
       return name;
     }
   }
   var s = Object.prototype.toString.call(o);
   return s.substring(8, s.length - 1);
 }
+C.XQ=function(hooks) { return hooks; }
+
 C.ur=function(getTagFallback) {
   return function(hooks) {
     if (typeof navigator != "object") return hooks;
