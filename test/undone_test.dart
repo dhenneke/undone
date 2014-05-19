@@ -107,7 +107,7 @@ void testActionConstructorNotUndoable() {
 @Test('Test that the action constructor asserts on null do functions.')
 void testActionConstructorNullThrows() {
   expect(() => new Action(7, null, (x, y) => x = y), 
-      throwsA(const isInstanceOf<AssertionError>()));
+      throwsA(isAssertionError));
 }
 
 @Test('Test that an action computes as expected.')
@@ -176,7 +176,7 @@ void testScheduleSameActionTwiceThrows() {
     .then(expectAsync((result) => expect(result, equals(43))))
     .then((_) => schedule(action))
     .catchError(expectAsync((e, stackTrace) {
-      expect(e, const isInstanceOf<AssertionError>());
+      expect(e, isAssertionError);
       expect(stackTrace, isNotNull);
       expect(schedule.hasError, isFalse);
       expect(schedule.error, isNull);
@@ -204,7 +204,7 @@ void testScheduleHasErrorActionThrows() {
     // The second action should cause an assertion error to be thrown.
     .then((_) => schedule(action2))
     .catchError(expectAsync((e, stackTrace) {   
-      expect(e, const isInstanceOf<AssertionError>());
+      expect(e, isAssertionError);
       expect(stackTrace, isNotNull);
       expect(schedule.error, isNot(equals(e)));
       expect(schedule.stackTrace, isNot(equals(stackTrace)));
@@ -581,7 +581,7 @@ void testMultipleActionsDuringAction() {
 }
 
 @Test('Test that an attempt to defer the same action twice asserts.')
-@ExpectError(const isInstanceOf<AssertionError>())
+@ExpectError(isAssertionError)
 void testDeferSameActionTwiceThrows() {
   var schedule = new Schedule();
   var map = { 'val' : 42 };  
@@ -887,13 +887,13 @@ void testTransaction() {
 }
 
 @Test('Test that adding a null action to a transaction asserts.')
-@ExpectError(const isInstanceOf<AssertionError>())
+@ExpectError(isAssertionError)
 void testTransactionAddNullActionThrows() {
   new Transaction()..add(null);  
 }
 
 @Test('Test that adding a !undoable action to a transaction asserts.')
-@ExpectError(const isInstanceOf<AssertionError>())
+@ExpectError(isAssertionError)
 void testTransactionAddNonUndoableActionThrows() {
   new Transaction()..add(new Action({ 'val' : 42 }, increment, null));
 }
@@ -1053,5 +1053,5 @@ void testStatesIsBroadcast() {
 }
 
 @Test('Test that calling wait w/ an invalid state asserts.')
-@ExpectError(const isInstanceOf<AssertionError>())
+@ExpectError(isAssertionError)
 testWaitBadState() => schedule.wait('bad');
