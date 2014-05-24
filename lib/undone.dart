@@ -222,13 +222,12 @@ class Transaction extends Action {
         // Try to undo from the point of failure back to the start.
         Future.forEach(reverse, (action) => action._unexecute())
           // We complete with error even if rollback succeeds.
-          .then((_) => completer.completeError(
-              new TransactionError(cause, causeStackTrace), causeStackTrace))
+          .then((_) => completer.completeError(new TransactionError(
+              cause, causeStackTrace), causeStackTrace))
           .catchError((rollbackError, rollbackStackTrace) { 
             // Double trouble, give both errors to the caller.
-            completer.completeError(
-                new TransactionError(
-                    cause, causeStackTrace, rollbackError, rollbackStackTrace), 
+            completer.completeError(new TransactionError(
+                cause, causeStackTrace, rollbackError, rollbackStackTrace), 
                 causeStackTrace);
           });
       });
@@ -518,7 +517,7 @@ class Schedule {
   /// Completes `true` if an action was redone or else completes `false`.
   Future<bool> redo() { 
     final completer = new Completer<bool>();
-    if(!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+    if (!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
       _logFine('can not redo');
       completer.complete(false);
     } else {
@@ -604,7 +603,7 @@ class Schedule {
   /// Completes `true` if an action was undone or else completes `false`.
   Future<bool> undo() { 
     final completer = new Completer<bool>();
-    if(!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
+    if (!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
       _logFine('can not undo');
       completer.complete(false);
     } else {
