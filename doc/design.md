@@ -1,4 +1,4 @@
-## Why Asynchronous?
+## An Asynchronous Schedule
 
 Most of the implementations of undo and redo that I have seen have been purely
 synchronous.  Undone deviates from that norm.  User interfaces need to remain
