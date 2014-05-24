@@ -3,6 +3,7 @@
 ## 0.4.2-dev
 
 - Added the constant `STATES` list to the public interface of `Schedule`.
+- Added a design document derived from an old blog post about the library.
 
 ## 0.4.1
 
