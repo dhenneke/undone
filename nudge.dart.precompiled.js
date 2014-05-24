@@ -3452,9 +3452,7 @@ this.Q1=z
 if(z<0||z>=x.length)return H.e(x,z)
 v=x[z]
 v.bu(0)
-z=this.Q1
-if(typeof z!=="number")return z.W()
-""+(z-1)
+H.d(this.Q1)
 v.K4().ml(new V.Oh(this,y,v)).OA(new V.fb(this,y))}return y.MM},
 E3:function(){var z,y,x,w
 z=P.a2
@@ -3468,14 +3466,13 @@ if(z.Gv!==0)H.vh(P.w("Future already completed"))
 z.OH(!1)}else{if(this.ek==="IDLE")this.sno("UNDO")
 z=this.jG
 x=this.Q1
-if(typeof x!=="number")return x.W()
-this.Q1=x-1
-if(x<0||x>=z.length)return H.e(z,x)
+if(x>>>0!==x||x>=z.length)return H.e(z,x)
 w=z[x]
 w.bu(0)
-x=this.Q1
-if(typeof x!=="number")return x.g()
-""+(x+1)
+H.d(this.Q1)
+z=this.Q1
+if(typeof z!=="number")return z.W()
+this.Q1=z-1
 w.wH().ml(new V.vI(this,y,w)).OA(new V.Gw(this,y))}return y.MM},
 oF:function(a,b){this.Q1=this.jG.length-1},
 static:{"^":"u6,pt,qv,he,jb,GB,hw,kV"}},
