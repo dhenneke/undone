@@ -133,7 +133,9 @@ dart-core.FormatException.FormatException- constructor
 dart-core.FormatException.message property
 dart-core.FormatException.toString method
 dart-core.Function class
+dart-core.Function.== operator
 dart-core.Function.apply method
+dart-core.Function.hashCode getter
 dart-core.IntegerDivisionByZeroException class
 dart-core.IntegerDivisionByZeroException.IntegerDivisionByZeroException- constructor
 dart-core.IntegerDivisionByZeroException.toString method
@@ -375,6 +377,7 @@ dart-core.String.codeUnitAt method
 dart-core.String.codeUnits getter
 dart-core.String.contains method
 dart-core.String.endsWith method
+dart-core.String.hashCode getter
 dart-core.String.indexOf method
 dart-core.String.isEmpty getter
 dart-core.String.isNotEmpty getter
@@ -412,7 +415,9 @@ dart-core.StringSink.writeAll method
 dart-core.StringSink.writeCharCode method
 dart-core.StringSink.writeln method
 dart-core.Symbol class
+dart-core.Symbol.== operator
 dart-core.Symbol.Symbol- constructor
+dart-core.Symbol.hashCode getter
 dart-core.Type class
 dart-core.TypeError class
 dart-core.UnimplementedError class

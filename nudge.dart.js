@@ -308,7 +308,7 @@ y=init.globalState.Hg++
 x=P.L5(null,null,null,P.KN,H.yo)
 w=P.Ls(null,null,null,P.KN)
 v=new H.yo(0,null,!1)
-u=new H.aX(y,x,w,new I(),v,P.N3(),P.N3(),!1,[],P.Ls(null,null,null,null),null,null,!1,!1)
+u=new H.aX(y,x,w,new I(),v,P.N3(),P.N3(),!1,!1,[],P.Ls(null,null,null,null),null,null,!1,!0,P.Ls(null,null,null,null))
 w.h(0,0)
 u.aU(0,v)
 init.globalState.yc=u
@@ -348,7 +348,7 @@ y=init.globalState.Hg++
 q=P.L5(null,null,null,P.KN,H.yo)
 p=P.Ls(null,null,null,P.KN)
 o=new H.yo(0,null,!1)
-n=new H.aX(y,q,p,new I(),o,P.N3(),P.N3(),!1,[],P.Ls(null,null,null,null),null,null,!1,!1)
+n=new H.aX(y,q,p,new I(),o,P.N3(),P.N3(),!1,!1,[],P.Ls(null,null,null,null),null,null,!1,!0,P.Ls(null,null,null,null))
 p.h(0,0)
 n.aU(0,o)
 init.globalState.Xz.Rk.NZ(new H.IY(n,new H.jl(w,v,u,t,s,r),"worker-start"))
@@ -401,7 +401,7 @@ y=z.EE
 x=init.globalState.N0.jO
 w=z.Qy
 f.wR(["spawned",new H.JM(y,x),w,z.PX])
-x=new H.vK(a,b,c,d)
+x=new H.vK(a,b,c,d,z)
 if(e===!0){z.v8(w,w)
 init.globalState.Xz.Rk.NZ(new H.IY(z,x,"start isolate"))}else x.$0()},
 Gy:function(a){var z
@@ -443,7 +443,7 @@ w=function(b,c){return function(d){b(c,d)}}(H.Mg,z)
 $.jk().onmessage=w
 $.jk().dartPrint=function(b){}}}},
 aX:{
-"^":"a;jO,Gx,fW,En<,EE<,Qy,PX,UF,C9,lJ,Jp,M2,mf,pa",
+"^":"a;jO,Gx,fW,En<,EE<,Qy,PX,xF,UF,C9,lJ,Jp,M2,mf,pa,x8",
 v8:function(a,b){if(!this.Qy.n(0,a))return
 if(this.lJ.h(0,b)&&!this.UF)this.UF=!0
 this.PC()},
@@ -495,35 +495,46 @@ return}z=this.M2
 if(z==null){z=H.VM(new P.Sw(null,0,0,0),[null])
 z.Pt(null,null)
 this.M2=z}z.NZ(this.gIm())},
-vV:function(a){var z,y,x
+hk:function(a,b){var z,y,x
+z=this.x8
+if(z.hr===0){if(this.pa===!0&&this===init.globalState.yc)return
+z=$.jk()
+if(z.console!=null&&typeof z.console.error=="function")z.console.error(a,b)
+else{P.JS(a)
+if(b!=null)P.JS(b)}return}y=Array(2)
+y.fixed$length=init
+y[0]=J.AG(a)
+y[1]=b==null?null:J.AG(b)
+for(x=new P.zQ(z,z.zN,null,null),x.zq=z.H9;x.G();)x.fD.wR(y)},
+vV:function(a){var z,y,x,w,v,u
 z=init.globalState.N0
 init.globalState.N0=this
 $=this.En
 y=null
 this.mf=!0
-try{y=a.$0()}finally{this.mf=!1
+try{y=a.$0()}catch(v){u=H.Ru(v)
+x=u
+w=new H.XO(v,null)
+this.hk(x,w)
+if(this.pa===!0){this.Dm()
+if(this===init.globalState.yc)throw v}}finally{this.mf=!1
 init.globalState.N0=z
 if(z!=null)$=z.gEn()
-if(this.M2!=null)for(;x=this.M2,!x.gl0(x);)this.M2.Ux().$0()}return y},
+if(this.M2!=null)for(;u=this.M2,!u.gl0(u);)this.M2.Ux().$0()}return y},
 hV:function(a){return this.Gx.t(0,a)},
 aU:function(a,b){var z=this.Gx
 if(z.x4(a))throw H.b(P.FM("Registry: ports must be registered only once."))
 z.u(0,a,b)},
-PC:function(){if(this.Gx.hr-this.fW.hr>0||this.UF)init.globalState.i2.u(0,this.jO,this)
+PC:function(){if(this.Gx.hr-this.fW.hr>0||this.UF||!this.xF)init.globalState.i2.u(0,this.jO,this)
 else this.Dm()},
 Dm:[function(){var z,y,x
 z=this.M2
 if(z!=null)z.V1(0)
 for(z=this.Gx,y=z.gUQ(z),x=y.l6,y=H.VM(new H.MH(null,x.gA(x),y.T6),[H.Kp(y,0),H.Kp(y,1)]);y.G();)y.lo.pr()
 z.V1(0)
-z=this.fW
-if(z.hr>0){z.lX=null
-z.H9=null
-z.OB=null
-z.OX=null
-z.vv=null
-z.hr=0
-z.zN=z.zN+1&67108863}init.globalState.i2.Rz(0,this.jO)
+this.fW.V1(0)
+init.globalState.i2.Rz(0,this.jO)
+this.x8.V1(0)
 z=this.Jp
 if(z!=null){for(z=new H.a7(z,z.length,0,null);z.G();)z.lo.wR(null)
 this.Jp=null}},"$0","gIm",0,0,1]},
@@ -570,8 +581,9 @@ jl:{
 "^":"Tp:11;a,b,c,d,e,f",
 $0:function(){H.Z7(this.a,this.b,this.c,this.d,this.e,this.f)}},
 vK:{
-"^":"Tp:1;a,b,c,d",
+"^":"Tp:1;a,b,c,d,e",
 $0:function(){var z,y,x
+this.e.xF=!0
 if(this.d!==!0)this.a.$1(this.c)
 else{z=this.a
 y=H.N7()
@@ -611,6 +623,12 @@ break
 case"ping":x.Wq(y.t(z,1),y.t(z,2))
 break
 case"kill":x.bc(y.t(z,1),y.t(z,2))
+break
+case"getErrors":z=y.t(z,1)
+x.x8.h(0,z)
+break
+case"stopErrors":z=y.t(z,1)
+x.x8.Rz(0,z)
 break}return}y=init.globalState.Xz
 w="receive "+H.d(a)
 y.Rk.NZ(new H.IY(x,new H.Ua(z,this,v),w))},
@@ -2577,6 +2595,13 @@ x=this.aH(y,a)
 if(x<0)return!1
 this.Vb(y.splice(x,1)[0])
 return!0},
+V1:function(a){if(this.hr>0){this.lX=null
+this.H9=null
+this.OB=null
+this.OX=null
+this.vv=null
+this.hr=0
+this.zN=this.zN+1&67108863}},
 pE:function(a,b){if(a[b]!=null)return!1
 a[b]=this.xf(b)
 return!0},
@@ -3197,10 +3222,10 @@ GV:{
 "^":"Ob+SU;"}}],["dart2js._js_primitives","dart:_js_primitives",,H,{
 "^":"",
 qw:function(a){if(typeof dartPrint=="function"){dartPrint(a)
-return}if(typeof console=="object"&&typeof console.log=="function"){console.log(a)
+return}if(typeof console=="object"&&typeof console.log!="undefined"){console.log(a)
 return}if(typeof window=="object")return
 if(typeof print=="function"){print(a)
-return}throw"Unable to print message: "+String(a)}}],["nudge","file:///home/ubuntu/src/github.com/rmsmith/undone/example/nudge.dart",,T,{
+return}throw"Unable to print message: "+String(a)}}],["nudge","nudge.dart",,T,{
 "^":"",
 Iq:[function(){var z,y,x,w,v
 z=H.VM(new W.RO(document,C.Z4.Ph,!1),[null])
@@ -3807,12 +3832,9 @@ init.functionAliases={}
 init.metadata=[{func:"n9",void:true,args:[{func:"X0",void:true}]},{func:"X0",void:true},{func:"G5",void:true,args:[null]},{func:"Vx",void:true,args:[null],opt:[P.mE]},,{func:"Gl",ret:P.a2,args:[null,null]},{func:"bX",ret:P.KN,args:[null]},{func:"E0",ret:P.a2,args:[P.a,P.a]},{func:"ZY",ret:P.KN,args:[P.a]},{func:"R1",ret:P.WO,args:[P.WO]},{func:"Rn",void:true,args:[P.WO,P.WO]},{func:"NT"},{func:"bh",args:[null,null]},{func:"aB",args:[null]},{func:"TS",args:[null,P.qU]},{func:"zx",args:[P.qU]},{func:"BG",args:[null],opt:[null]},{func:"Uf",ret:P.a2},{func:"bb",args:[null,P.mE]},{func:"lv",args:[P.wv,null]},{func:"Cu",ret:P.qU,args:[P.KN]},{func:"rt",ret:P.b8},{func:"l8",ret:P.b8,args:[V.ir]},];$=null
 I = I.$finishIsolateConstructor(I)
 $=new I()
-function convertToFastObject(properties) {
-  function MyClass() {};
-  MyClass.prototype = properties;
-  new MyClass();
-  return properties;
-}
+function convertToFastObject(a){function MyClass(){}MyClass.prototype=a
+new MyClass()
+return a}
 A = convertToFastObject(A)
 B = convertToFastObject(B)
 C = convertToFastObject(C)
@@ -3849,35 +3871,11 @@ if(!(v in y)){y[v]=1
 init.isolateTag=v
 break}}}()
 init.dispatchPropertyName=init.getIsolateTag("dispatch_record")
-;(function (callback) {
-  if (typeof document === "undefined") {
-    callback(null);
-    return;
-  }
-  if (document.currentScript) {
-    callback(document.currentScript);
-    return;
-  }
-
-  var scripts = document.scripts;
-  function onLoad(event) {
-    for (var i = 0; i < scripts.length; ++i) {
-      scripts[i].removeEventListener("load", onLoad, false);
-    }
-    callback(event.target);
-  }
-  for (var i = 0; i < scripts.length; ++i) {
-    scripts[i].addEventListener("load", onLoad, false);
-  }
-})(function(currentScript) {
-  init.currentScript = currentScript;
-
-  if (typeof dartMainRunner === "function") {
-    dartMainRunner((function(a){H.Rq(T.eE(),a)}), []);
-  } else {
-    (function(a){H.Rq(T.eE(),a)})([]);
-  }
-})
+;(function(a){if(typeof document==="undefined"){a(null)
+return}if(document.currentScript){a(document.currentScript)
+return}var z=document.scripts
+function onLoad(b){for(var x=0;x<z.length;++x){z[x].removeEventListener("load",onLoad,false)}a(b.target)}for(var y=0;y<z.length;++y){z[y].addEventListener("load",onLoad,false)}})(function(a){init.currentScript=a
+if(typeof dartMainRunner==="function"){dartMainRunner(function(b){H.Rq(T.eE(),b)},[])}else{(function(b){H.Rq(T.eE(),b)})([])}})
 function init(){I.p={}
 function generateAccessor(a,b,c){var y=a.split("-")
 var x=y[0]
