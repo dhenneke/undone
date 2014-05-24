@@ -151,8 +151,8 @@ transact(() {
 
 In the example above, the calls to the actions `cut` and `paste` occur within
 an anonymous closure.  The `transact` function will invoke this closure, and all 
-actions that are called within its scope are added to a new `Transaction`.  
-After the anonymous function returns, the `Transaction` will be called on the 
-top-level schedule.  Cut and paste is a real world example, as you normally want 
-these actions to be executed together as one.  If something goes awry during 
-paste, you want to rollback to the initial state by undoing the cut.
+actions that are called within its scope are added to a new `Transaction` 
+object.  After the anonymous function returns, the `Transaction` will be called 
+on the top-level schedule.  Cut and paste is a real world example, as you 
+normally want these actions to be executed together as one.  If something goes 
+awry during paste, you want to rollback to the initial state by undoing the cut.
