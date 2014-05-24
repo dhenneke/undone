@@ -2,10 +2,10 @@
 
 Most of the implementations of undo and redo that I have seen have been purely
 synchronous.  Undone deviates from that norm.  User interfaces need to remain
-responsive, which means expensive work needs to be offloaded from the ui thread.  
-In Dart there can be only one... thread per isolate.  This is true in any Dart 
-environment, not just the browser.  Undone is written to use the facilities 
-provided in the platform-agnostic `dart:async` library.
+responsive, which means expensive work needs to be offloaded from the main ui 
+thread.  In Dart there can be only one... thread per isolate.  This is true in 
+any Dart environment, not just the browser.  Undone is written to use the 
+facilities provided by the standard `dart:async` library.
 
 Authors of synchronous undo would likely argue that ui actions should be very 
 fast and that there is no need to perform them asynchronously.  I agree 
@@ -24,7 +24,8 @@ One of the core concepts in undo and redo is that of a history list, also known
 as an undo stack, etc... This is a data structure that keeps track of your 
 undoable actions and the order in which they are done.  In a sychronous world, 
 the code to manage such a data structure can be quite minimal.  When things go
-async, it is another beast.  Undone is designed around the notion of a schedule.
+async, it is another beast.  Undone is designed around the notion of a 
+`Schedule`.
 
 The goal of the schedule is to minimize the impact of the async world on the
 user of the undo library.  Just like how the word 'schedule' is both a noun and 
