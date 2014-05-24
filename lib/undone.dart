@@ -523,7 +523,7 @@ class Schedule {
     } else {
       if (_state == STATE_IDLE) _state = STATE_REDO;
       final action = _history[++_nextUndo];
-      _logFine('execute $action [${_nextUndo-1}]');
+      _logFine('execute $action [$_nextUndo]');
       action._execute()
         .then((result) {
           _logFine('$action execute complete w/ $result');
@@ -608,8 +608,9 @@ class Schedule {
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_UNDO;      
-      final action = _history[_nextUndo--];
-      _logFine('unexecute $action [${_nextUndo+1}]');
+      final action = _history[_nextUndo];
+      _logFine('unexecute $action [$_nextUndo]');
+      _nextUndo--;
       action._unexecute()
         .then((_) {
           _logFine('$action unexecute complete');
