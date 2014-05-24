@@ -362,7 +362,7 @@ class Schedule {
   /// trace is available.
   get stackTrace => _stackTrace;
   
-  void _error(e, [stackTrace]) {
+  void _error(e, stackTrace) {
     _err = e;
     _stackTrace = stackTrace;
     _state = STATE_ERROR;    
@@ -485,8 +485,8 @@ class Schedule {
     _pending.clear();
     _logFine('flushing ${_flushing.length} actions');
     return Future
-      .forEach(_flushing, (action) => _do(action)) 
-      .then((_) {        
+      .forEach(_flushing, _do) 
+      .then((_) {
         // If we get new _pending actions during flush we want to flush again.
         if (!_pending.isEmpty) {
           _logFine('new actions pending - flushing again');
@@ -498,7 +498,7 @@ class Schedule {
       })
       // The action will complete the error to its continuations, but we will 
       // also receive it here in order to transition to the error state.
-      .catchError((e, stackTrace) => _error(e, stackTrace));
+      .catchError(_error);
   }
       
   void _log(Level level, String message, [error, stackTrace]) {
