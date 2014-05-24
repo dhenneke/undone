@@ -135,7 +135,7 @@ schedule.states.listen((state) {
 });
 ```
 
-## Transactions made Simple
+## Transactions Made Simple
 
 Another common scenario is to _merge_ together more than one action into a
 `Transaction`.  All of the actions in the transaction will be done and undone 
@@ -156,3 +156,7 @@ object.  After the anonymous function returns, the `Transaction` will be called
 on the top-level schedule.  Cut and paste is a real world example, as you 
 normally want these actions to be executed together as one.  If something goes 
 awry during paste, you want to rollback to the initial state by undoing the cut.
+
+In addition to the convenience of the `transact` function, you can also create
+`Transaction` objects yourself and add actions to them imperatively.  In this 
+case it is your call when to schedule the transaction.
