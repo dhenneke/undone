@@ -2,7 +2,8 @@
 
 A library for undo and redo.
 
-[![Build Status][status]][badge] | [API documentation][api] | [Example][nudge]
+[![Build Status][status]][badge] | [API documentation][api] | [Design][design] | 
+[Example][nudge]
 
 ## Usage
 
@@ -68,6 +69,7 @@ follows [semantic versioning][]._
 
 [api]: http://rmsmith.github.com/undone/index.html#undone
 [badge]: https://drone.io/github.com/rmsmith/undone/latest
+[design]: https://github.com/rmsmith/undone/blob/master/doc/design.md
 [license]: https://github.com/rmsmith/undone/blob/master/LICENSE
 [nudge]: http://rmsmith.github.com/undone/nudge.html
 [semantic versioning]: http://semver.org/
