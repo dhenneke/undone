@@ -5565,7 +5565,7 @@ You can replace platform.js and polymer.html with different versions if desired.
   <template>
     <ul class="nav nav-pills nav-stacked">
       <li id="nameGoesHere">
-        <a href="{{item.prefixedLinkHref}}" id="{{idName}}">
+        <a href="{{item.prefixedLinkHref}}" on-click="{{rerouteLink}}" id="{{idName}}">
             {{item.decoratedName}}</a>
         <template if="{{item.previewComment}}">
           <hr><div is="dartdoc-comment" preview="" item="{{item}}"></div>
@@ -5600,12 +5600,12 @@ You can replace platform.js and polymer.html with different versions if desired.
     <template if="{{item.isConstant}}">const</template>
     <template if="{{item.isSetter}}">
       set
-      <b><a id="{{idName}}" href="{{item.prefixedAnchorHref}}">{{name}}</a></b><dartdoc-parameter parameters="{{item.parameters}}"></dartdoc-parameter>
+      <b><a id="{{idName}}" on-click="{{rerouteLink}}" href="{{item.prefixedAnchorHref}}">{{name}}</a></b><dartdoc-parameter parameters="{{item.parameters}}"></dartdoc-parameter>
     </template>
     <template if="{{isNotSetter}}">
       <dartdoc-type type="{{item.type}}"></dartdoc-type>
       {{getter}}
-      <b><a id="{{idName}}" href="{{item.prefixedAnchorHref}}">{{name}}</a></b>
+      <b><a id="{{idName}}" on-click="{{rerouteLink}}" href="{{item.prefixedAnchorHref}}">{{name}}</a></b>
     </template>
   </template>
   <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/variable-heading.dart"></script>
@@ -5702,7 +5702,7 @@ You can replace platform.js and polymer.html with different versions if desired.
           <template if="{{isNotConstructor}}">
             <dartdoc-type type="{{item.type}}"></dartdoc-type>
           </template>
-          <b><a id="{{idName}}" href="{{item.prefixedAnchorHref}}">
+          <b><a id="{{idName}}" href="{{item.prefixedAnchorHref}}" on-click="{{rerouteLink}}">
           {{item.decoratedName}}</a></b><dartdoc-parameter parameters="{{item.parameters}}">
           </dartdoc-parameter>
         </span>
@@ -5749,7 +5749,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       </div>
 
       <p class="panel-title">typedef
-        <a href="{{prefixedLocation}}">{{item.type.simpleType}}</a>
+        <a href="{{prefixedLocationWhenPossible(item.type.location)}}" on-click="{{rerouteLink}}">{{item.type.simpleType}}</a>
         {{item.name}}
         <dartdoc-parameter parameters="{{item.parameters}}"></dartdoc-parameter>
       </p>
@@ -5796,11 +5796,11 @@ You can replace platform.js and polymer.html with different versions if desired.
   <template>
     <template if="{{itemsToShow.isNotEmpty}}">
       <li>
-        <a id="{{camelCaseName}}" href="{{categoryLink}}">{{category.name}}</a>
+        <a id="{{camelCaseName}}" on-click="{{rerouteLink}}" href="{{categoryLink}}">{{category.name}}</a>
       </li>
       <ul class="minimap-sublist collapse in">
         <template repeat="{{itemsToShow}}">
-          <li><a href="{{prefixedAnchorHref}}">{{decoratedName}}</a></li>
+          <li><a href="{{prefixedAnchorHref}}" on-click="{{rerouteLink}}">{{decoratedName}}</a></li>
         </template>
       </ul>
     </template>
@@ -5951,13 +5951,13 @@ You can replace platform.js and polymer.html with different versions if desired.
         <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenu" on-click="{{selectDropDownItem}}">
           <template if="{{results.isEmpty}}">
             <li class="search-result disabled">
-              <a tabindex="-1" href="#">No Results.</a>
+              <a tabindex="-1" href="" on-click="{{rerouteLink}}">No Results.</a>
             </li>
           </template>
           <template repeat="{{results}}">
             <!-- A tabIndex of 0 allows for tab navigation through results -->
             <li tabindex="0" class="search-result">
-              <a is="search-result" item="{{}}" id="search{{position}}" data-ref-id="{{url}}">
+              <a is="search-result" on-click="{{rerouteLink}}" item="{{}}" id="search{{position}}" data-ref-id="{{url}}">
               </a>
             </li>
           </template>
@@ -5974,7 +5974,7 @@ You can replace platform.js and polymer.html with different versions if desired.
 <polymer-element name="dartdoc-minimap-library">
   <template>
     <div class="well well-sm nav affix-right" id="minimap">
-      <a href="{{item.prefixedLinkHref}}">{{item.decoratedName}}</a>
+      <a href="{{item.prefixedLinkHref}}" on-click="{{rerouteLink}}">{{item.decoratedName}}</a>
       <ul>
         <dartdoc-minimap category="{{item.operators}}" item="{{item}}">
         </dartdoc-minimap>
@@ -5997,7 +5997,7 @@ You can replace platform.js and polymer.html with different versions if desired.
 <template>
   <div class="list-group affix-left" id="library-panel">
     <template repeat="{{viewer.libraries}}">
-      <a href="{{prefixedLinkHref}}" class="list-group-item">
+      <a href="{{prefixedLinkHref}}" class="list-group-item" on-click="{{rerouteLink}}">
           {{decoratedName}}</a>
     </template>
   </div>
@@ -6009,7 +6009,7 @@ You can replace platform.js and polymer.html with different versions if desired.
 <polymer-element name="dartdoc-minimap-class">
   <template>
     <div class="well well-sm nav affix-right" id="minimap">
-      <a href="{{item.anchorHref}}">{{item.decoratedName}}</a>
+      <a href="{{item.anchorHref}}" on-click="{{rerouteLink}}">{{item.decoratedName}}</a>
       <ul>
         <dartdoc-minimap category="{{item.constructors}}" item="{{item}}">
         </dartdoc-minimap>
@@ -6041,12 +6041,11 @@ You can replace platform.js and polymer.html with different versions if desired.
   <template>
     <ul class="nav navbar-nav">
       <template repeat="{{breadcrumbs}}">
-        <li><a class="btn-link" href="{{prefixedLinkHref}}">
-          {{decoratedName}}</a></li>
+        <li><a class="btn-link" on-click="{{rerouteLink}}" href="{{prefixedLinkHref}}">{{breadcrumbName}}</a></li>
       </template>
       <template if="{{lastCrumb}}">
         <li class="active">
-          <a class="btn-link">{{lastCrumb.decoratedName}}</a>
+          <a class="btn-link">{{lastCrumb.breadcrumbName}}</a>
         </li>
       </template>
     </ul>
@@ -6065,8 +6064,8 @@ You can replace platform.js and polymer.html with different versions if desired.
         </button>
 
         <a href="http://api.dartlang.org/" class="navbar-brand header-logo"></a>
-        <a href="#home" class="navbar-brand btn-link">
-          Dart API Reference
+        <a href="{{homePage}}" on-click="{{rerouteLink}}" class="navbar-brand btn-link">
+          API Reference
         </a>
         <div class="collapse in" id="nav-collapse-content">
           <dartdoc-breadcrumbs id="navbar" on-update="{{collapseSearchAndOptionsIfNeeded}}">
@@ -6120,15 +6119,23 @@ You can replace platform.js and polymer.html with different versions if desired.
         <dartdoc-minimap-class item="{{viewer.currentPage}}">
         </dartdoc-minimap-class>
       </template>
-      <template if="{{showVersion}}">
-        <div>Version {{version}}</div>
+      <template if="{{sdkVersionString}}">
+        <div>with SDK Version {{highLevelSdkVersion}}</div>
       </template>
     </div>
   </template>
 </polymer-element>
 <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/main.dart"></script>
 
+  <!--  Note that you will have to manually edit the polymer output to
+  put this script ahead of platform.js right now. -->
+  <script>window.Platform = window.Platform || {};
+      Platform.flags = Platform.flags || {};
+      Platform.flags.shadow = 'noThankYou';</script>
   <dartdoc-main id="dartdoc-main"></dartdoc-main>
+  <!-- The server-side script insertName.py looks for exactly this string.
+  Don't change it or search indexing will break. -->
+  <p class="nameMarker">Dart API Documentation</p>
   <script src="static/js/prettify.js"></script>
   <script type="application/dart;component=1">
     import 'package:polymer/polymer.dart' show initMethod;

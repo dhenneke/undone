@@ -190,6 +190,8 @@ dart-core.IterableBase.fold method
 dart-core.IterableBase.forEach method
 dart-core.IterableBase.isEmpty getter
 dart-core.IterableBase.isNotEmpty getter
+dart-core.IterableBase.iterableToFullString method
+dart-core.IterableBase.iterableToShortString method
 dart-core.IterableBase.join method
 dart-core.IterableBase.last getter
 dart-core.IterableBase.lastWhere method
@@ -340,6 +342,7 @@ dart-core.Set.removeAll method
 dart-core.Set.removeWhere method
 dart-core.Set.retainAll method
 dart-core.Set.retainWhere method
+dart-core.Set.toSet method
 dart-core.Set.union method
 dart-core.Sink class
 dart-core.Sink.add method
