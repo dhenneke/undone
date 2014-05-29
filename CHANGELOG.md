@@ -1,6 +1,6 @@
 # Undone Changes
 
-## 0.5.0-dev
+## 0.5.0
 
 - Removed the dependency on the `logging` package.  In its place the `Schedule`
 constructor now takes an optional `log` function that is called when logging is
