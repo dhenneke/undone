@@ -3,7 +3,6 @@ library undone;
 
 import 'dart:async';
 import 'dart:collection';
-import 'package:logging/logging.dart';
 
 /// A function to do an operation on an [arg] and return a result.
 /// 
@@ -18,8 +17,6 @@ typedef dynamic Undo<A, R>(A arg, R result);
 // Enable with the command line option `-Dlog_undone=true`
 const bool _isLoggingEnabled = const bool.fromEnvironment("log_undone", 
     defaultValue: false);
-
-final Logger _logger = new Logger('undone');
 
 /// The isolate's top-level [Schedule].
 final Schedule schedule = new Schedule();
@@ -299,6 +296,9 @@ class Schedule {
     STATE_ERROR
   ];
   
+  // Called with one argument of type `String` if `_isLoggingEnabled`.
+  final Function _logger;
+  
   // Actions that are called while this schedule is busy are pending to be done.
   final _pending = new List<Action>();
   
@@ -366,7 +366,7 @@ class Schedule {
     _err = e;
     _stackTrace = stackTrace;
     _state = STATE_ERROR;    
-    _logError(e, stackTrace);
+    _log(e.toString());
   }
   
   String _currState = STATE_IDLE;
@@ -376,7 +376,7 @@ class Schedule {
     set _state(String nextState) {
       if (nextState != _currState && _currState != STATE_ERROR) {
         _currState = nextState;
-        _logFine('--- enter state ---');
+        _log('--- enter state ---');
         if (_states.hasListener) _states.add(_currState);
       }
     }
@@ -393,9 +393,16 @@ class Schedule {
   /// When a [history] list is given a [nextUndo] index may also be given to
   /// specify the initial index for undo and redo.  If not given the [nextUndo]
   /// index will be set to one less than the length of the history list.
-  Schedule([List<Action> history, int nextUndo])
-  : _history = history == null ? new List<Action>() : history {
+  /// 
+  /// An optional [log] function may be provided to receive logging output.  If
+  /// given this function is called when the program is compiled or run with
+  /// the command-line option `-Dlog_undone=true`.  The default log function is
+  /// `print` from `dart:core`.
+  Schedule({List<Action> history, int nextUndo, void log(String): print})  
+  : _history = history == null ? new List<Action>() : history
+  , _logger = log {
     _nextUndo = nextUndo == null ? _history.length - 1 : nextUndo;
+    assert(_nextUndo < _history.length);
   }
   
   /// Schedule the given [action] to be called.  
@@ -410,7 +417,7 @@ class Schedule {
     assert(!_history.contains(action));
     assert(!_pending.contains(action));
     if (isBusy) {
-      _logFine('defer $action');
+      _log('defer $action');
       _pending.add(action);
       return action._defer();
     }
@@ -422,7 +429,7 @@ class Schedule {
   /// `true` if the operation succeeds or `false` if it does not succeed.
   bool clear() {
     if (!canClear) return false;
-    _logFine('clear');
+    _log('clear');
     _history.clear();
     _pending.clear();
     _nextUndo = -1;
@@ -443,13 +450,13 @@ class Schedule {
       if (_nextUndo >= 0) _history.removeRange(_nextUndo, _history.length - 1);
       _history.add(action);        
       _nextUndo++;
-      _logFine('execute undoable $action [$_nextUndo]');
+      _log('execute undoable $action [$_nextUndo]');
     } else {
-      _logFine('execute non-undoable $action');
+      _log('execute non-undoable $action');
     }
     action._execute()
       .then((result) {
-        _logFine('$action complete w/ $result');
+        _log('$action complete w/ $result');
         action._result = result;
         // Flush any pending action calls that were deferred as we did this 
         // action.  Also flush if we see STATE_ERROR, to ensure that pending
@@ -483,16 +490,16 @@ class Schedule {
     // may be added to _pending while we are iterating.
     final _flushing = _pending.toList();
     _pending.clear();
-    _logFine('flushing ${_flushing.length} actions');
+    _log('flushing ${_flushing.length} actions');
     return Future
       .forEach(_flushing, _do) 
       .then((_) {
         // If we get new _pending actions during flush we want to flush again.
         if (!_pending.isEmpty) {
-          _logFine('new actions pending - flushing again');
+          _log('new actions pending - flushing again');
           return _flush();
         } else {
-          _logFine('flush complete');
+          _log('flush complete');
           _state = STATE_IDLE;
         }
       })
@@ -500,17 +507,6 @@ class Schedule {
       // also receive it here in order to transition to the error state.
       .catchError(_error);
   }
-      
-  void _log(Level level, String message, [error, stackTrace]) {
-    if (_isLoggingEnabled) {
-      _logger.log(level, '[$_state]: $message', error, stackTrace);
-    }
-  }
-  
-  void _logFine(String message) => _log(Level.FINE, message);
-  
-  void _logError(error, [stackTrace]) => 
-      _log(Level.SEVERE, Error.safeToString(error), error, stackTrace);
   
   /// Redo the next action to be redone in this schedule, if any.
   /// 
@@ -518,15 +514,15 @@ class Schedule {
   Future<bool> redo() { 
     final completer = new Completer<bool>();
     if (!_canRedo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-      _logFine('can not redo');
+      _log('can not redo');
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_REDO;
       final action = _history[++_nextUndo];
-      _logFine('execute $action [$_nextUndo]');
+      _log('execute $action [$_nextUndo]');
       action._execute()
         .then((result) {
-          _logFine('$action execute complete w/ $result');
+          _log('$action execute complete w/ $result');
           action._result = result;
           // Don't flush if we are in STATE_TO, it will flush when it is done.
           if (_state == STATE_REDO) completer.future.whenComplete(_flush);
@@ -604,16 +600,16 @@ class Schedule {
   Future<bool> undo() { 
     final completer = new Completer<bool>();
     if (!_canUndo || !(_state == STATE_TO || _state == STATE_IDLE)) {
-      _logFine('can not undo');
+      _log('can not undo');
       completer.complete(false);
     } else {
       if (_state == STATE_IDLE) _state = STATE_UNDO;      
       final action = _history[_nextUndo];
-      _logFine('unexecute $action [$_nextUndo]');
+      _log('unexecute $action [$_nextUndo]');
       _nextUndo--;
       action._unexecute()
         .then((_) {
-          _logFine('$action unexecute complete');
+          _log('$action unexecute complete');
           // Don't flush if we are in STATE_TO, it will flush when it is done.
           if (_state == STATE_UNDO) completer.future.whenComplete(_flush);
           // Complete before we flush pending and transition to idle.
@@ -641,5 +637,11 @@ class Schedule {
       return new Future.value(_state);  
     }
     return states.firstWhere((s) => s == state);
+  }
+  
+  void _log(String message) {
+    if (_isLoggingEnabled && _logger != null) {
+      _logger('[$_state]: $message');
+    }
   }
 }

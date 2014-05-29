@@ -1,6 +1,12 @@
 # Undone Changes
 
-## 0.4.3-dev
+## 0.5.0-dev
+
+- Removed the dependency on the `logging` package.  In its place the `Schedule`
+constructor now takes an optional `log` function that is called when logging is
+enabled using the command line option `-Dlog_undone=true`; the default `log`
+function is `print` from `dart:core`.  This change was made to delegate the 
+choice of logging utility to the user.
 
 ## 0.4.2
 

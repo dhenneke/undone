@@ -4,17 +4,10 @@ library undone.test;
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:bench/bench.dart';
-import 'package:logging/logging.dart';
 import 'package:undone/undone.dart';
 import 'package:unittest/unittest.dart';
 
-void main() {
-  Logger.root.level = Level.ALL;
-  Logger.root.onRecord
-    .where((record) => record.loggerName == 'undone')
-    .listen((record) => print('${record.message}'));  
-  reflectTests();
-}
+void main() => reflectTests();
 
 // -----------------------------------------------------------------------------
 // Setup
@@ -69,7 +62,7 @@ void testScheduleInitialState() {
 void testScheduleConstructorWithHistory() {
   var action = new Action(7, (x) => x + 1, (x, y) => x = y);
   var history = [action];
-  var schedule = new Schedule(history);  
+  var schedule = new Schedule(history: history);  
   expect(schedule.isBusy, isFalse);
   expect(schedule.isIdle, isTrue);
   expect(schedule.canClear, isTrue);
@@ -215,7 +208,7 @@ void testScheduleHasErrorActionThrows() {
 void testScheduleUserProvidedHistory() {
   var action = new Action(14, (x) => x + 1, (x, y) => x - 1);
   var history = [];
-  var schedule = new Schedule(history);
+  var schedule = new Schedule(history: history);
   schedule(action).then(expectAsync((result) {
     expect(result, equals(15));
     expect(history.length, equals(1));
