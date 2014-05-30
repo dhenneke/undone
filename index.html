@@ -18,6 +18,7 @@
   
   
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dart API Reference</title>
 </head>
@@ -5552,14 +5553,14 @@ You can replace platform.js and polymer.html with different versions if desired.
 
 
 <polymer-element name="dartdoc-comment" extends="div">
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/comment.dart"></script>
+  
 </polymer-element>
 
 <polymer-element name="dartdoc-closure">
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/closure.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-parameter" attributes="parameters">
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/parameters.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-item">
   <template>
@@ -5573,7 +5574,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       </li>
     </ul>
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/item.dart"></script>
+  
 </polymer-element>
 
 
@@ -5581,17 +5582,17 @@ You can replace platform.js and polymer.html with different versions if desired.
 
 
 <polymer-element name="dartdoc-annotation">
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/annotations.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-link">
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/link.dart"></script>
+  
 </polymer-element>
 
 
 
 
 <polymer-element name="dartdoc-type">
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/type.dart"></script>
+  
 </polymer-element>
 <polymer-element name="variable-heading" attributes="item">
   <template>
@@ -5608,7 +5609,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       <b><a id="{{idName}}" on-click="{{rerouteLink}}" href="{{item.prefixedAnchorHref}}">{{name}}</a></b>
     </template>
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/variable-heading.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-variable">
   <template>
@@ -5639,7 +5640,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </dfn></p>
 
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/variable.dart"></script>
+  
 </polymer-element>
 
 
@@ -5730,7 +5731,7 @@ You can replace platform.js and polymer.html with different versions if desired.
   </template>
 </polymer-element>
 
-<script type="application/dart;component=1" src="packages/dartdoc_viewer/components/method.dart"></script>
+
 
 
 
@@ -5759,7 +5760,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     <div is="dartdoc-comment" item="{{item}}"></div>
   </template>
 
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/typedef.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-category" class="accordion-group">
 <template>
@@ -5790,7 +5791,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </div>
   </template>
 </template>
-<script type="application/dart;component=1" src="packages/dartdoc_viewer/components/category.dart"></script>
+
 </polymer-element>
 <polymer-element name="dartdoc-minimap">
   <template>
@@ -5805,7 +5806,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       </ul>
     </template>
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/minimap-element.dart"></script>
+  
 </polymer-element>
 
 
@@ -5830,7 +5831,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </template>
   </template>
 
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/homepage.dart"></script>
+  
 </polymer-element>
 
 
@@ -5872,7 +5873,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </div>
   </template>
 
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/class.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-library" attributes="item">
   <template>
@@ -5895,7 +5896,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </div>
   </template>
 
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/library.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-page">
   <template>
@@ -5929,7 +5930,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </template>
   </template>
 
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/page.dart"></script>
+  
 </polymer-element>
 
 
@@ -5941,7 +5942,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       <li class="text-right text-muted small">{{outerLibrary}}</li>
     </ul>
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/results.dart"></script>
+  
 </polymer-element>
 <polymer-element name="search-box">
   <template>
@@ -5967,8 +5968,7 @@ You can replace platform.js and polymer.html with different versions if desired.
 
   </template>
 </polymer-element>
-<script type="application/dart;component=1" src="packages/dartdoc_viewer/components/search.dart">
-</script>
+
 
 
 <polymer-element name="dartdoc-minimap-library">
@@ -5991,7 +5991,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       </ul>
     </div>
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/minimap-library.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-library-panel">
 <template>
@@ -6002,7 +6002,7 @@ You can replace platform.js and polymer.html with different versions if desired.
     </template>
   </div>
 </template>
-<script type="application/dart;component=1" src="packages/dartdoc_viewer/components/library-panel.dart"></script>
+
 </polymer-element>
 
 
@@ -6026,7 +6026,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       </ul>
     </div>
     </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/minimap-class.dart"></script>
+  
 </polymer-element>
 
 
@@ -6050,7 +6050,7 @@ You can replace platform.js and polymer.html with different versions if desired.
       </template>
     </ul>
   </template>
-  <script type="application/dart;component=1" src="packages/dartdoc_viewer/components/breadcrumbs.dart"></script>
+  
 </polymer-element>
 <polymer-element name="dartdoc-main">
   <template>
@@ -6125,7 +6125,6 @@ You can replace platform.js and polymer.html with different versions if desired.
     </div>
   </template>
 </polymer-element>
-<script type="application/dart;component=1" src="packages/dartdoc_viewer/components/main.dart"></script>
 
   <!--  Note that you will have to manually edit the polymer output to
   put this script ahead of platform.js right now. -->
@@ -6146,4 +6145,4 @@ You can replace platform.js and polymer.html with different versions if desired.
   </script>
   <!-- Google Analytics -->
 
-</body></html>
+<script src="index.html_bootstrap.dart.js"></script></body></html>

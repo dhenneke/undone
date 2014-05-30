@@ -48,6 +48,7 @@ file:///home/ubuntu/dart/dart-sdk/lib/collection/linked_list.dart
 file:///home/ubuntu/dart/dart-sdk/lib/collection/list.dart
 file:///home/ubuntu/dart/dart-sdk/lib/collection/maps.dart
 file:///home/ubuntu/dart/dart-sdk/lib/collection/queue.dart
+file:///home/ubuntu/dart/dart-sdk/lib/collection/set.dart
 file:///home/ubuntu/dart/dart-sdk/lib/collection/splay_tree.dart
 file:///home/ubuntu/dart/dart-sdk/lib/convert/ascii.dart
 file:///home/ubuntu/dart/dart-sdk/lib/convert/byte_conversion.dart
@@ -163,7 +164,7 @@ file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/lazy_load.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/location.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/member.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/read_yaml.dart
+file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/read_json.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/search.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/shared.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/dartdoc_viewer/viewer.dart
@@ -186,12 +187,14 @@ file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/observe/src/path_observer.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/observe/src/to_observable.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/deserialize.dart
+file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/init.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/polymer.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/src/build/utils.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/src/declaration.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/src/instance.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/src/job.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/src/loader.dart
+file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer/src/mirror_loader.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer_expressions/async.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer_expressions/eval.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/polymer_expressions/expression.dart
@@ -219,13 +222,3 @@ file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/template_binding/src/text.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/template_binding/src/text_area_element.dart
 file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/template_binding/template_binding.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/composer.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/constructor.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/deep_equals.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/model.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/parser.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/utils.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/visitor.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/yaml_exception.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/src/yaml_map.dart
-file:///home/ubuntu/src/github.com/rmsmith/undone/dartdoc-viewer/client/out/web/packages/yaml/yaml.dart
