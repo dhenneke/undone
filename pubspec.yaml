@@ -3,7 +3,7 @@ version: 0.5.1-dev
 description: A library for undo and redo.
 author: Ross Smith <dev@futureperfect.info>
 homepage: https://github.com/rmsmith/undone
-documentation: http://futureperfect.info/undone/index.html#undone
+documentation: http://rmsmith.github.com/undone/index.html#undone
 environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:
