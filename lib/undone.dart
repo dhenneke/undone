@@ -376,7 +376,7 @@ class Schedule {
     set _state(String nextState) {
       if (nextState != _currState && _currState != STATE_ERROR) {
         _currState = nextState;
-        _log('--- enter state ---');
+        _log('--- enter $_currState ---');
         if (_states.hasListener) _states.add(_currState);
       }
     }
