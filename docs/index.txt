@@ -597,9 +597,9 @@ undone/undone.Schedule.isBusy getter
 undone/undone.Schedule.isIdle getter
 undone/undone.Schedule.nextRedo getter
 undone/undone.Schedule.nextUndo getter
+undone/undone.Schedule.onStateChange getter
 undone/undone.Schedule.redo method
 undone/undone.Schedule.stackTrace getter
-undone/undone.Schedule.states getter
 undone/undone.Schedule.to method
 undone/undone.Schedule.undo method
 undone/undone.Schedule.wait method
