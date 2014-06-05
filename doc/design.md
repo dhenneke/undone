@@ -122,12 +122,12 @@ document.onKeyUp.listen((e) {
 The `Schedule` type also provides getters for `canUndo` and `canRedo`.  If you 
 are using a data-binding framework, you can use these directly in bindings to 
 enable button controls, etc...  If you don't have data-binding, then this is one 
-scenario when you may want to observe the `states` of a schedule, in order to 
-refresh your controls:
+scenario when you may want to observe the `onStateChange` stream of a schedule, 
+in order to refresh your controls:
 
 ```dart
 // Listen to state changes in the schedule to refresh the ui.
-schedule.states.listen((state) {
+schedule.onStateChange.listen((state) {
   if (state == Schedule.STATE_IDLE) {
     undoButton.disabled = !schedule.canUndo;
     redoButton.disabled = !schedule.canRedo;

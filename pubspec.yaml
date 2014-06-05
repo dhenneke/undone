@@ -1,5 +1,5 @@
 name: undone
-version: 0.5.1-dev
+version: 0.6.0-dev
 description: A library for undo and redo.
 author: Ross Smith <dev@futureperfect.info>
 homepage: https://github.com/rmsmith/undone

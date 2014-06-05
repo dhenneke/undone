@@ -849,7 +849,7 @@ void testActionDuringFlush() {
   });
   
   // Observe the state transition to STATE_FLUSH.
-  schedule.states.listen((state) {
+  schedule.onStateChange.listen((state) {
     if (state == Schedule.STATE_IDLE && !wentToFlush) wentToIdle = true;
     if (state == Schedule.STATE_FLUSH) {
       // We expect to only transition to STATE_FLUSH one time.
@@ -1009,7 +1009,7 @@ void testNoStatesListener() {
       expect(schedule.isBusy, isFalse);
       
       // Now attach a listener.
-      schedule.states.listen((state) {
+      schedule.onStateChange.listen((state) {
         fail('No states should be buffered.');
       });
       
@@ -1024,7 +1024,7 @@ void testPauseStatesListener() {
   var schedule = new Schedule();
   
   // Attach a listener, we expect to see both the CALL and IDLE states.
-  var subscribe = expectTwoEvents(schedule.states);
+  var subscribe = expectTwoEvents(schedule.onStateChange);
   
   // Pause the subscription.
   subscribe.pause();
@@ -1041,8 +1041,8 @@ void testPauseStatesListener() {
 @Test('Test that the states stream is a broadcast stream.')
 void testStatesIsBroadcast() {
   var schedule = new Schedule();
-  schedule.states.listen((state) { /* noop */ });
-  schedule.states.listen((state) { /* noop */ });
+  schedule.onStateChange.listen((state) { /* noop */ });
+  schedule.onStateChange.listen((state) { /* noop */ });
 }
 
 @Test('Test that calling wait w/ an invalid state asserts.')

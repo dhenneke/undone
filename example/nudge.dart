@@ -91,7 +91,7 @@ main() {
   redoButton.onClick.listen((e) => redo());
   
   // Listen to state changes in the schedule to refresh the ui.
-  schedule.states.listen((state) {
+  schedule.onStateChange.listen((state) {
     if (state == Schedule.STATE_IDLE) {
       undoButton.disabled = !schedule.canUndo;
       redoButton.disabled = !schedule.canRedo;

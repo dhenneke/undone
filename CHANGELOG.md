@@ -1,6 +1,8 @@
 # Undone Changes
 
-## 0.5.1-dev
+## 0.6.0-dev
+
+- Renamed the `states` stream to `onStateChange` in the `Schedule` class.
 
 ## 0.5.0
 

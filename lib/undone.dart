@@ -259,9 +259,9 @@ class Transaction extends Action {
 /// when the schedule [isBusy].  This ensures that all queued actions are called 
 /// and the schedule reaches an idle state before the history may be modified.  
 /// 
-/// Each schedule is a state machine, and its [states] are observable as a 
-/// stream; this provides a convenient means to connect a user interface to the 
-/// history control methods.
+/// Each schedule is a state machine, and its states are observable as a stream;
+/// this provides a convenient means to connect a user interface to the history 
+/// control methods.
 class Schedule {
   
   /// A schedule is idle (not busy).
@@ -377,13 +377,13 @@ class Schedule {
       if (nextState != _currState && _currState != STATE_ERROR) {
         _currState = nextState;
         _log('--- enter $_currState ---');
-        if (_states.hasListener) _states.add(_currState);
+        if (_onStateChange.hasListener) _onStateChange.add(_currState);
       }
     }
     
-  final _states = new StreamController<String>.broadcast();
+  final _onStateChange = new StreamController<String>.broadcast();
   /// An observable stream of this schedule's state transitions.
-  Stream<String> get states => _states.stream;
+  Stream<String> get onStateChange => _onStateChange.stream;
   
   /// Creates a new schedule.
   /// 
@@ -436,7 +436,7 @@ class Schedule {
     // Force the state back to STATE_IDLE even if we were in STATE_ERROR.
     if (_currState != STATE_IDLE) {
       _currState = STATE_IDLE;
-      if (_states.hasListener) _states.add(_currState);
+      if (_onStateChange.hasListener) _onStateChange.add(_currState);
     }
     _err = null;
     _stackTrace = null;
@@ -636,7 +636,7 @@ class Schedule {
     if (_state == state) {
       return new Future.value(_state);  
     }
-    return states.firstWhere((s) => s == state);
+    return onStateChange.firstWhere((s) => s == state);
   }
   
   void _log(String message) {
