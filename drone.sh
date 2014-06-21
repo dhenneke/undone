@@ -10,9 +10,12 @@ dart --checked test/undone_test.dart
 pub build example
 
 # Push to gh-pages
+rm -r packages/
+mkdir packages
 git checkout gh-pages
 cd build/example/
 rsync -rv --exclude=packages . ../..
+rsync -rv --exclude=*.dart ../packages ../..
 cd ../../
 git add -A
 git diff-index --quiet HEAD || git commit -m"auto commit from drone"
