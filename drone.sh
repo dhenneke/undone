@@ -14,8 +14,7 @@ rm -r packages/
 mkdir packages
 git checkout gh-pages
 cd build/example/
-rsync -rv --exclude=packages . ../..
-rsync -rv --exclude=*.dart ../packages ../..
+rsync -rv --exclude=*.dart . ../..
 cd ../../
 git add -A
 git diff-index --quiet HEAD || git commit -m"auto commit from drone"
