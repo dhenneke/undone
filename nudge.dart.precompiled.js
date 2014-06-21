@@ -146,6 +146,7 @@ var n=r[3]
 var m=r[4]
 var l=!!r[5]
 var k=m&&m["^"]
+if(k instanceof Array)k=k[0]
 var j=[]
 var i=[]
 processStatics(m)
