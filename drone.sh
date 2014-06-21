@@ -10,6 +10,7 @@ dart --checked test/undone_test.dart
 pub build example
 
 # Push to gh-pages
+git checkout gh-pages
 cd build/example/
 rsync -rv --exclude=packages . ../..
 cd ../../
