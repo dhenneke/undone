@@ -9,15 +9,7 @@ dart --checked test/undone_test.dart
 # Compile the examples to javascript
 pub build example
 
-# Generate API docs and push to gh-pages
-docgen --compile --package-root packages --no-include-sdk --no-include-dependent-packages lib/undone.dart
-rm -r packages/
-mkdir packages
-git checkout gh-pages
-cd dartdoc-viewer/client/out/web/
-rsync -rv --exclude=packages . ../../../..
-rsync -rv --exclude=*.dart ../packages ../../../..
-cd ../../../../
+# Push to gh-pages
 cd build/example/
 rsync -rv --exclude=packages . ../..
 cd ../../
