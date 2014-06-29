@@ -1,6 +1,9 @@
 # Undone Changes
 
-## 0.6.1-dev
+## 0.6.1
+
+- Removed API docgen to allow `pub.dartlang.org` to automatically link to the
+correct API docs for each version at `dartdocs.org`.
 
 ## 0.6.0
 
