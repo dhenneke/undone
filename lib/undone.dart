@@ -398,7 +398,7 @@ class Schedule {
   /// given this function is called when the program is compiled or run with
   /// the command-line option `-Dlog_undone=true`.  The default log function is
   /// `print` from `dart:core`.
-  Schedule({List<Action> history, int nextUndo, void log(String): print})  
+  Schedule({List<Action> history, int nextUndo, void log(String msg): print})  
   : _history = history == null ? new List<Action>() : history
   , _logger = log {
     _nextUndo = nextUndo == null ? _history.length - 1 : nextUndo;
