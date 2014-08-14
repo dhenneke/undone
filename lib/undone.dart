@@ -447,7 +447,7 @@ class Schedule {
     final completer = new Completer();
     if (action.canUndo) {
       // Truncate the end of list (redo actions) when adding a new action.
-      if (_nextUndo >= 0) _history.removeRange(_nextUndo, _history.length - 1);
+      if (nextRedo >= 0) _history.removeRange(nextRedo, _history.length);
       _history.add(action);        
       _nextUndo++;
       _log('execute undoable $action [$_nextUndo]');
